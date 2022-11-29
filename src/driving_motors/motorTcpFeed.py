@@ -21,23 +21,24 @@ from colorama import Fore
 from colorama import init
 init(autoreset=True) # reset color to default
 
-from scripts.socketDic import socket3
+from scripts.socketDic import socket1
 from scripts.robotDic import robot
 from std_msgs.msg import Float64MultiArray
 
 # Sock configuration
-server_address = (socket3["HOST"], socket3["PORT"])
+server_address = (socket1["HOST"], socket1["PORT"])
 
 # Array setup for writting velocity
-#                             MotorID  READ  SPEED                         
-setup_array = [0x00, 0x00, 0x00, 0x01, 0x04, 0x8A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+#                                   MotorID  READ  SPEED                         
+setup_array = [0x08, 0x00, 0x00, 0x00, 0x01, 0x04, 0x8A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+
 
 idMotors = [0x01, 0x02, 0x03, 0x04]
 
 
 def byteTorpm(byte0, byte1):
     # Transform the bytes received into the motor rpm
-    conc_number = str(format(byte1, '02X')) + str(format(byte0, '02X'))
+    conc_number = byte1 + byte0
     # print(conc_number)
     dec = int(conc_number, 16)
     # print(dec)
@@ -70,9 +71,9 @@ def recv(sock, motorId):
         #print(data_decoded)
         # When splitting the bytes, the result is a string
         # Check that it is the velocity feedback
-        if int(data_decoded.split("-")[0]) == 138 and True:
-            byte0 = data_decoded.split("-")[1]
-            byte1 = data_decoded.split("-")[2]
+        if int(data_decoded.split("-")[5], 16) == 138 and True:
+            byte0 = data_decoded.split("-")[6]
+            byte1 = data_decoded.split("-")[7]
             return [byte0, byte1]
         
         while True:
@@ -81,9 +82,9 @@ def recv(sock, motorId):
             #print(data_decoded)
             # When splitting the bytes, the result is a string
             # Check that it is the velocity feedback
-            if int(data_decoded.split("-")[0]) == 138 and True:
-                byte0 = data_decoded.split("-")[1]
-                byte1 = data_decoded.split("-")[2]
+            if int(data_decoded.split("-")[5], 16) == 138 and True:
+                byte0 = data_decoded.split("-")[6]
+                byte1 = data_decoded.split("-")[7]
                 return [byte0, byte1]
         
     except:
@@ -100,7 +101,7 @@ def request():
 
     # Motor
     for motors in idMotors:
-        setup_array[3] = motors
+        setup_array[4] = motors
     
         # Send data
         message = bytearray()
@@ -117,8 +118,8 @@ def request():
             # Process data
             motor_rpm.append(byteTorpm(byte0, byte1))
             wheels_rpm.append(rpmTovel(motor_rpm[-1]))
-        else:
-            print("No reply")
+        #else:
+            #print("No reply")
 
     # Form message
     feedback = Float64MultiArray()

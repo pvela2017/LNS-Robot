@@ -39,7 +39,7 @@ from scripts.robotDic import robot
 from std_msgs.msg import Float64MultiArray
 
 
-LIN_VEL_STEP_SIZE = 0.01
+LIN_VEL_STEP_SIZE = 0.1
 STEERING_ANGLE_STEP_SIZE = 1
 
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(driving_motors)
+project(demo)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -65,7 +65,7 @@ generate_messages(DEPENDENCIES std_msgs)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-  LIBRARIES ggm_motors
+  LIBRARIES teleop
   CATKIN_DEPENDS roscpp rospy std_msgs sensor_msgs message_generation message_runtime
 #  DEPENDS system_lib
 )
@@ -134,10 +134,10 @@ DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_tests.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_teleop.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+## Add folders to be run by python noseteleop
+# catkin_add_noseteleop(test)

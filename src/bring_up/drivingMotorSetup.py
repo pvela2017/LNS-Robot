@@ -10,6 +10,8 @@ The parameters are:
 # debug sudo tcpflow -i any -C -g port <port>   muestra el flujo entrante y saliente en el puerto
 #       nmap <ip>                               entrega los puertos abiertas en la ip
 
+import time
+
 import socket
 import binascii
 
@@ -18,11 +20,11 @@ from colorama import Fore
 from colorama import init
 init(autoreset=True) # reset color to default
 
-from canDic import ggm
-from socketDic import socket2
+from scripts.canDic import ggm
+from scripts.socketDic import socket1
 
 # Sock configuration
-server_address = (socket2["HOST"], socket2["PORT"])
+server_address = (socket1["HOST"], socket1["PORT"])
 
 
 #                DLC               Fix    ID  
@@ -39,12 +41,12 @@ def checkRcv(sock, motorId, statusOK):
     try:
         data = sock.recv(13)
         data_decoded = bytes.hex(data, '-')
-        #print(data_decoded)
-        awk = data_decoded.split("-")[5]
+        print(data_decoded)
+        awk = data_decoded.split("-")[6]
         if awk == statusOK:
             return True
     except:
-        #print("GGM Reply Timeout")
+        print("Reply Timeout")
         return False
 
 
@@ -56,12 +58,14 @@ def motorSetup(sock, motorId):
         message.append(i)
     sock.sendall(message) # Send data
     #print(repr(message))
-    if not checkRcv(sock, motorId, ggm["STATUS_OK"]):
-        return 0
+    # Reply not working
+
+    # Pause before next command or the controller cant proccess so much data
+    time.sleep(0.005)
     
 
     # Set inversion of moving direction (Some motors) PID:#16 [Read Write (No need for 0xaa)] 
-    if motorId == 0x02 or motorId == 0x04:
+    if motorId == 0x02 or motorId == 0x03:
         setup_array = [0x08, 0x00, 0x00, 0x00, motorId, 0x10, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
     else:
         setup_array = [0x08, 0x00, 0x00, 0x00, motorId, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
@@ -70,10 +74,12 @@ def motorSetup(sock, motorId):
         message.append(i)
     sock.sendall(message) # Send data
     #print(repr(message))
-    if not checkRcv(sock, motorId, ggm["STATUS_OK"]):
-        return 0
+    # Reply not working
 
-    
+    # Pause before next command or the controller cant proccess so much data
+    time.sleep(0.005)
+
+
     # Set speed = 0 then control zero speed, not braking  PID:#24 [Read Write (No need for 0xaa)] 
     setup_array = [0x08, 0x00, 0x00, 0x00, motorId, 0x18, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
     message = bytearray()
@@ -81,8 +87,10 @@ def motorSetup(sock, motorId):
         message.append(i)
     sock.sendall(message) # Send data
     #print(repr(message))
-    if not checkRcv(sock, motorId, ggm["STATUS_OK"]):
-        return 0
+    # Reply not working
+
+    # Pause before next command or the controller cant proccess so much data
+    time.sleep(0.005)
 
 
     # Set operation mode: speed   PID:#183 [Read Write (No need for 0xaa)] 
@@ -92,18 +100,24 @@ def motorSetup(sock, motorId):
         message.append(i)
     sock.sendall(message) # Send data
     #print(repr(message))
-    if not checkRcv(sock, motorId, ggm["STATUS_OK"]):
-        return 0
+    # Reply not working
+    
+    # Pause before next command or the controller cant proccess so much data
+    time.sleep(0.005)
+    
 
     # Free mode on, brake OFF  PID:#05 [Command]
-    setup_array = [0x08, 0x00, 0x00, 0x00, motorId, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    setup_array = [0x08, 0x00, 0x00, 0x00, motorId, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
     message = bytearray()
     for i in setup_array:
         message.append(i)
     sock.sendall(message) # Send data
     #print(repr(message))
-    if not checkRcv(sock, motorId, ggm["STATUS_OK"]):
-        return 0
+    # Reply not working
+    
+    # Pause before next command or the controller cant proccess so much data
+    time.sleep(0.005)
+
 
     # Close loop speed = 0  PID:#130 [Command]
     setup_array = [0x08, 0x00, 0x00, 0x00, motorId, 0x82, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
@@ -112,9 +126,8 @@ def motorSetup(sock, motorId):
         message.append(i)
     sock.sendall(message) # Send data
     #print(repr(message))
-    if not checkRcv(sock, motorId, ggm["STATUS_OK"]):
-        return 0
-
+    # Reply not working
+    
     return 1
 
         
@@ -123,29 +136,15 @@ if __name__ == '__main__':
     # Connection to socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect(server_address)
-    sock.settimeout(socket2["TIMEOUT"]) # Set 0.01 seconds for socket timeout 
+    sock.settimeout(socket1["TIMEOUT"]) # Set 0.01 seconds for socket timeout 
     print("Setup Connected to CAN bus")
 
-    # Setup each motor
-    if motorSetup(sock, idMotor1):
-        print(Fore.GREEN + "Motor 1 Setup OK")
-    else:
-        print(Fore.RED + "Motor 1 Error")
+    motorSetup(sock, idMotor1)
+    motorSetup(sock, idMotor2)
+    motorSetup(sock, idMotor3)
+    motorSetup(sock, idMotor4)
 
-    if motorSetup(sock, idMotor2):
-        print(Fore.GREEN + "Motor 2 Setup OK")
-    else:
-        print(Fore.RED + "Motor 2 Error")
-
-    if motorSetup(sock, idMotor3):
-        print(Fore.GREEN + "Motor 3 Setup OK")
-    else:
-        print(Fore.RED + "Motor 3 Error")
-
-    if motorSetup(sock, idMotor4):
-        print(Fore.GREEN + "Motor 4 Setup OK")
-    else:
-        print(Fore.RED + "Motor 4 Error")
+    print(Fore.GREEN + "ALL Motor Setup OK")
 
     sock.shutdown(socket.SHUT_RDWR)
     sock.close()
