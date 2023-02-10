@@ -83,18 +83,16 @@ void sub_pub::spinners(void)
 
 void sub_pub::_callback_pidWheel_1(const std_msgs::Float64& value)
 {
-    //ros::NodeHandle np;
-    //ros::Publisher pub = np.advertise<std_msgs::Int64MultiArray>("/socket2/send", 1);
 
-    //                                     MotorID  PID130  b0   b1
-    int setup_array[13] = {0x00, 0x00, 0x00, 0x01, 0x82, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    //                                          MotorID  PID130  b0   b1
+    int setup_array[13] = {0x08, 0x00, 0x00, 0x00, 0x05, 0x82, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     // Get rpm bytes
     int *temp_p;
     temp_p = _rpmTobyte(value.data);
     // Setup array
-    setup_array[5] = temp_p[0];
-    setup_array[6] = temp_p[1];
+    setup_array[6] = temp_p[0];
+    setup_array[7] = temp_p[1];
 
     // Create and publish message
     std_msgs::Int64MultiArray msg;
@@ -108,18 +106,16 @@ void sub_pub::_callback_pidWheel_1(const std_msgs::Float64& value)
 
 void sub_pub::_callback_pidWheel_2(const std_msgs::Float64& value)
 {
-    //ros::NodeHandle np;
-    //ros::Publisher pub = np.advertise<std_msgs::String>("/socket2/send", 1);
 
-    //                                     MotorID  PID130  b0   b1
-    int setup_array[13] = {0x00, 0x00, 0x00, 0x02, 0x82, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    //                                          MotorID  PID130  b0   b1
+    int setup_array[13] = {0x08, 0x00, 0x00, 0x00, 0x06, 0x82, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     // Get rpm bytes
     int *temp_p;
     temp_p = _rpmTobyte(value.data);
     // Setup array
-    setup_array[5] = temp_p[0];
-    setup_array[6] = temp_p[1];
+    setup_array[6] = temp_p[0];
+    setup_array[7] = temp_p[1];
 
     // Create and publish message
     std_msgs::Int64MultiArray msg;
@@ -133,18 +129,16 @@ void sub_pub::_callback_pidWheel_2(const std_msgs::Float64& value)
 
 void sub_pub::_callback_pidWheel_3(const std_msgs::Float64& value)
 {
-    //ros::NodeHandle np;
-    //ros::Publisher pub = np.advertise<std_msgs::String>("/socket2/send", 1);
 
-    //                                     MotorID  PID130  b0   b1
-    int setup_array[13] = {0x00, 0x00, 0x00, 0x03, 0x82, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    //                                          MotorID  PID130  b0   b1
+    int setup_array[13] = {0x08, 0x00, 0x00, 0x00, 0x07, 0x82, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     // Get rpm bytes
     int *temp_p;
     temp_p = _rpmTobyte(value.data);
     // Setup array
-    setup_array[5] = temp_p[0];
-    setup_array[6] = temp_p[1];
+    setup_array[6] = temp_p[0];
+    setup_array[7] = temp_p[1];
 
     // Create and publish message
     std_msgs::Int64MultiArray msg;
@@ -157,18 +151,16 @@ void sub_pub::_callback_pidWheel_3(const std_msgs::Float64& value)
 
 void sub_pub::_callback_pidWheel_4(const std_msgs::Float64& value)
 {
-    //ros::NodeHandle np;
-    //ros::Publisher pub = np.advertise<std_msgs::String>("/socket2/send", 1);
 
-    //                                     MotorID  PID130  b0   b1
-    int setup_array[13] = {0x00, 0x00, 0x00, 0x03, 0x82, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    //                                          MotorID  PID130  b0   b1
+    int setup_array[13] = {0x08, 0x00, 0x00, 0x00, 0x08, 0x82, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     // Get rpm bytes
     int *temp_p;
     temp_p = _rpmTobyte(value.data);
     // Setup array
-    setup_array[5] = temp_p[0];
-    setup_array[6] = temp_p[1];
+    setup_array[6] = temp_p[0];
+    setup_array[7] = temp_p[1];
 
     // Create and publish message
     std_msgs::Int64MultiArray msg;

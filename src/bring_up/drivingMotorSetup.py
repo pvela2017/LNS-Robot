@@ -62,7 +62,23 @@ def motorSetup(sock, motorId):
 
     # Pause before next command or the controller cant proccess so much data
     time.sleep(0.005)
+
+
+    # Set number of poles   PID:#21 [Read Write (No need for 0xaa)] 
+    setup_array = [0x08, 0x00, 0x00, 0x00, motorId, 0x15, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    message = bytearray()
+    for i in setup_array:
+        message.append(i)
+    sock.sendall(message) # Send data
+    #print(repr(message))
+    if not checkRcv(sock, motorId, ggm["STATUS_OK"]):
+        return 0
+    # Pause before next command or the controller cant proccess so much data
+    rospy.sleep(0.05)
     
+
+    # Set encoder CPR   PID:#156 [Read Write (No need for 0xaa)] 
+    # There are no encoders
 
     # Set inversion of moving direction (Some motors) PID:#16 [Read Write (No need for 0xaa)] 
     if motorId == 0x02 or motorId == 0x03:

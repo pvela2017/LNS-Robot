@@ -6,17 +6,13 @@
 """
 Code to read all 4 steering angles
 through TCP-CAN converter
-
 Send: ?0
 Receive: 
-
 Connect to socket 3
-
-node: ggm_feedback
+node: steering_feedback
 Publish: /steeringmotors/feedback 
 Multi array [SA0, SA1, SA2, SA3]
 SA: Steering Angle
-
 by Pablo
 Last review: 2022/09/24
 """
@@ -78,7 +74,7 @@ def request():
     # Connection
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect(server_address)
-    sock.settimeout(0.01) # Set 0.01 seconds for socket timeout 
+    sock.settimeout(socket3["TIMEOUT"]) # Set 0.01 seconds for socket timeout 
 
     wheels_angle = []
 
@@ -144,4 +140,3 @@ if __name__ == '__main__':
         talker()
     except rospy.ROSInterruptException:
         pass
-
