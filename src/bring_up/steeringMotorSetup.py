@@ -41,7 +41,7 @@ def checkRcv(sock, motorId, statusOK):
     try:
         data = sock.recv(13)
         data_decoded = bytes.hex(data, '-')
-        print(data_decoded)
+        #print(data_decoded)
         awk = data_decoded.split("-")[6]
         if awk == statusOK:
             return True
