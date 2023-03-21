@@ -76,18 +76,10 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
- include
- ${catkin_INCLUDE_DIRS}
- include/drivers
-)
+include_directories(include ${catkin_INCLUDE_DIRS} include/drivers)
 
-## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
-
-add_executable(main src/main.cpp)
+add_executable(main src/main.cpp
+include/drivers/driving_motors.cpp)
 add_dependencies(main ${main_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(main ${catkin_LIBRARIES})
 
