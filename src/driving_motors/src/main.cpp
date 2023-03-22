@@ -1,6 +1,42 @@
-
 #include <ros/ros.h>
 #include <driving_motors.hpp>
+
+
+/*
+int rate_alarm = 1;
+int rate_feedback = 20;
+
+
+
+void alarmCB(const ros::TimerEvent& event)
+{
+    motors.alarmMonitor();
+}
+
+
+int main(int argc, char **argv)
+{
+    ros::init(argc, argv, "driving_motors");
+    ros::NodeHandle n;
+
+    DrivingMotors motors(n);
+    motors.connSocket();
+
+
+    while (ros::ok)
+    {
+
+        motors.alarmMonitor();
+        motors.feedback();
+
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
+
+}*/
+
+
+
 
 int main(int argc, char **argv)
 {
@@ -14,14 +50,13 @@ int main(int argc, char **argv)
 
     while (ros::ok)
     {
-        // Check alarms for all the motors
-        for (int i = 1; i < 5; i++)
-        {
-            motors.alarmMonitor(motors.motorID[i]);
-        }
-           
+
+        //motors.alarmMonitor();
+        motors.feedback();
+
         ros::spinOnce();
         loop_rate.sleep();
     }
 
 }
+

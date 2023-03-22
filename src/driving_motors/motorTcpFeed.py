@@ -146,7 +146,7 @@ def talker():
 
     while not rospy.is_shutdown():
         msg = request()
-        print(msg)
+        print(msg.data[1])
         speeds_pub.publish(msg)
         rate.sleep()
 

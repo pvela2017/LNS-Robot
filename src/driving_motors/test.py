@@ -26,13 +26,19 @@ from scripts.robotDic import robot
 from std_msgs.msg import Float64MultiArray
 
 # Sock configuration
-server_address = ("192.168.1.7", socket1["PORT"])
+server_address = ("192.168.0.7", socket1["PORT"])
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect(server_address)
 sock.settimeout(0.01) # Set 0.01 seconds for socket timeout
 
 print("connected")
+
+setup_array = [0x08, 0x00, 0x00, 0x00, 0x02, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+message = bytearray()
+for i in setup_array:
+    message.append(i)
+sock.sendall(message) # Send data
 
 
 
