@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<launch>
+    <!-- IMU  -->
+    <!-- https://bitbucket.org/lpresearch/openzenros/src/master/ -->
+    <node name="robot_imu" pkg="openzen_sensor" type="openzen_sensor_node" respawn="false" output="screen" >
+        <param name="frame_id" type="str" value="imu_link" />
+    </node>
+
+   <!-- GPS  -->
+   <include file="$(find nmea_navsat_driver)/launch/nmea_serial_driver.launch" />
+
+   <!-- Change GPS heading from quaternion to IMU  -->
+   <node name="heading_translator" pkg="ranger_navigation" type="ghm.py" respawn="false" output="screen" />
+
+</launch>
+
+

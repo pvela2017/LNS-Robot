@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<launch>
+   <!-- Gazebo  -->
+   <include file="$(find ranger_gazebo)/launch/empty_world.launch" />
+
+   <!-- ros_control motoman launch file -->
+   <include file="$(find ranger_mini_control)/launch/robot_control.launch"/>
+
+   <!-- Robot localization package  -->
+   <include file="$(find ranger_navigation)/launch/start_navigation_with_gps_ekf_sim.launch" />
+
+   <!-- Robot navigation  -->
+   <include file="$(find ranger_navigation)/launch/move_sim.launch" />
+
+</launch>
+
+

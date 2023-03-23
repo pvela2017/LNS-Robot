@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<launch>
+   <!-- GPS & IMU Sensors  -->
+   <include file="$(find ranger_launch)/launch/nav_sensors.launch" />
+
+   <!-- Ranger package for comunication with the robot  -->
+   <include file="$(find ranger_bringup)/launch/ranger_minimal.launch" />
+
+   <!-- Robot localization package  -->
+   <include file="$(find ranger_navigation)/launch/start_navigation_with_gps_ekf.launch" />
+
+   <!-- Robot navigation  -->
+   <include file="$(find ranger_navigation)/launch/move_real.launch" />
+
+</launch>
+
+
