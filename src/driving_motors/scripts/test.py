@@ -21,12 +21,10 @@ from colorama import Fore
 from colorama import init
 init(autoreset=True) # reset color to default
 
-from scripts.socketDic import socket1
-from scripts.robotDic import robot
 from std_msgs.msg import Float64MultiArray
 
 # Sock configuration
-server_address = ("192.168.0.7", socket1["PORT"])
+server_address = ("192.168.0.7", 20001)
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect(server_address)
