@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<launch>
+
+	<!-- Run the map server -->
+	<node name="map_server" pkg="map_server" type="map_server" args="$(find lns_navigation)/maps/mymap_empty.yaml" />
+
+  	<!-- Run the ekf for map to odom config -->
+  	<node pkg="robot_localization" type="ekf_localization_node" name="ekf_se_map" respawn="true">
+  		<rosparam file="$(find lns_navigation)/config/real/ekf_se_map.yaml" command="load" />
+  		
+  	</node>
+
+	<!-- Transform the GPS latitude and longitude to XY coordinates-->
+  	<node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_node" clear_params="true" respawn="true">
+  		<rosparam file="$(find lns_navigation)/config/real/navsat.yaml" command="load" />		
+    	<remap from="/imu/data" to="/heading_rl" /> <!-- GPS Heading angle instead of IMU-->
+    	<remap from="/gps/fix" to="/fix" />	
+    	<remap from="/odometry/filtered" to="/odometry/filtered" />
+  	</node>
+
+</launch>

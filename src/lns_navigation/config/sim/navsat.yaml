@@ -1,0 +1,30 @@
+# For parameter descriptions, please refer to the template parameter files for each node.
+
+# GPS and IMU Localization
+# 
+# Params from https://github.com/clearpathrobotics/robot_localization/blob/kinetic-devel/params/ekf_template.yaml
+# https://answers.ros.org/question/269631/robot_localization-gps-and-imu-minimal-example-not-working/
+# Tutorial from The Construct https://www.youtube.com/watch?v=nQZeAafDEJE
+# https://github.com/ros-agriculture/tractor_localization/blob/master/params/gps_imu_localization.yaml
+# 
+
+
+
+
+frequency: 30
+delay: 3.0
+# Magnetic declination in radians obtained for Gwangju according to
+# https://answers.ros.org/question/380637/right-value-of-magnetic_declination_radians/
+# https://www.magnetic-declination.com/Korea%20(South)/Gwangju/1412533.html          
+magnetic_declination_radians: 0.0
+yaw_offset: 0
+zero_altitude: true
+
+broadcast_cartesian_transform: true
+broadcast_cartesian_transform_as_parent_frame: false
+publish_filtered_gps: true
+
+
+use_odometry_yaw: false
+wait_for_datum: false
+
