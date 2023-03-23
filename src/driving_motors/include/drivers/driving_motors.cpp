@@ -1,8 +1,47 @@
 /*
-This scripts initialize the 4 steering motors
-The parameters are:
+Class to setup  RPMs of driving motors through TCP-CAN converter,
+check rpm of each motor and speed based on the wheel diameter.
+Also check controller alarm status and can clear the alarms.
+
+Connect to socket 1
+
+node: /driving_motors
+
+Subscribe to: /driving_motors/commands
+              /driving_motors/alarm_monitor/clear_alarm
+
+Publish to: /driving_motors/alarm_monitor/status
+            /driving_motors/feedback/rpm
+            /driving_motors/feedback/speed
+
+by Pablo
+Last review: 2023/03/23
+
+TODO: 
+add multithreading according to
+https://codereview.stackexchange.com/questions/151044/socket-client-in-c-using-threads
+
+TODO:
+Message get mixed, from feedback() function and alarmMonitor() function
+[ WARN] [1679557677.097555829]: Wrong motor alarm reply received 138
+[ WARN] [1679557677.097981996]: Wrong motor rpm reply received
+[ WARN] [1679557678.097529224]: Wrong motor alarm reply received 138
+[ WARN] [1679557678.097844338]: Wrong motor rpm reply received
+
+Also message received order is not always 1,2,3,4 sometimes is random
+
+Possible causes:
+- CAN bus is busy transmitting commands from pc to devices, so then they 
+  replied at the same time messing up the order
+
+- Ethernet CAN module mess up the order. 
+  Unable to debug with logic analyzer cables quality is not good so it cant sample
+
+Workaround:
+ Use only feedback() function
 
 */
+
 
 #include "driving_motors.hpp"
 
@@ -35,8 +74,7 @@ DrivingMotors::DrivingMotors(ros::NodeHandle n)
 
 DrivingMotors::~DrivingMotors()
 {
-    // Close the socket
-    close(client_);
+
 }
 
 
@@ -58,12 +96,17 @@ int DrivingMotors::connSocket()
         return -1;
     }
 
+    // Set the client as non-blocking
+    // On Linux, this command can change only the O_APPEND, O_ASYNC, O_DIRECT, O_NOATIME, and O_NONBLOCK flags.
+    fcntl(client_, F_SETFL, O_NONBLOCK);
+
     // Connect to the server
     status_ = connect(client_, (struct sockaddr *)&serv_addr_, sizeof(serv_addr_));
     while (status_ < 0)
     {
         ROS_ERROR("Socket connection to the server failed");
         status_ = connect(client_, (struct sockaddr *)&serv_addr_, sizeof(serv_addr_));
+        sleep(1);
     }
 
     // Connected
@@ -107,61 +150,9 @@ void DrivingMotors::setSpeed(uint8_t motorID, double rpm)
     DrivingMotors::Parser();
 
     // Send command
-    send(client_, bytes_out_, 13, 0);
+    send(client_, bytes_out_, 13, MSG_DONTWAIT);
 
 }
-
-// TODO: remove after test
-/*
-int DrivingMotors::alarmMonitor(uint8_t motorID)
-{
-    // Clear the buffer
-    DrivingMotors::clearBuffer();
-
-    // Setup Command PID 34
-    buffer_.PID = 0x2B;
-
-    // Setup motor ID
-    buffer_.ID = motorID;
-
-    // Data Marshalling
-    DrivingMotors::Parser();
-
-    // Send command
-    send(client_, bytes_out_, 13, 0);
-
-    // Read reply
-    if (recv(client_, bytes_in_, 13, MSG_DONTWAIT) <= 0) //attempts to read up to count bytes from file descriptor fd into the buffer starting at buf.
-    {
-        ROS_WARN("Cannot read alarms status");
-        return -1;
-    }
-
-    // Checks for fault if == 0  No fault if == 1 faulty
-    if (bytes_in_[6] == 0)
-    {
-        ROS_DEBUG("Status ok");
-        alarm_status_.data = 0;
-        alarm_monitor_.publish(alarm_status_);
-    }
-    else
-    {
-        ROS_FATAL("MOTOR %d faulty", buffer_.ID);
-        for (int i = 7; i < 13; i++) // From byte D2 error according to datasheet
-        {
-            if (bytes_in_[i] == 1)
-            {
-                alarm_status_.data = i;
-                alarm_monitor_.publish(alarm_status_);
-                break;
-            }
-        }
-    }
-
-    return 0;
-}
-*/
-
 
 int DrivingMotors::alarmMonitor()
 {
@@ -172,6 +163,9 @@ int DrivingMotors::alarmMonitor()
     buffer_.PID = 0x04;
     buffer_.D1 = 0x2B;
 
+    // Create vector to store data
+    std::vector<int> vec_alarms (4);
+
     for (int i = 1; i < 5; i++)
     {
         // Setup motor ID
@@ -181,16 +175,16 @@ int DrivingMotors::alarmMonitor()
         DrivingMotors::Parser();
 
         // Send command
-        send(client_, bytes_out_, 13, 0);
+        send(client_, bytes_out_, 13, MSG_DONTWAIT);
 
         // Read reply
-        if (recv(client_, bytes_in_, 13, MSG_DONTWAIT) <= 0) //attempts to read up to count bytes from file descriptor fd into the buffer starting at buf.
+        if (recv(client_, bytes_in_, 13, MSG_WAITALL) <= 0) //attempts to read up to count bytes from file descriptor fd into the buffer starting at buf.
         {
             ROS_WARN("Cannot read alarms status");
         }
 
         // Check message received is correct
-        if (bytes_in_[4] == buffer_.ID && bytes_in_[5] == buffer_.PID)
+        if (bytes_in_[5] == buffer_.D1)
         {
             // Checks for fault if == 0  No fault if == 1 faulty
             if (bytes_in_[6] == 0)
@@ -200,12 +194,14 @@ int DrivingMotors::alarmMonitor()
             }
             else
             {
-                ROS_FATAL("MOTOR %d faulty", buffer_.ID);
+                ROS_FATAL("MOTOR %d faulty", bytes_in_[4]);
                 for (int j = 7; j < 13; j++) // From byte D2  to D7 error according to datasheet
                 {
                     if (bytes_in_[j] == 1)
                     {
-                        alarm_status_.data[i-1] = j;
+                        // bytes_in_[4] is motor ID 1,2,3,4 so we susbtract -1 to start the array from 0
+                        // the postion in the array which motor is faulty. Ex.: vec_alarms[0] -> motor 1
+                        vec_alarms[bytes_in_[4] - 1] = j;
                         break;
                     }
                 }
@@ -219,7 +215,19 @@ int DrivingMotors::alarmMonitor()
         }
     }
 
+    //push data into data blob
+    std::vector<int>::const_iterator itr, end(vec_alarms.end());
+    for(itr = vec_alarms.begin(); itr!= end; ++itr) 
+    {
+        alarm_status_.data.push_back(*itr); 
+    }
+
+    // Publish topics
     alarm_monitor_.publish(alarm_status_);
+
+    //clear stuff
+    vec_alarms.clear();
+    alarm_status_.data.clear();
 
     return 0;
 }
@@ -235,7 +243,7 @@ int DrivingMotors::feedback()
 
     // Create vector to store data
     std::vector<int> vec_rpm (4);
-    std::vector<int> vec_speed (4);
+    std::vector<float> vec_speed (4);
 
     for (int i = 1; i < 5; i++)
     {
@@ -246,10 +254,10 @@ int DrivingMotors::feedback()
         DrivingMotors::Parser();
 
         // Send command
-        send(client_, bytes_out_, 13, 0);
+        send(client_, bytes_out_, 13, MSG_DONTWAIT);
 
         // Read reply
-        if (recv(client_, bytes_in_, 13, MSG_DONTWAIT) <= 0) //attempts to read up to count bytes from file descriptor fd into the buffer starting at buf.
+        if (recv(client_, bytes_in_, 13, MSG_WAITALL) <= 0) //attempts to read up to count bytes from file descriptor fd into the buffer starting at buf.
         {
             ROS_WARN("Cannot read rpm motor %d", this->motorID_[i]);
             return -1;
@@ -257,11 +265,9 @@ int DrivingMotors::feedback()
         // Check message received is correct
         if (bytes_in_[5] == buffer_.D1)
         {
-            ROS_WARN("%d", bytes_in_[4]);
+            // bytes_in_[4] is motor ID 1,2,3,4 so we susbtract -1 to start the array from 0
             vec_rpm[bytes_in_[4] - 1] = DrivingMotors::byteTorpm(bytes_in_[6], bytes_in_[7]);
-            ROS_WARN("Adssad");
-            //vec_speed[bytes_in_[4] - 1] = DrivingMotors::rpmTovel(vec_rpm[bytes_in_[4] - 1]);
-            //speed_.data[bytes_in_[4] - 1] = DrivingMotors::rpmTovel(rpms_.data[i-1]);
+            vec_speed[bytes_in_[4] - 1] = DrivingMotors::rpmTovel(vec_rpm[bytes_in_[4] - 1]);
         }
 
         // Received another message
@@ -279,12 +285,21 @@ int DrivingMotors::feedback()
         rpms_.data.push_back(*itr); 
     }
 
-    //rpm_feedback_.publish(rpms_);
-    //speed_feedback_.publish(speed_);
+    std::vector<float>::const_iterator itr2, end2(vec_speed.end());
+    for(itr2 = vec_speed.begin(); itr2!= end2; ++itr2) 
+    {
+        speed_.data.push_back(*itr2); 
+    }
+
+    // Publish topics
+    rpm_feedback_.publish(rpms_);
+    speed_feedback_.publish(speed_);
 
     //clear stuff
     vec_rpm.clear();
+    rpms_.data.clear();
     vec_speed.clear();
+    speed_.data.clear();
     
     return 0;
 }
@@ -337,7 +352,7 @@ void DrivingMotors::clearAlarmCB(const std_msgs::Int8::ConstPtr& msg)
     DrivingMotors::Parser();
 
     // Send command
-    send(client_, bytes_out_, 13, 0);
+    send(client_, bytes_out_, 13, MSG_DONTWAIT);
     ROS_INFO("MOTOR %d alarms cleared", buffer_.ID);
 }
 
@@ -350,6 +365,17 @@ void DrivingMotors::commandsCB(const std_msgs::Int64MultiArray::ConstPtr& msg)
     }
 }
 
+void DrivingMotors::emergencyStop()
+{
+    // Set motors rpm to 0
+    for (int i = 1; i < 5; i++)
+    {
+        DrivingMotors::setSpeed(this->motorID_[i], 0);
+    }
+
+    // Close the socket
+    close(client_);
+}
 
 void DrivingMotors::Parser()
 {

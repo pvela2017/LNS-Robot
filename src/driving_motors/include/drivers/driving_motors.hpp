@@ -1,8 +1,48 @@
 /*
-This scripts initialize the 4 steering motors
-The parameters are:
+Class to setup  RPMs of driving motors through TCP-CAN converter,
+check rpm of each motor and speed based on the wheel diameter.
+Also check controller alarm status and can clear the alarms.
+
+Connect to socket 1
+
+node: /driving_motors
+
+Subscribe to: /driving_motors/commands
+              /driving_motors/alarm_monitor/clear_alarm
+
+Publish to: /driving_motors/alarm_monitor/status
+            /driving_motors/feedback/rpm
+            /driving_motors/feedback/speed
+
+by Pablo
+Last review: 2023/03/23
+
+TODO: 
+add multithreading according to
+https://codereview.stackexchange.com/questions/151044/socket-client-in-c-using-threads
+
+TODO:
+Message get mixed, from feedback() function and alarmMonitor() function
+[ WARN] [1679557677.097555829]: Wrong motor alarm reply received 138
+[ WARN] [1679557677.097981996]: Wrong motor rpm reply received
+[ WARN] [1679557678.097529224]: Wrong motor alarm reply received 138
+[ WARN] [1679557678.097844338]: Wrong motor rpm reply received
+
+Also message received order is not always 1,2,3,4 sometimes is random
+
+Possible causes:
+- CAN bus is busy transmitting commands from pc to devices, so then they 
+  replied at the same time messing up the order
+
+- Ethernet CAN module mess up the order. 
+  Unable to debug with logic analyzer cables quality is not good so it cant sample
+
+Workaround:
+ Use only feedback() function
 
 */
+
+
 #include <ros/ros.h>
 #include <std_msgs/Int8.h>
 #include <std_msgs/Int64MultiArray.h>
@@ -10,9 +50,11 @@ The parameters are:
 #include <std_msgs/Float64MultiArray.h>
 #include <string.h>
 #include <vector>
+#include <sys/wait.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #define SERVER_IP "192.168.0.7"
 #define PORT 20001
@@ -78,6 +120,7 @@ private:
 public:
 	DrivingMotors(ros::NodeHandle n);
 	~DrivingMotors();
+	void emergencyStop();
 	int connSocket();
 	int alarmMonitor();
 	int feedback();
