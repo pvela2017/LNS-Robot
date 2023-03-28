@@ -1,1 +1,0 @@
-../../parameters/canDic.py

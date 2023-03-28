@@ -1,21 +1,21 @@
 /*
-Class to setup  RPMs of driving motors through TCP-CAN converter,
+Class to setup  RPMs of steering motors through TCP-CAN converter,
 check rpm of each motor and speed based on the wheel diameter.
 Also check controller alarm status and can clear the alarms.
 
-Connect to socket 1
+Connect to socket 2
 
-node: /driving_motors
+node: /steering_motors
 
-Subscribe to: /driving_motors/commands
-              /driving_motors/alarm_monitor/clear_alarm
+Subscribe to: /steering_motors/commands
+              /steering_motors/alarm_monitor/clear_alarm
 
-Publish to: /driving_motors/alarm_monitor/status
-            /driving_motors/feedback/rpm
-            /driving_motors/feedback/speed
+Publish to: /steering_motors/alarm_monitor/status
+            /steering_motors/feedback/rpm
+            /steering_motors/feedback/speed
 
 by Pablo
-Last review: 2023/03/23
+Last review: 2023/03/28
 
 TODO: 
 add multithreading according to
@@ -43,18 +43,30 @@ Workaround:
 */
 
 
-#include "md_motors.hpp"
+#include "steering_motors.hpp"
 
-MdMotors::MdMotors(ros::NodeHandle n)
+SteeringMotors::SteeringMotors(ros::NodeHandle n, ros::NodeHandle n1, ros::NodeHandle n2, ros::NodeHandle n3, ros::NodeHandle n4)
 {
     this->n_ = n;
-    this->alarm_clear_ = this->n_.subscribe("/driving_motors/alarm_monitor/clear_alarm", 1, &MdMotors::clearAlarmCB, this);
-    this->motor_command_ = this->n_.subscribe("/driving_motors/commands", 1, &MdMotors::commandsCB, this);
-    this->alarm_monitor_ = this->n_.advertise<std_msgs::Int8MultiArray>("/driving_motors/alarm_monitor/status", 1);
-    this->rpm_feedback_ = this->n_.advertise<std_msgs::Int64MultiArray>("/driving_motors/feedback/rpm", 1);
-    this->speed_feedback_ = this->n_.advertise<std_msgs::Float64MultiArray>("/driving_motors/feedback/speed", 1);
-    
+    this->n1_ = n1;
+    this->n2_ = n2;
+    this->n3_ = n3;
+    this->n4_ = n4;
 
+    this->alarm_monitor_ = this->n_.advertise<std_msgs::Int8MultiArray>("/steering_motors/alarm_monitor/status", 1);
+    this->rpm_feedback_ = this->n_.advertise<std_msgs::Int64MultiArray>("/steering_motors/feedback/rpm", 1);
+    this->speed_feedback_ = this->n_.advertise<std_msgs::Float64MultiArray>("/steering_motors/feedback/speed", 1);
+    this->alarm_clear_ = this->n_.subscribe("/steering_motors/alarm_monitor/clear_alarm", 1, &SteeringMotors::clearAlarmCB, this); 
+    
+    this->_pidWheel_1 = this->_n1.subscribe("/steering_motors/commands/motor5_control_effort", 1, &SteeringMotors::motor5CB, this);
+    this->_n2.setCallbackQueue(&callback_queue_wheel_2_);
+    this->_pidWheel_2 = this->_n2.subscribe("/steering_motors/commands/motor6_control_effort", 1, &SteeringMotors::motor6CB, this);
+    this->_n3.setCallbackQueue(&callback_queue_wheel_3_);
+    this->_pidWheel_3 = this->_n3.subscribe("/steering_motors/commands/motor7_control_effort", 1, &SteeringMotors::motor7CB, this);
+    this->_n4.setCallbackQueue(&callback_queue_wheel_4_);
+    this->_pidWheel_4 = this->_n4.subscribe("/steering_motors/commands/motor8_control_effort", 1, &SteeringMotors::motor8CB, this) ;
+
+    
 
     // Buffer initialization
     this->buffer_.DLC = 0x08;
@@ -72,13 +84,13 @@ MdMotors::MdMotors(ros::NodeHandle n)
     this->buffer_.D7 = 0x00;
 }
 
-MdMotors::~MdMotors()
+SteeringMotors::~SteeringMotors()
 {
 
 }
 
 
-int MdMotors::connSocket()
+int SteeringMotors::connSocket()
 {
     // Create the socket 
     if ((client_ = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -115,10 +127,10 @@ int MdMotors::connSocket()
 }
 
 
-void MdMotors::setSpeed(uint8_t motorID, double rpm)
+void SteeringMotors::setSpeed(uint8_t motorID, double rpm)
 {
     // Clear the buffer
-    MdMotors::clearBuffer();
+    SteeringMotors::clearBuffer();
 
     // Setup Command PID 130
     buffer_.PID = 0x86;
@@ -147,17 +159,17 @@ void MdMotors::setSpeed(uint8_t motorID, double rpm)
     }
 
     // Data Marshalling
-    MdMotors::Parser();
+    SteeringMotors::Parser();
 
     // Send command
     send(client_, bytes_out_, 13, MSG_DONTWAIT);
 
 }
 
-int MdMotors::alarmMonitor()
+int SteeringMotors::alarmMonitor()
 {
     // Clear the buffer
-    MdMotors::clearBuffer();
+    SteeringMotors::clearBuffer();
 
     // Setup Command PID 34
     buffer_.PID = 0x04;
@@ -172,7 +184,7 @@ int MdMotors::alarmMonitor()
         buffer_.ID = this->motorID_[i];
 
         // Data Marshalling
-        MdMotors::Parser();
+        SteeringMotors::Parser();
 
         // Send command
         send(client_, bytes_out_, 13, MSG_DONTWAIT);
@@ -335,12 +347,11 @@ float MdMotors::rpmTovel(int motor_rpm)
     speed = real_rpm*(2.0*0.4*3.1415)/60.0;  // WHEELS_RADIUS 0.4  
     return speed;
 }
-    
 
-void MdMotors::clearAlarmCB(const std_msgs::Int8::ConstPtr& msg)
+void SteeringMotors::clearAlarmCB(const std_msgs::Int8::ConstPtr& msg)
 {
     // Clear the buffer
-    MdMotors::clearBuffer();
+    SteeringMotors::clearBuffer();
 
     // Setup Command PID 34
     buffer_.PID = 0x0C;
@@ -349,35 +360,77 @@ void MdMotors::clearAlarmCB(const std_msgs::Int8::ConstPtr& msg)
     buffer_.ID = msg->data;
 
     // Data Marshalling
-    MdMotors::Parser();
+    SteeringMotors::Parser();
 
     // Send command
     send(client_, bytes_out_, 13, MSG_DONTWAIT);
     ROS_INFO("MOTOR %d alarms cleared", buffer_.ID);
 }
 
-void MdMotors::commandsCB(const std_msgs::Int64MultiArray::ConstPtr& msg)
+
+void SteeringMotors::motor5CB(const std_msgs::Float64& msg)
 {
-    // Set motors rpm
-    for (int i = 1; i < 5; i++)
-    {
-        MdMotors::setSpeed(this->motorID_[i], msg->data[i-1]);
-    }
+    //Motor 5
+    SteeringMotors::setSpeed(this->motorID_[1], msg->data);
 }
 
-void MdMotors::emergencyStop()
+
+void SteeringMotors::motor6CB(const std_msgs::Float64& msg)
+{
+    //Motor 6
+    SteeringMotors::setSpeed(this->motorID_[2], msg->data);
+}
+
+void SteeringMotors::motor7CB(const std_msgs::Float64& msg)
+{
+    //Motor 7
+    SteeringMotors::setSpeed(this->motorID_[3], msg->data);
+}
+
+void SteeringMotors::motor8CB(const std_msgs::Float64& msg)
+{
+    //Motor 8
+    SteeringMotors::setSpeed(this->motorID_[4], msg->data);
+}
+
+
+void SteeringMotors::emergencyStop()
 {
     // Set motors rpm to 0
     for (int i = 1; i < 5; i++)
     {
-        MdMotors::setSpeed(this->motorID_[i], 0);
+        SteeringMotors::setSpeed(this->motorID_[i], 0);
     }
 
     // Close the socket
     close(client_);
 }
 
-void MdMotors::Parser()
+
+void SteeringMotors::spinners()
+{
+    std::thread spinner_thread_wheel2([&]()
+    {
+        this->spinner_2_.spin(&callback_queue_wheel_2_);
+    });
+
+    std::thread spinner_thread_wheel3([&](){
+        this->spinner_3_.spin(&callback_queue_wheel_3_);
+    });
+
+    std::thread spinner_thread_wheel4([&](){
+        this->spinner_4_.spin(&callback_queue_wheel_4_);
+    });
+
+    ros::spin(); // spin the n1
+
+    // Spin
+    spinner_thread_wheel2.join();
+    spinner_thread_wheel3.join();
+    spinner_thread_wheel4.join();
+}
+
+void SteeringMotors::Parser()
 {
     bytes_out_[0] = buffer_.DLC;
     bytes_out_[1] = buffer_.NC1;
@@ -394,7 +447,7 @@ void MdMotors::Parser()
     bytes_out_[12] = buffer_.D7;
 }
 
-void MdMotors::clearBuffer()
+void SteeringMotors::clearBuffer()
 {
     this->buffer_.DLC = 0x08;
     this->buffer_.NC1 = 0x00;

@@ -1,21 +1,21 @@
 /*
-Class to setup  RPMs of driving motors through TCP-CAN converter,
+Class to setup  RPMs of steering motors through TCP-CAN converter,
 check rpm of each motor and speed based on the wheel diameter.
 Also check controller alarm status and can clear the alarms.
 
-Connect to socket 1
+Connect to socket 2
 
-node: /driving_motors
+node: /steering_motors
 
-Subscribe to: /driving_motors/commands
-              /driving_motors/alarm_monitor/clear_alarm
+Subscribe to: /steering_motors/commands
+              /steering_motors/alarm_monitor/clear_alarm
 
-Publish to: /driving_motors/alarm_monitor/status
-            /driving_motors/feedback/rpm
-            /driving_motors/feedback/speed
+Publish to: /steering_motors/alarm_monitor/status
+            /steering_motors/feedback/rpm
+            /steering_motors/feedback/speed
 
 by Pablo
-Last review: 2023/03/23
+Last review: 2023/03/28
 
 TODO: 
 add multithreading according to
@@ -48,6 +48,8 @@ Workaround:
 #include <std_msgs/Int64MultiArray.h>
 #include <std_msgs/Int8MultiArray.h>
 #include <std_msgs/Float64MultiArray.h>
+#include <ros/callback_queue.h>
+#include <thread>
 #include <string.h>
 #include <vector>
 #include <sys/wait.h>
@@ -57,7 +59,7 @@ Workaround:
 #include <fcntl.h>
 
 #define SERVER_IP "192.168.0.7"
-#define PORT 20001
+#define PORT 20005
 
 struct message
 {
@@ -79,15 +81,30 @@ struct message
 	uint8_t D7;
 };
 
-class MdMotors
+class SteeringMotors
 {
 private:
-	ros::NodeHandle n_;
+	ros::NodeHandle n_, n1_, n2_, n3_, n4;
 	ros::Subscriber alarm_clear_;
-	ros::Subscriber motor_command_;
 	ros::Publisher alarm_monitor_;
 	ros::Publisher rpm_feedback_;
 	ros::Publisher speed_feedback_;
+
+	// PID
+  // Callbacks queues
+  ros::CallbackQueue callback_queue_wheel_2_;
+  ros::CallbackQueue callback_queue_wheel_3_;
+  ros::CallbackQueue callback_queue_wheel_4_;
+  // Subscribers PID
+  ros::Subscriber pidWheel_1_;
+  ros::Subscriber pidWheel_2_;
+  ros::Subscriber pidWheel_3_;
+  ros::Subscriber pidWheel_4_;
+
+  // Spinners
+  ros::SingleThreadedSpinner spinner_2_;
+  ros::SingleThreadedSpinner spinner_3_;
+  ros::SingleThreadedSpinner spinner_4_;
 
 	// Socket variables
 	struct sockaddr_in serv_addr_;
@@ -106,20 +123,23 @@ private:
 	std_msgs::Int8MultiArray alarm_status_;
 	std_msgs::Int64MultiArray rpms_;
 	std_msgs::Float64MultiArray speed_;
-	uint8_t motorID_[5] = {0xFE, 0x01, 0x02, 0x03, 0x04};
+	uint8_t motorID_[5] = {0xFE, 0x05, 0x06, 0x07, 0x08};
 	void setSpeed(uint8_t, double);
 	int byteTorpm(uint8_t, uint8_t);
 	float rpmTovel(int);
 
 	// Callbacks
-	void commandsCB(const std_msgs::Int64MultiArray::ConstPtr&);
 	void clearAlarmCB(const std_msgs::Int8::ConstPtr&);
+	void motor5CB(const std_msgs::Float64&);
+  void motor6CB(const std_msgs::Float64&);
+  void motor7CB(const std_msgs::Float64&);
+  void motor8CB(const std_msgs::Float64&);
 
 	
-
 public:
-	MdMotors(ros::NodeHandle n);
-	~MdMotors();
+	SteeringMotors(ros::NodeHandle, ros::NodeHandle, ros::NodeHandle, ros::NodeHandle, ros::NodeHandle);
+	~SteeringMotors();
+	void spinners();
 	void emergencyStop();
 	int connSocket();
 	int alarmMonitor();

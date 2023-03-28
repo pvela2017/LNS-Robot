@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="Kp" default="5.0" doc="Proportional gain"/>
+  <arg name="Ki" default="0.0" doc="Integrative gain"/>
+  <arg name="Kd" default="0.1" doc="Derivative gain"/>
+  <arg name="upper_limit" default="180" doc="Upper limit"/>
+  <arg name="lower_limit" default="0" doc="Lower limit"/>
+  <arg name="windup_limit" default="10" doc="Windup limit"/>
+  <arg name="max_loop_frequency" default="100.0" doc="Max loop frequency"/>
+  <arg name="min_loop_frequency" default="10.0" doc="Min loop frequency"/>
+
+  <node name="controller" pkg="pid" type="controller" ns="wheel_1_steering_pid" output="screen" >
+    <param name="node_name" value="wheel_1" />
+    <param name="Kp" value="$(arg Kp)" />
+    <param name="Ki" value="$(arg Ki)" />
+    <param name="Kd" value="$(arg Kd)" />
+    <param name="upper_limit" value="$(arg upper_limit)" />
+    <param name="lower_limit" value="$(arg lower_limit)" />
+    <param name="windup_limit" value="$(arg windup_limit)" />
+    <param name="max_loop_frequency" value="$(arg max_loop_frequency)" />
+    <param name="min_loop_frequency" value="$(arg min_loop_frequency)" />
+  </node>
+
+
+  <node name="controller" pkg="pid" type="controller" ns="wheel_2_steering_pid" output="screen" >
+    <param name="node_name" value="wheel_2" />
+    <param name="Kp" value="$(arg Kp)" />
+    <param name="Ki" value="0.0" />
+    <param name="Kd" value="0.1" />
+    <param name="upper_limit" value="$(arg upper_limit)" />
+    <param name="lower_limit" value="$(arg lower_limit)" />
+    <param name="windup_limit" value="$(arg windup_limit)" />
+    <param name="max_loop_frequency" value="$(arg max_loop_frequency)" />
+    <param name="min_loop_frequency" value="$(arg min_loop_frequency)" />
+  </node>
+
+
+  <node name="controller" pkg="pid" type="controller" ns="wheel_3_steering_pid" output="screen" >
+    <param name="node_name" value="wheel_3" />
+    <param name="Kp" value="$(arg Kp)" />
+    <param name="Ki" value="0.0" />
+    <param name="Kd" value="0.1" />
+    <param name="upper_limit" value="$(arg upper_limit)" />
+    <param name="lower_limit" value="$(arg lower_limit)" />
+    <param name="windup_limit" value="$(arg windup_limit)" />
+    <param name="max_loop_frequency" value="$(arg max_loop_frequency)" />
+    <param name="min_loop_frequency" value="$(arg min_loop_frequency)" />
+  </node>
+
+
+  <node name="controller" pkg="pid" type="controller" ns="wheel_4_steering_pid" output="screen" >
+    <param name="node_name" value="wheel_4" />
+    <param name="Kp" value="$(arg Kp)" />
+    <param name="Ki" value="0.0" />
+    <param name="Kd" value="0.1" />
+    <param name="upper_limit" value="$(arg upper_limit)" />
+    <param name="lower_limit" value="$(arg lower_limit)" />
+    <param name="windup_limit" value="$(arg windup_limit)" />
+    <param name="max_loop_frequency" value="$(arg max_loop_frequency)" />
+    <param name="min_loop_frequency" value="$(arg min_loop_frequency)" />
+  </node>
+
+
+    <!--Node for setting the setpoints topics-->
+    <include file="$(find controllers)/launch/remap_node.launch" />
+
+</launch>

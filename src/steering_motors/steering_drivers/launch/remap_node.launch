@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<launch>
+
+    <node name="remap_sp_node" pkg="controllers" type="remap_sp_node.py" respawn="false" output="screen" />
+    <node name="remap_ce_node" pkg="controllers" type="remap_ce_node" respawn="false" output="screen" />
+
+</launch>
