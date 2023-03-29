@@ -10,8 +10,8 @@
   <arg name="max_loop_frequency" default="100.0" doc="Max loop frequency"/>
   <arg name="min_loop_frequency" default="10.0" doc="Min loop frequency"/>
 
-  <node name="controller" pkg="pid" type="controller" ns="wheel_1_steering_pid" output="screen" >
-    <param name="node_name" value="wheel_1" />
+  <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/commands/motor5" output="screen" >
+    <param name="node_name" value="steering_pid_motor5" />
     <param name="Kp" value="$(arg Kp)" />
     <param name="Ki" value="$(arg Ki)" />
     <param name="Kd" value="$(arg Kd)" />
@@ -23,8 +23,8 @@
   </node>
 
 
-  <node name="controller" pkg="pid" type="controller" ns="wheel_2_steering_pid" output="screen" >
-    <param name="node_name" value="wheel_2" />
+  <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/commands/motor6" output="screen" >
+    <param name="node_name" value="steering_pid_motor6" />
     <param name="Kp" value="$(arg Kp)" />
     <param name="Ki" value="0.0" />
     <param name="Kd" value="0.1" />
@@ -36,8 +36,8 @@
   </node>
 
 
-  <node name="controller" pkg="pid" type="controller" ns="wheel_3_steering_pid" output="screen" >
-    <param name="node_name" value="wheel_3" />
+  <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/commands/motor7" output="screen" >
+    <param name="node_name" value="steering_pid_motor7" />
     <param name="Kp" value="$(arg Kp)" />
     <param name="Ki" value="0.0" />
     <param name="Kd" value="0.1" />
@@ -49,8 +49,8 @@
   </node>
 
 
-  <node name="controller" pkg="pid" type="controller" ns="wheel_4_steering_pid" output="screen" >
-    <param name="node_name" value="wheel_4" />
+  <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/commands/motor8" output="screen" >
+    <param name="node_name" value="steering_pid_motor8" />
     <param name="Kp" value="$(arg Kp)" />
     <param name="Ki" value="0.0" />
     <param name="Kd" value="0.1" />
@@ -62,7 +62,7 @@
   </node>
 
 
-    <!--Node for setting the setpoints topics-->
-    <include file="$(find controllers)/launch/remap_node.launch" />
+    <!--Node for setting the feedback topics-->
+    <!--<include file="$(find steering_pid)/launch/remap_node.launch" />-->
 
 </launch>

@@ -26,10 +26,10 @@ Last review: 2023/03/28
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "steering_motors");
-    ros::NodeHandle n;
+    ros::NodeHandle n, n1, n2, n3, n4;
     ros::Rate loop_rate(1);
 
-    SteeringMotors motors(n);
+    SteeringMotors motors(n, n1, n2, n3, n4);
     motors.connSocket();
 
 
@@ -44,7 +44,7 @@ int main(int argc, char **argv)
             motors.emergencyStop();
         }
 
-        motors.spinner();
+        motors.spinners();
         ros::spinOnce();
         loop_rate.sleep();
     }

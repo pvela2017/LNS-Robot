@@ -11,7 +11,7 @@
    <include file="$(find nmea_navsat_driver)/launch/nmea_serial_driver.launch" />
 
    <!-- Change GPS heading from quaternion to IMU  -->
-   <node name="heading_translator" pkg="ranger_navigation" type="ghm.py" respawn="false" output="screen" />
+   <node name="heading_translator" pkg="lns_navigation" type="ghm.py" respawn="false" output="screen" />
 
 </launch>
 

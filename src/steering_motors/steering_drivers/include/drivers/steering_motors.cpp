@@ -55,16 +55,15 @@ SteeringMotors::SteeringMotors(ros::NodeHandle n, ros::NodeHandle n1, ros::NodeH
 
     this->alarm_monitor_ = this->n_.advertise<std_msgs::Int8MultiArray>("/steering_motors/alarm_monitor/status", 1);
     this->rpm_feedback_ = this->n_.advertise<std_msgs::Int64MultiArray>("/steering_motors/feedback/rpm", 1);
-    this->speed_feedback_ = this->n_.advertise<std_msgs::Float64MultiArray>("/steering_motors/feedback/speed", 1);
     this->alarm_clear_ = this->n_.subscribe("/steering_motors/alarm_monitor/clear_alarm", 1, &SteeringMotors::clearAlarmCB, this); 
     
-    this->_pidWheel_1 = this->_n1.subscribe("/steering_motors/commands/motor5_control_effort", 1, &SteeringMotors::motor5CB, this);
-    this->_n2.setCallbackQueue(&callback_queue_wheel_2_);
-    this->_pidWheel_2 = this->_n2.subscribe("/steering_motors/commands/motor6_control_effort", 1, &SteeringMotors::motor6CB, this);
-    this->_n3.setCallbackQueue(&callback_queue_wheel_3_);
-    this->_pidWheel_3 = this->_n3.subscribe("/steering_motors/commands/motor7_control_effort", 1, &SteeringMotors::motor7CB, this);
-    this->_n4.setCallbackQueue(&callback_queue_wheel_4_);
-    this->_pidWheel_4 = this->_n4.subscribe("/steering_motors/commands/motor8_control_effort", 1, &SteeringMotors::motor8CB, this) ;
+    this->pidWheel_1_ = this->n1_.subscribe("/steering_motors/commands/motor5/control_effort", 1, &SteeringMotors::motor5CB, this);
+    this->n2_.setCallbackQueue(&callback_queue_wheel_2_);
+    this->pidWheel_2_ = this->n2_.subscribe("/steering_motors/commands/motor6/control_effort", 1, &SteeringMotors::motor6CB, this);
+    this->n3_.setCallbackQueue(&callback_queue_wheel_3_);
+    this->pidWheel_3_ = this->n3_.subscribe("/steering_motors/commands/motor7/control_effort", 1, &SteeringMotors::motor7CB, this);
+    this->n4_.setCallbackQueue(&callback_queue_wheel_4_);
+    this->pidWheel_4_ = this->n4_.subscribe("/steering_motors/commands/motor8/control_effort", 1, &SteeringMotors::motor8CB, this) ;
 
     
 
@@ -244,10 +243,10 @@ int SteeringMotors::alarmMonitor()
     return 0;
 }
 
-int MdMotors::feedback()
+int SteeringMotors::feedback()
 {
     // Clear the buffer
-    MdMotors::clearBuffer();
+    SteeringMotors::clearBuffer();
 
     // Setup Command PID 138
     buffer_.PID = 0x04;
@@ -255,7 +254,6 @@ int MdMotors::feedback()
 
     // Create vector to store data
     std::vector<int> vec_rpm (4);
-    std::vector<float> vec_speed (4);
 
     for (int i = 1; i < 5; i++)
     {
@@ -263,7 +261,7 @@ int MdMotors::feedback()
         buffer_.ID = this->motorID_[i];
 
         // Data Marshalling
-        MdMotors::Parser();
+        SteeringMotors::Parser();
 
         // Send command
         send(client_, bytes_out_, 13, MSG_DONTWAIT);
@@ -277,9 +275,8 @@ int MdMotors::feedback()
         // Check message received is correct
         if (bytes_in_[5] == buffer_.D1)
         {
-            // bytes_in_[4] is motor ID 1,2,3,4 so we susbtract -1 to start the array from 0
-            vec_rpm[bytes_in_[4] - 1] = MdMotors::byteTorpm(bytes_in_[6], bytes_in_[7]);
-            vec_speed[bytes_in_[4] - 1] = MdMotors::rpmTovel(vec_rpm[bytes_in_[4] - 1]);
+            // bytes_in_[4] is motor ID 5,6,7,8 so we susbtract -5 to start the array from 0
+            vec_rpm[bytes_in_[4] - 5] = SteeringMotors::byteTorpm(bytes_in_[6], bytes_in_[7]);
         }
 
         // Received another message
@@ -297,26 +294,17 @@ int MdMotors::feedback()
         rpms_.data.push_back(*itr); 
     }
 
-    std::vector<float>::const_iterator itr2, end2(vec_speed.end());
-    for(itr2 = vec_speed.begin(); itr2!= end2; ++itr2) 
-    {
-        speed_.data.push_back(*itr2); 
-    }
-
     // Publish topics
     rpm_feedback_.publish(rpms_);
-    speed_feedback_.publish(speed_);
 
     //clear stuff
     vec_rpm.clear();
     rpms_.data.clear();
-    vec_speed.clear();
-    speed_.data.clear();
     
     return 0;
 }
 
-int MdMotors::byteTorpm(uint8_t byte0, uint8_t byte1)
+int SteeringMotors::byteTorpm(uint8_t byte0, uint8_t byte1)
 {
     // Transform the bytes received into the motor rpm
     int motor_rpm, pre_motor_rpm;
@@ -339,14 +327,6 @@ int MdMotors::byteTorpm(uint8_t byte0, uint8_t byte1)
     return motor_rpm;
 }
 
-float MdMotors::rpmTovel(int motor_rpm)
-{
-    // Transform from motor rpm to m/s linear velocity
-    float speed, real_rpm;
-    real_rpm = motor_rpm/50.0; // DRIVING_GEAR_BOX_RATIO 50 
-    speed = real_rpm*(2.0*0.4*3.1415)/60.0;  // WHEELS_RADIUS 0.4  
-    return speed;
-}
 
 void SteeringMotors::clearAlarmCB(const std_msgs::Int8::ConstPtr& msg)
 {
@@ -368,26 +348,26 @@ void SteeringMotors::clearAlarmCB(const std_msgs::Int8::ConstPtr& msg)
 }
 
 
-void SteeringMotors::motor5CB(const std_msgs::Float64& msg)
+void SteeringMotors::motor5CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 5
     SteeringMotors::setSpeed(this->motorID_[1], msg->data);
 }
 
 
-void SteeringMotors::motor6CB(const std_msgs::Float64& msg)
+void SteeringMotors::motor6CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 6
     SteeringMotors::setSpeed(this->motorID_[2], msg->data);
 }
 
-void SteeringMotors::motor7CB(const std_msgs::Float64& msg)
+void SteeringMotors::motor7CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 7
     SteeringMotors::setSpeed(this->motorID_[3], msg->data);
 }
 
-void SteeringMotors::motor8CB(const std_msgs::Float64& msg)
+void SteeringMotors::motor8CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 8
     SteeringMotors::setSpeed(this->motorID_[4], msg->data);

@@ -12,7 +12,6 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   sensor_msgs
-  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -50,7 +49,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(DEPENDENCIES std_msgs)
+#generate_messages(DEPENDENCIES std_msgs)
 
 
 
@@ -65,8 +64,8 @@ generate_messages(DEPENDENCIES std_msgs)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-  LIBRARIES ggm_motors
-  CATKIN_DEPENDS roscpp rospy std_msgs sensor_msgs message_generation message_runtime
+  LIBRARIES driving_motors
+  CATKIN_DEPENDS roscpp rospy std_msgs sensor_msgs
 #  DEPENDS system_lib
 )
 
@@ -78,10 +77,10 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(include ${catkin_INCLUDE_DIRS} include/drivers)
 
-add_executable(main src/main.cpp
+add_executable(driving src/driving.cpp
 include/drivers/driving_motors.cpp)
-add_dependencies(main ${main_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(main ${catkin_LIBRARIES})
+add_dependencies(driving ${driving_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(driving ${catkin_LIBRARIES})
 
 #############
 ## Install ##

@@ -45,6 +45,7 @@ Workaround:
 
 #include <ros/ros.h>
 #include <std_msgs/Int8.h>
+#include <std_msgs/Float64.h>
 #include <std_msgs/Int64MultiArray.h>
 #include <std_msgs/Int8MultiArray.h>
 #include <std_msgs/Float64MultiArray.h>
@@ -84,7 +85,7 @@ struct message
 class SteeringMotors
 {
 private:
-	ros::NodeHandle n_, n1_, n2_, n3_, n4;
+	ros::NodeHandle n_, n1_, n2_, n3_, n4_;
 	ros::Subscriber alarm_clear_;
 	ros::Publisher alarm_monitor_;
 	ros::Publisher rpm_feedback_;
@@ -122,18 +123,16 @@ private:
 	// Internals
 	std_msgs::Int8MultiArray alarm_status_;
 	std_msgs::Int64MultiArray rpms_;
-	std_msgs::Float64MultiArray speed_;
 	uint8_t motorID_[5] = {0xFE, 0x05, 0x06, 0x07, 0x08};
 	void setSpeed(uint8_t, double);
 	int byteTorpm(uint8_t, uint8_t);
-	float rpmTovel(int);
 
 	// Callbacks
 	void clearAlarmCB(const std_msgs::Int8::ConstPtr&);
-	void motor5CB(const std_msgs::Float64&);
-  void motor6CB(const std_msgs::Float64&);
-  void motor7CB(const std_msgs::Float64&);
-  void motor8CB(const std_msgs::Float64&);
+	void motor5CB(const std_msgs::Float64::ConstPtr&);
+  void motor6CB(const std_msgs::Float64::ConstPtr&);
+  void motor7CB(const std_msgs::Float64::ConstPtr&);
+  void motor8CB(const std_msgs::Float64::ConstPtr&);
 
 	
 public:

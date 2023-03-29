@@ -330,9 +330,9 @@ int DrivingMotors::byteTorpm(uint8_t byte0, uint8_t byte1)
 float DrivingMotors::rpmTovel(int motor_rpm)
 {
     // Transform from motor rpm to m/s linear velocity
-    float speed, real_rpm;
-    real_rpm = motor_rpm/50.0; // DRIVING_GEAR_BOX_RATIO 50 
-    speed = real_rpm*(2.0*0.4*3.1415)/60.0;  // WHEELS_RADIUS 0.4  
+    float speed, wheel_rpm;
+    wheel_rpm = motor_rpm/30.0; // DRIVING_GEAR_BOX_RATIO 30 
+    speed = wheel_rpm*(2.0*0.4*3.1415)/60.0;  // WHEELS_RADIUS 0.4  
     return speed;
 }
     
