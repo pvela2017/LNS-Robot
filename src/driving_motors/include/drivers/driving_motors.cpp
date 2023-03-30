@@ -47,6 +47,10 @@ Workaround:
 
 DrivingMotors::DrivingMotors(ros::NodeHandle n)
 {
+    /*
+    Class Inicialization
+    Assign the subscribers and publishers
+    */
     this->n_ = n;
     this->alarm_clear_ = this->n_.subscribe("/driving_motors/alarm_monitor/clear_alarm", 1, &DrivingMotors::clearAlarmCB, this);
     this->motor_command_ = this->n_.subscribe("/driving_motors/commands", 1, &DrivingMotors::commandsCB, this);
@@ -54,8 +58,6 @@ DrivingMotors::DrivingMotors(ros::NodeHandle n)
     this->rpm_feedback_ = this->n_.advertise<std_msgs::Int64MultiArray>("/driving_motors/feedback/rpm", 1);
     this->speed_feedback_ = this->n_.advertise<std_msgs::Float64MultiArray>("/driving_motors/feedback/speed", 1);
     
-
-
     // Buffer initialization
     this->buffer_.DLC = 0x08;
     this->buffer_.NC1 = 0x00;
@@ -80,6 +82,10 @@ DrivingMotors::~DrivingMotors()
 
 int DrivingMotors::connSocket()
 {
+    /*
+    Create and connect the client
+    */
+
     // Create the socket 
     if ((client_ = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
@@ -117,6 +123,11 @@ int DrivingMotors::connSocket()
 
 void DrivingMotors::setSpeed(uint8_t motorID, double rpm)
 {
+    /*
+    Transform rpm to byte and send the speed command
+    TODO: Change the DLC to 3 & test
+    */
+
     // Clear the buffer
     DrivingMotors::clearBuffer();
 
@@ -156,12 +167,27 @@ void DrivingMotors::setSpeed(uint8_t motorID, double rpm)
 
 int DrivingMotors::alarmMonitor()
 {
+    /*
+    Check the controller status.
+    Reply: DATA(BIT0~7)
+    BIT0 : ALARM, (1-> alarm status, 0->normal)
+    BIT1 : CTRL_FAIL, Speed control fail
+    BIT2 : OVER_VOLT, Over voltage
+    BIT3 : OVER_TEMP, Over temperature
+    BIT4 : OVER_LOAD, Overload
+    BIT5 : HALL_FAIL, Hall sensor or encoder fail
+    BIT6 : INV_VEL, Motor speed inversed
+    BIT7 : STALL, motor not moved
+
+    TODO: Change the DLC to 2 & test
+    */
+
     // Clear the buffer
     DrivingMotors::clearBuffer();
 
     // Setup Command PID 34
     buffer_.PID = 0x04;
-    buffer_.D1 = 0x2B;
+    buffer_.D1 = 0x2B; //22??
 
     // Create vector to store data
     std::vector<int> vec_alarms (4);
@@ -234,6 +260,13 @@ int DrivingMotors::alarmMonitor()
 
 int DrivingMotors::feedback()
 {
+    /*
+    Calculates the RPM of the motor and speed of the wheel.
+    Then publish the rpm and speed topics
+
+    TODO: Change the DLC to 2 & test
+    */
+
     // Clear the buffer
     DrivingMotors::clearBuffer();
 
@@ -265,8 +298,19 @@ int DrivingMotors::feedback()
         // Check message received is correct
         if (bytes_in_[5] == buffer_.D1)
         {
-            // bytes_in_[4] is motor ID 1,2,3,4 so we susbtract -1 to start the array from 0
-            vec_rpm[bytes_in_[4] - 1] = DrivingMotors::byteTorpm(bytes_in_[6], bytes_in_[7]);
+            // Motor 2 and 4 
+            // TODO: WHY THESE 2 MOTORS ????? MAKES NO SENSE
+            if (bytes_in_[4] == 2 || bytes_in_[4] == 4)
+            {
+                // bytes_in_[4] is motor ID 1,2,3,4 so we susbtract -1 to start the array from 0
+                vec_rpm[bytes_in_[4] - 1] = -1*DrivingMotors::byteTorpm(bytes_in_[6], bytes_in_[7]);
+            }
+            else
+            {
+                // bytes_in_[4] is motor ID 1,2,3,4 so we susbtract -1 to start the array from 0
+                vec_rpm[bytes_in_[4] - 1] = DrivingMotors::byteTorpm(bytes_in_[6], bytes_in_[7]);
+            }
+            
             vec_speed[bytes_in_[4] - 1] = DrivingMotors::rpmTovel(vec_rpm[bytes_in_[4] - 1]);
         }
 
@@ -306,7 +350,10 @@ int DrivingMotors::feedback()
 
 int DrivingMotors::byteTorpm(uint8_t byte0, uint8_t byte1)
 {
-    // Transform the bytes received into the motor rpm
+    /*
+    Transform the bytes received into the motor rpm
+    */
+
     int motor_rpm, pre_motor_rpm;
     int dec = static_cast<int>(byte1 << 8 | byte0);
 
@@ -329,7 +376,10 @@ int DrivingMotors::byteTorpm(uint8_t byte0, uint8_t byte1)
 
 float DrivingMotors::rpmTovel(int motor_rpm)
 {
-    // Transform from motor rpm to m/s linear velocity
+    /* 
+    Transform from motor rpm to m/s linear velocity
+    */
+
     float speed, wheel_rpm;
     wheel_rpm = motor_rpm/30.0; // DRIVING_GEAR_BOX_RATIO 30 
     speed = wheel_rpm*(2.0*0.4*3.1415)/60.0;  // WHEELS_RADIUS 0.4  
@@ -339,6 +389,11 @@ float DrivingMotors::rpmTovel(int motor_rpm)
 
 void DrivingMotors::clearAlarmCB(const std_msgs::Int8::ConstPtr& msg)
 {
+    /* 
+    Clear the alarm of the motor controller in msg
+    Just 1 motor controller at time
+    */
+
     // Clear the buffer
     DrivingMotors::clearBuffer();
 
@@ -358,7 +413,10 @@ void DrivingMotors::clearAlarmCB(const std_msgs::Int8::ConstPtr& msg)
 
 void DrivingMotors::commandsCB(const std_msgs::Int64MultiArray::ConstPtr& msg)
 {
-    // Set motors rpm
+    /*
+    Set motors rpm
+    */
+
     for (int i = 1; i < 5; i++)
     {
         DrivingMotors::setSpeed(this->motorID_[i], msg->data[i-1]);
@@ -367,7 +425,10 @@ void DrivingMotors::commandsCB(const std_msgs::Int64MultiArray::ConstPtr& msg)
 
 void DrivingMotors::emergencyStop()
 {
-    // Set motors rpm to 0
+    /*
+    Set motors rpm to 0
+    */
+    
     for (int i = 1; i < 5; i++)
     {
         DrivingMotors::setSpeed(this->motorID_[i], 0);
