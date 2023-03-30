@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "driving_motors");
     ros::NodeHandle n;
-    ros::Rate loop_rate(100);
+    ros::Rate loop_rate(30);
 
     DrivingMotors motors(n);
     motors.connSocket();
@@ -41,6 +41,7 @@ int main(int argc, char **argv)
 
         if (ros::isShuttingDown()) 
         {
+            // TODO: WHY THIS DOESNT WORK?
             motors.emergencyStop();
         }
 

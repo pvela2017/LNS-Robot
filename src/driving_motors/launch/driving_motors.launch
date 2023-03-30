@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<launch>
+   <!-- Driving Motors  -->
+   <node pkg="driving_motors" type="driving" name="driving_motors"  output="screen"/>
+   
+</launch>
+
+
