@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<launch>
+   <!-- Bringup Steering Motors  -->
+   <node pkg="lns_bringup" type="steering_setup" name="steering_setup"  output="screen"/>
+
+</launch>
+
+

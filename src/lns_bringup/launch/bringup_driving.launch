@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<launch>
+   <!-- Bringup Driving Motors  -->
+   <node pkg="lns_bringup" type="driving_setup" name="driving_setup"  output="screen"/>
+   
+</launch>
+
+
