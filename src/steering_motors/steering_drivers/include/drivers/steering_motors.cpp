@@ -1,6 +1,6 @@
 /*
 Class to setup  RPMs of steering motors through TCP-CAN converter,
-check rpm of each motor and speed based on the wheel diameter.
+check rpm of each motor.
 Also check controller alarm status and can clear the alarms.
 
 Connect to socket 2
@@ -12,10 +12,9 @@ Subscribe to: /steering_motors/commands
 
 Publish to: /steering_motors/alarm_monitor/status
             /steering_motors/feedback/rpm
-            /steering_motors/feedback/speed
 
 by Pablo
-Last review: 2023/03/28
+Last review: 2023/03/30
 
 TODO: 
 add multithreading according to
@@ -47,6 +46,12 @@ Workaround:
 
 SteeringMotors::SteeringMotors(ros::NodeHandle n, ros::NodeHandle n1, ros::NodeHandle n2, ros::NodeHandle n3, ros::NodeHandle n4)
 {
+    /*
+    Class Inicialization
+    Assign the subscribers and publishers
+    Assign Nodehandlers for the multithread queue & callbacks
+    */
+
     this->n_ = n;
     this->n1_ = n1;
     this->n2_ = n2;
@@ -66,7 +71,6 @@ SteeringMotors::SteeringMotors(ros::NodeHandle n, ros::NodeHandle n1, ros::NodeH
     this->pidWheel_4_ = this->n4_.subscribe("/steering_motors/commands/motor8/control_effort", 1, &SteeringMotors::motor8CB, this) ;
 
     
-
     // Buffer initialization
     this->buffer_.DLC = 0x08;
     this->buffer_.NC1 = 0x00;
@@ -91,6 +95,10 @@ SteeringMotors::~SteeringMotors()
 
 int SteeringMotors::connSocket()
 {
+    /*
+    Create and connect the client
+    */
+
     // Create the socket 
     if ((client_ = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
@@ -128,6 +136,11 @@ int SteeringMotors::connSocket()
 
 void SteeringMotors::setSpeed(uint8_t motorID, double rpm)
 {
+    /*
+    Transform rpm to byte and send the speed command
+    TODO: Change the DLC to 3 & test
+    */
+
     // Clear the buffer
     SteeringMotors::clearBuffer();
 
@@ -167,12 +180,27 @@ void SteeringMotors::setSpeed(uint8_t motorID, double rpm)
 
 int SteeringMotors::alarmMonitor()
 {
+    /*
+    Check the controller status.
+    Reply: DATA(BIT0~7)
+    BIT0 : ALARM, (1-> alarm status, 0->normal)
+    BIT1 : CTRL_FAIL, Speed control fail
+    BIT2 : OVER_VOLT, Over voltage
+    BIT3 : OVER_TEMP, Over temperature
+    BIT4 : OVER_LOAD, Overload
+    BIT5 : HALL_FAIL, Hall sensor or encoder fail
+    BIT6 : INV_VEL, Motor speed inversed
+    BIT7 : STALL, motor not moved
+
+    TODO: Change the DLC to 2 & test
+    */
+
     // Clear the buffer
     SteeringMotors::clearBuffer();
 
     // Setup Command PID 34
     buffer_.PID = 0x04;
-    buffer_.D1 = 0x2B;
+    buffer_.D1 = 0x2B; //22??
 
     // Create vector to store data
     std::vector<int> vec_alarms (4);
@@ -245,6 +273,13 @@ int SteeringMotors::alarmMonitor()
 
 int SteeringMotors::feedback()
 {
+    /*
+    Calculates the RPM of the motor.
+    Then publish the rpm topic
+
+    TODO: Change the DLC to 2 & test
+    */
+
     // Clear the buffer
     SteeringMotors::clearBuffer();
 
@@ -306,7 +341,10 @@ int SteeringMotors::feedback()
 
 int SteeringMotors::byteTorpm(uint8_t byte0, uint8_t byte1)
 {
-    // Transform the bytes received into the motor rpm
+    /*
+    Transform the bytes received into the motor rpm
+    */
+
     int motor_rpm, pre_motor_rpm;
     int dec = static_cast<int>(byte1 << 8 | byte0);
 
@@ -330,10 +368,15 @@ int SteeringMotors::byteTorpm(uint8_t byte0, uint8_t byte1)
 
 void SteeringMotors::clearAlarmCB(const std_msgs::Int8::ConstPtr& msg)
 {
+    /* 
+    Clear the alarm of the motor controller in msg
+    Just 1 motor controller at time
+    */
+
     // Clear the buffer
     SteeringMotors::clearBuffer();
 
-    // Setup Command PID 34
+    // Setup Command PID 12
     buffer_.PID = 0x0C;
 
     // Setup motor ID
@@ -376,7 +419,10 @@ void SteeringMotors::motor8CB(const std_msgs::Float64::ConstPtr& msg)
 
 void SteeringMotors::emergencyStop()
 {
-    // Set motors rpm to 0
+    /*
+    Set motors rpm to 0
+    */
+
     for (int i = 1; i < 5; i++)
     {
         SteeringMotors::setSpeed(this->motorID_[i], 0);
@@ -389,6 +435,10 @@ void SteeringMotors::emergencyStop()
 
 void SteeringMotors::spinners()
 {
+    /*
+    Create the spinner queue for each callback
+    */
+
     std::thread spinner_thread_wheel2([&]()
     {
         this->spinner_2_.spin(&callback_queue_wheel_2_);

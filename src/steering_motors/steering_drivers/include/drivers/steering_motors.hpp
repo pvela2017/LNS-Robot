@@ -1,6 +1,6 @@
 /*
 Class to setup  RPMs of steering motors through TCP-CAN converter,
-check rpm of each motor and speed based on the wheel diameter.
+check rpm of each motor.
 Also check controller alarm status and can clear the alarms.
 
 Connect to socket 2
@@ -12,10 +12,9 @@ Subscribe to: /steering_motors/commands
 
 Publish to: /steering_motors/alarm_monitor/status
             /steering_motors/feedback/rpm
-            /steering_motors/feedback/speed
 
 by Pablo
-Last review: 2023/03/28
+Last review: 2023/03/30
 
 TODO: 
 add multithreading according to
