@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<launch>
+   <!-- Steering Motors  -->
+   <node pkg="steering_drivers" type="steering" name="steering_motors"  output="screen"/>
+   
+</launch>
+
+
