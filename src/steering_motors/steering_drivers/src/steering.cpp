@@ -1,6 +1,6 @@
 /*
 Class to setup  RPMs of steering motors through TCP-CAN converter,
-check rpm of each motor and speed based on the wheel diameter.
+check rpm of each motor.
 Also check controller alarm status and can clear the alarms.
 
 Connect to socket 2
@@ -12,10 +12,10 @@ Subscribe to: /steering_motors/commands
 
 Publish to: /steering_motors/alarm_monitor/status
             /steering_motors/feedback/rpm
-            /steering_motors/feedback/speed
 
 by Pablo
-Last review: 2023/03/28
+Last review: 2023/03/30
+
 */
 
 
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "steering_motors");
     ros::NodeHandle n, n1, n2, n3, n4;
-    ros::Rate loop_rate(1);
+    ros::Rate loop_rate(30);
 
     SteeringMotors motors(n, n1, n2, n3, n4);
     motors.connSocket();
