@@ -62,13 +62,13 @@ SteeringMotors::SteeringMotors(ros::NodeHandle n, ros::NodeHandle n1, ros::NodeH
     this->rpm_feedback_ = this->n_.advertise<std_msgs::Int64MultiArray>("/steering_motors/feedback/rpm", 1);
     this->alarm_clear_ = this->n_.subscribe("/steering_motors/alarm_monitor/clear_alarm", 1, &SteeringMotors::clearAlarmCB, this); 
     
-    this->pidWheel_1_ = this->n1_.subscribe("/steering_motors/commands/motor5/control_effort", 1, &SteeringMotors::motor5CB, this);
+    this->pidWheel_1_ = this->n1_.subscribe("/steering_motors/pid/motor5/control_effort", 1, &SteeringMotors::motor5CB, this);
     this->n2_.setCallbackQueue(&callback_queue_wheel_2_);
-    this->pidWheel_2_ = this->n2_.subscribe("/steering_motors/commands/motor6/control_effort", 1, &SteeringMotors::motor6CB, this);
+    this->pidWheel_2_ = this->n2_.subscribe("/steering_motors/pid/motor6/control_effort", 1, &SteeringMotors::motor6CB, this);
     this->n3_.setCallbackQueue(&callback_queue_wheel_3_);
-    this->pidWheel_3_ = this->n3_.subscribe("/steering_motors/commands/motor7/control_effort", 1, &SteeringMotors::motor7CB, this);
+    this->pidWheel_3_ = this->n3_.subscribe("/steering_motors/pid/motor7/control_effort", 1, &SteeringMotors::motor7CB, this);
     this->n4_.setCallbackQueue(&callback_queue_wheel_4_);
-    this->pidWheel_4_ = this->n4_.subscribe("/steering_motors/commands/motor8/control_effort", 1, &SteeringMotors::motor8CB, this) ;
+    this->pidWheel_4_ = this->n4_.subscribe("/steering_motors/pid/motor8/control_effort", 1, &SteeringMotors::motor8CB, this) ;
 
     
     // Buffer initialization
