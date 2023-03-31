@@ -10,7 +10,7 @@
   <arg name="max_loop_frequency" default="100.0" doc="Max loop frequency"/>
   <arg name="min_loop_frequency" default="10.0" doc="Min loop frequency"/>
 
-  <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/commands/motor5" output="screen" >
+  <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/pid/motor5" output="screen" >
     <param name="node_name" value="steering_pid_motor5" />
     <param name="Kp" value="$(arg Kp)" />
     <param name="Ki" value="$(arg Ki)" />
@@ -23,7 +23,7 @@
   </node>
 
 
-  <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/commands/motor6" output="screen" >
+  <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/pid/motor6" output="screen" >
     <param name="node_name" value="steering_pid_motor6" />
     <param name="Kp" value="$(arg Kp)" />
     <param name="Ki" value="0.0" />
@@ -36,7 +36,7 @@
   </node>
 
 
-  <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/commands/motor7" output="screen" >
+  <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/pid/motor7" output="screen" >
     <param name="node_name" value="steering_pid_motor7" />
     <param name="Kp" value="$(arg Kp)" />
     <param name="Ki" value="0.0" />
@@ -49,7 +49,7 @@
   </node>
 
 
-  <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/commands/motor8" output="screen" >
+  <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/pid/motor8" output="screen" >
     <param name="node_name" value="steering_pid_motor8" />
     <param name="Kp" value="$(arg Kp)" />
     <param name="Ki" value="0.0" />

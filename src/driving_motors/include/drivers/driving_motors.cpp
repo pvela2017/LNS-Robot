@@ -125,7 +125,7 @@ void DrivingMotors::setSpeed(uint8_t motorID, double rpm)
 {
     /*
     Transform rpm to byte and send the speed command
-    TODO: Change the DLC to 3 & test
+    If the DLC is change from 0x08 feedback becomes unstable
     */
 
     // Clear the buffer
@@ -179,7 +179,7 @@ int DrivingMotors::alarmMonitor()
     BIT6 : INV_VEL, Motor speed inversed
     BIT7 : STALL, motor not moved
 
-    TODO: Change the DLC to 2 & test
+    If the DLC is change from 0x08 feedback becomes unstable
     */
 
     // Clear the buffer
@@ -187,7 +187,7 @@ int DrivingMotors::alarmMonitor()
 
     // Setup Command PID 34
     buffer_.PID = 0x04;
-    buffer_.D1 = 0x2B; //22??
+    buffer_.D1 = 0x22;
 
     // Create vector to store data
     std::vector<int> vec_alarms (4);
@@ -264,7 +264,7 @@ int DrivingMotors::feedback()
     Calculates the RPM of the motor and speed of the wheel.
     Then publish the rpm and speed topics
 
-    TODO: Change the DLC to 2 & test
+    If the DLC is change from 0x08 feedback becomes unstable
     */
 
     // Clear the buffer
@@ -397,7 +397,7 @@ void DrivingMotors::clearAlarmCB(const std_msgs::Int8::ConstPtr& msg)
     // Clear the buffer
     DrivingMotors::clearBuffer();
 
-    // Setup Command PID 34
+    // Setup Command PID 12
     buffer_.PID = 0x0C;
 
     // Setup motor ID

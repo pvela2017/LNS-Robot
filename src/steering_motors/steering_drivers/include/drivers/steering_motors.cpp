@@ -138,7 +138,7 @@ void SteeringMotors::setSpeed(uint8_t motorID, double rpm)
 {
     /*
     Transform rpm to byte and send the speed command
-    TODO: Change the DLC to 3 & test
+    If the DLC is change from 0x08 feedback becomes unstable
     */
 
     // Clear the buffer
@@ -192,7 +192,7 @@ int SteeringMotors::alarmMonitor()
     BIT6 : INV_VEL, Motor speed inversed
     BIT7 : STALL, motor not moved
 
-    TODO: Change the DLC to 2 & test
+    If the DLC is change from 0x08 feedback becomes unstable
     */
 
     // Clear the buffer
@@ -277,7 +277,7 @@ int SteeringMotors::feedback()
     Calculates the RPM of the motor.
     Then publish the rpm topic
 
-    TODO: Change the DLC to 2 & test
+    If the DLC is change from 0x08 feedback becomes unstable
     */
 
     // Clear the buffer

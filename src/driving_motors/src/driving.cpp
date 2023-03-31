@@ -41,7 +41,6 @@ int main(int argc, char **argv)
 
         if (ros::isShuttingDown()) 
         {
-            // TODO: WHY THIS DOESNT WORK?
             motors.emergencyStop();
         }
 
