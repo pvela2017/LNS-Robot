@@ -188,6 +188,17 @@ void PidObject::doCalcs()
     error_.at(1) = error_.at(0);
     error_.at(0) = setpoint_ - plant_state_;  // Current error goes to slot 0
 
+    /*
+    Added deadband
+    TODO: Add as parameter
+    */
+    float deadband = 1.0; // 1 degree error
+    if (fabsf(error_.at(0)) < deadband)
+    {
+      error_.at(0) = 0.0;
+    }
+
+
     // If the angle_error param is true, then address discontinuity in error
     // calc.
     // For example, this maintains an angular error between -180:180.
