@@ -137,7 +137,7 @@ public:
 	    setupMotor::sendCommand(1);
 
 	    // Set inversion of moving direction (Some motors) PID:#16 [Read Write (No need for 0xaa)]
-	    if (bytes_out_[4] == 0x03 || bytes_out_[4] == 0x04)
+	    if (bytes_out_[4] == 0x05 || bytes_out_[4] == 0x08)
 	    {
 	    	bytes_out_[5] = 0x10;
 	    	bytes_out_[6] = 0x01;
@@ -199,22 +199,22 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "driving_setup");
     ros::NodeHandle n;
     
-    setupMotor drivingMotors;
-    drivingMotors.connectSocket();
+    setupMotor steeringMotors;
+    steeringMotors.connectSocket();
 
     // Motor 1
-    drivingMotors.setMotor(0x05);
+    steeringMotors.setMotor(0x05);
     ROS_INFO("Motor 5 OK");
 
     // Motor 2
-    drivingMotors.setMotor(0x06);
+    steeringMotors.setMotor(0x06);
     ROS_INFO("Motor 6 OK");
 
     // Motor 3
-    drivingMotors.setMotor(0x07);
+    steeringMotors.setMotor(0x07);
     ROS_INFO("Motor 7 OK");
 
     // Motor 4
-    drivingMotors.setMotor(0x08);
+    steeringMotors.setMotor(0x08);
     ROS_INFO("Motor 8 OK");
 }

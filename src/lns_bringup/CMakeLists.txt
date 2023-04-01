@@ -80,6 +80,10 @@ include_directories(
  ${catkin_INCLUDE_DIRS}
 )
 
+add_executable(steering_setup src/steering_setup.cpp)
+add_dependencies(steering_setup ${steering_setup_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(steering_setup ${catkin_LIBRARIES})
+
 add_executable(driving_setup src/driving_setup.cpp)
 add_dependencies(driving_setup ${driving_setup_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(driving_setup ${catkin_LIBRARIES})

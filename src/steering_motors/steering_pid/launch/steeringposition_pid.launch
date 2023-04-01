@@ -5,7 +5,7 @@
   <arg name="Ki" default="0.0" doc="Integrative gain"/>
   <arg name="Kd" default="0.1" doc="Derivative gain"/>
   <arg name="upper_limit" default="180" doc="Upper limit"/>
-  <arg name="lower_limit" default="0" doc="Lower limit"/>
+  <arg name="lower_limit" default="-180" doc="Lower limit"/>
   <arg name="windup_limit" default="10" doc="Windup limit"/>
   <arg name="max_loop_frequency" default="100.0" doc="Max loop frequency"/>
   <arg name="min_loop_frequency" default="10.0" doc="Min loop frequency"/>

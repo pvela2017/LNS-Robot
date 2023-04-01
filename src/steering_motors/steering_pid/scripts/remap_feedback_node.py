@@ -45,10 +45,10 @@ def talker(msg):
 rospy.init_node('remap_fb_node')
 rospy.Subscriber("/steering_motors/feedback", Float64MultiArray, talker, queue_size=1)
 
-fb_wheel_1_pub = rospy.Publisher('/steering_motors/pid/motor5_state', Float64, queue_size=1)
-fb_wheel_2_pub = rospy.Publisher('/steering_motors/pid/motor6_state', Float64, queue_size=1)
-fb_wheel_3_pub = rospy.Publisher('/steering_motors/pid/motor7_state', Float64, queue_size=1)
-fb_wheel_4_pub = rospy.Publisher('/steering_motors/pid/motor8_state', Float64, queue_size=1)
+fb_wheel_1_pub = rospy.Publisher('/steering_motors/pid/motor5/state', Float64, queue_size=1)
+fb_wheel_2_pub = rospy.Publisher('/steering_motors/pid/motor6/state', Float64, queue_size=1)
+fb_wheel_3_pub = rospy.Publisher('/steering_motors/pid/motor7/state', Float64, queue_size=1)
+fb_wheel_4_pub = rospy.Publisher('/steering_motors/pid/motor8/state', Float64, queue_size=1)
 
 rospy.spin()
 

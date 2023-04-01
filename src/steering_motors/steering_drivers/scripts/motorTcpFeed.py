@@ -26,11 +26,11 @@ from colorama import Fore
 from colorama import init
 init(autoreset=True) # reset color to default
 
-from scripts.socketDic import socket3
+
 from std_msgs.msg import Float64MultiArray
 
 # Sock configuration
-server_address = (socket3["HOST"], socket3["PORT"])
+server_address = ('192.168.0.8', 3131)
 
 
 def recv(sock):
@@ -74,7 +74,7 @@ def request():
     # Connection
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect(server_address)
-    sock.settimeout(socket3["TIMEOUT"]) # Set 0.01 seconds for socket timeout 
+    sock.settimeout(0.01) # Set 0.01 seconds for socket timeout 
 
     wheels_angle = []
 
@@ -122,8 +122,8 @@ def angleScale(angle):
 
 def talker():
     rospy.init_node('ggm_feedback')
-    angles_pub = rospy.Publisher("/steeringmotors/feedback", Float64MultiArray, queue_size=1)
-    rate = rospy.Rate(5) # 50hz
+    angles_pub = rospy.Publisher("/steering_motors/feedback", Float64MultiArray, queue_size=1)
+    rate = rospy.Rate(30) # 50hz
     msg = Float64MultiArray()
 
     while not rospy.is_shutdown():
