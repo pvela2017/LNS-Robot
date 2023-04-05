@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<launch>
+   <!-- Driving Motors  -->
+   <node pkg="lns_controller" type="main_controller" name="main_controller"  output="screen"/>
+   
+</launch>
+
+
