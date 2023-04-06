@@ -103,6 +103,19 @@ void Kinematics::updateCommand()
     rear_right_steering = front_right_steering;        
   }
 
+  // Transform speed to rpm
+  vel_left_front = Kinematics::speedTorpm(vel_left_front);
+  vel_right_front = Kinematics::speedTorpm(vel_right_front);
+  vel_right_rear = Kinematics::speedTorpm(vel_right_rear);
+  vel_left_rear = Kinematics::speedTorpm(vel_left_rear);
+
+  // Limit rpm
+  vel_left_front = Kinematics::rpmLimit(vel_left_front);
+  vel_right_front = Kinematics::rpmLimit(vel_right_front);
+  vel_right_rear = Kinematics::rpmLimit(vel_right_rear);
+  vel_left_rear = Kinematics::rpmLimit(vel_left_rear);
+    
+
   // Create vector to store data
   std::vector<int> vec_rpm (4);
 
@@ -126,6 +139,19 @@ void Kinematics::updateCommand()
   vec_rpm.clear();
   rpms_.data.clear();
 
+
+  // Adjust angles between 0 -> 180
+  front_left_steering = Kinematics::angleScale(front_left_steering);
+  front_right_steering = Kinematics::angleScale(front_right_steering);
+  rear_left_steering = Kinematics::angleScale(rear_left_steering);
+  rear_right_steering = Kinematics::angleScale(rear_right_steering);
+
+  // Limit angles 
+  front_left_steering = Kinematics::angleLimit(front_left_steering);
+  front_right_steering = Kinematics::angleLimit(front_right_steering);
+  rear_left_steering = Kinematics::angleLimit(rear_left_steering);
+  rear_right_steering = Kinematics::angleLimit(rear_right_steering);
+
   // Set values
   motor5_angle_.data = front_left_steering;
   motor6_angle_.data = front_right_steering;
@@ -140,3 +166,52 @@ void Kinematics::updateCommand()
 
 }
 
+double Kinematics::angleScale(double angle)
+{
+  if (angle >= 180)
+  {
+    angle -= 270;
+  }
+  else
+  {
+    angle += 90;
+  }      
+  return angle;  
+}
+
+double Kinematics::angleLimit(double angle)
+{
+  if (angle > 135)
+  {
+    angle = 135;
+  }
+  if (angle < 0)
+  {
+    angle = 0;
+  }
+  return angle;
+}
+
+
+double Kinematics::speedTorpm(double speed)
+{
+  double wheel_rpm = 0;
+  double motor_rpm = 0;
+  // Transform from m/s linear velocity to motor rpm
+  wheel_rpm = (speed*60)/(2*0.4*M_PI_2); // WHEELS_RADIUS from robot dic
+  motor_rpm = wheel_rpm*30; // DRIVING_GEAR_BOX_RATIO from robot dic
+  return motor_rpm;
+}
+
+double Kinematics::rpmLimit(double rpm)
+{
+  if (rpm > 1000)
+  {
+    rpm = 1000;
+  }
+  if (rpm < -1000)
+  {
+    rpm = -1000;
+  }
+  return rpm;
+}
