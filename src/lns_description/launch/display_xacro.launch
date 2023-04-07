@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<launch>
+
+   <param name="robot_description" command="$(find xacro)/xacro '$(find lns_description)/urdf/lns_robot.xacro'" />
+
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find lns_description)/rviz/lns.rviz" required="true" />
+
+</launch>

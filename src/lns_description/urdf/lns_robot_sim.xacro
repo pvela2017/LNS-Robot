@@ -1,0 +1,608 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="lns_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find lns_description)/urdf/lns_robot_gazebo.xacro"/>
+  <xacro:include filename="$(find lns_description)/urdf/lns_robot_control_transmission.xacro"/>
+
+
+
+  <link name="base_footprint"/>
+  
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0.0 0.0 0.5" rpy="0 0 0"/>
+  </joint> 
+
+
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-0.000908053234166831 0.00377583954880167 -0.11419353078418"
+        rpy="0 0 0" />
+      <mass
+        value="115.323093862857" />
+      <inertia
+        ixx="30.5546981156896"
+        ixy="-0.00812450775540023"
+        ixz="0.0774264063877825"
+        iyy="38.3082783112508"
+        iyz="-0.141489346339812"
+        izz="51.8584316288848" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://lns_description/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <box size="1.48 0.4 0.4" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="gps_link">
+    <inertial>
+      <origin
+        xyz="-0.720409053233766 0.00385628468290244 -0.975393530789188"
+        rpy="0 0 0" />
+      <mass
+        value="115.323093862857" />
+      <inertia
+        ixx="30.5546981156896"
+        ixy="-0.00812450775540023"
+        ixz="0.0774264063877825"
+        iyy="38.3082783112508"
+        iyz="-0.141489346339812"
+        izz="51.8584316288848" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://lns_description/meshes/gps_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+  </link>
+  <joint
+    name="gps_joint"
+    type="fixed">
+    <origin
+      xyz="0.7195 -8.0445E-05 0.8612"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="gps_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="imu_link">
+    <inertial>
+      <origin
+        xyz="0.249441946765716 0.469559838074302 -0.480293530777087"
+        rpy="0 0 0" />
+      <mass
+        value="115.323093862857" />
+      <inertia
+        ixx="30.5546981156899"
+        ixy="-0.00812450775584025"
+        ixz="0.077426406419204"
+        iyy="38.3082783112512"
+        iyz="-0.141489346361371"
+        izz="51.8584316288841" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://lns_description/meshes/imu_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0.25 0.465 0"
+        rpy="0 0 0" />
+      <geometry>
+        <box size="1.45 1.2 0.2" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="imu_joint"
+    type="fixed">
+    <origin
+      xyz="-0.25035 -0.46578 0.3661"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="imu_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="steering_fl_link">
+    <inertial>
+      <origin
+        xyz="-0.500908053234454 -0.496143715201307 -0.252993530926179"
+        rpy="0 0 0" />
+      <mass
+        value="115.323093862857" />
+      <inertia
+        ixx="30.5546981156896"
+        ixy="-0.00812450775540023"
+        ixz="0.0774264063877825"
+        iyy="38.3082783112508"
+        iyz="-0.141489346339812"
+        izz="51.8584316288848" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://lns_description/meshes/steering_fl_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 -0.16 -0.25"
+        rpy="0 0 0" />
+      <geometry>
+        <box size="0.25 0.1 0.5" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="steering_fl_joint"
+    type="revolute">
+    <origin
+      xyz="0.5 0.49992 0.1388"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="steering_fl_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-2.1"
+      upper="2.1"
+      effort="5"
+      velocity="6.28" />
+  </joint>
+  <link
+    name="wheel_fl_link">
+    <inertial>
+      <origin
+        xyz="-0.500915043003825 -0.473143716438484 0.180006469083252"
+        rpy="0 0 0" />
+      <mass
+        value="115.323093862857" />
+      <inertia
+        ixx="30.5546981156896"
+        ixy="-0.00812450775540023"
+        ixz="0.0774264063877825"
+        iyy="38.3082783112508"
+        iyz="-0.141489346339812"
+        izz="51.8584316288848" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://lns_description/meshes/wheel_fl_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0.025 0"
+        rpy="1.5705963 0 0" />
+      <geometry>
+        <cylinder length="0.16" radius="0.2" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_fl_joint"
+    type="continuous">
+    <origin
+      xyz="0 -0.023 -0.433"
+      rpy="0 0 0" />
+    <parent
+      link="steering_fl_link" />
+    <child
+      link="wheel_fl_link" />
+    <axis
+      xyz="-0.0003039 1 0" />
+    <limit
+      lower="0"
+      effort="1.5"
+      velocity="20" />
+  </joint>
+  <link
+    name="steering_fr_link">
+    <inertial>
+      <origin
+        xyz="-0.50090805326955 0.501356284795344 -0.25299353052279"
+        rpy="0 0 0" />
+      <mass
+        value="115.323093862857" />
+      <inertia
+        ixx="30.5546981156896"
+        ixy="-0.00812450775540023"
+        ixz="0.0774264063877825"
+        iyy="38.3082783112508"
+        iyz="-0.141489346339812"
+        izz="51.8584316288848" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://lns_description/meshes/steering_fr_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0.16 -0.25"
+        rpy="0 0 0" />
+      <geometry>
+        <box size="0.25 0.1 0.5" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="steering_fr_joint"
+    type="revolute">
+    <origin
+      xyz="0.5 -0.49758 0.1388"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="steering_fr_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-2.1"
+      upper="2.1"
+      effort="5"
+      velocity="6.28" />
+  </joint>
+  <link
+    name="wheel_fr_link">
+    <inertial>
+      <origin
+        xyz="-0.500854029674087 0.478356348066843 0.180006469468029"
+        rpy="0 0 0" />
+      <mass
+        value="115.323093862857" />
+      <inertia
+        ixx="30.5546981156896"
+        ixy="-0.00812450775540023"
+        ixz="0.0774264063877825"
+        iyy="38.3082783112508"
+        iyz="-0.141489346339812"
+        izz="51.8584316288848" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://lns_description/meshes/wheel_fr_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 -0.025 0"
+        rpy="1.5705963 0 0" />
+      <geometry>
+        <cylinder length="0.16" radius="0.2" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_fr_joint"
+    type="continuous">
+    <origin
+      xyz="-5.4024E-05 0.023 -0.433"
+      rpy="0 0 0" />
+    <parent
+      link="steering_fr_link" />
+    <child
+      link="wheel_fr_link" />
+    <axis
+      xyz="0.0023488 -1 0" />
+    <limit
+      lower="0"
+      effort="1.5"
+      velocity="20" />
+  </joint>
+  <link
+    name="steering_br_link">
+    <inertial>
+      <origin
+        xyz="0.499091946762458 0.501356284680084 -0.252993530769525"
+        rpy="0 0 0" />
+      <mass
+        value="115.323093862857" />
+      <inertia
+        ixx="30.5546981156896"
+        ixy="-0.00812450775540023"
+        ixz="0.0774264063877825"
+        iyy="38.3082783112508"
+        iyz="-0.141489346339812"
+        izz="51.8584316288848" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://lns_description/meshes/steering_br_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0.16 -0.25"
+        rpy="0 0 0" />
+      <geometry>
+        <box size="0.25 0.1 0.5" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="steering_br_joint"
+    type="revolute">
+    <origin
+      xyz="-0.5 -0.49758 0.1388"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="steering_br_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-2.1"
+      upper="2.1"
+      effort="5"
+      velocity="6.28" />
+  </joint>
+  <link
+    name="wheel_br_link">
+    <inertial>
+      <origin
+        xyz="0.49914597035792 0.478356348127517 0.18000646923064"
+        rpy="0 0 0" />
+      <mass
+        value="115.323093862857" />
+      <inertia
+        ixx="30.5546981156896"
+        ixy="-0.00812450775540023"
+        ixz="0.0774264063877825"
+        iyy="38.3082783112508"
+        iyz="-0.141489346339812"
+        izz="51.8584316288848" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://lns_description/meshes/wheel_br_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 -0.025 0"
+        rpy="1.5705963 0 0" />
+      <geometry>
+        <cylinder length="0.16" radius="0.2" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_br_joint"
+    type="continuous">
+    <origin
+      xyz="-5.4024E-05 0.023 -0.433"
+      rpy="0 0 0" />
+    <parent
+      link="steering_br_link" />
+    <child
+      link="wheel_br_link" />
+    <axis
+      xyz="0.0023488 -1 0" />
+    <limit
+      lower="0"
+      effort="1.5"
+      velocity="20" />
+  </joint>
+  <link
+    name="steering_bl_link">
+    <inertial>
+      <origin
+        xyz="0.499091946761391 -0.49614371520285 -0.252993531055122"
+        rpy="0 0 0" />
+      <mass
+        value="115.323093862857" />
+      <inertia
+        ixx="30.5546981156896"
+        ixy="-0.00812450775540023"
+        ixz="0.0774264063877825"
+        iyy="38.3082783112508"
+        iyz="-0.141489346339812"
+        izz="51.8584316288848" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://lns_description/meshes/steering_bl_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 -0.16 -0.25"
+        rpy="0 0 0" />
+      <geometry>
+        <box size="0.25 0.1 0.5" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="steering_bl_joint"
+    type="revolute">
+    <origin
+      xyz="-0.5 0.49992 0.1388"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="steering_bl_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-2.1"
+      upper="2.1"
+      effort="5"
+      velocity="6.28" />
+  </joint>
+  <link
+    name="wheel_bl_link">
+    <inertial>
+      <origin
+        xyz="0.499037923277592 -0.473143778824593 0.180006468954316"
+        rpy="0 0 0" />
+      <mass
+        value="115.323093862857" />
+      <inertia
+        ixx="30.5546981156896"
+        ixy="-0.00812450775540023"
+        ixz="0.0774264063877825"
+        iyy="38.3082783112508"
+        iyz="-0.141489346339812"
+        izz="51.8584316288848" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://lns_description/meshes/wheel_bl_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0.025 0"
+        rpy="1.5705963 0 0" />
+      <geometry>
+        <cylinder length="0.16" radius="0.2" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_bl_joint"
+    type="continuous">
+    <origin
+      xyz="5.4023E-05 -0.023 -0.433"
+      rpy="0 0 0" />
+    <parent
+      link="steering_bl_link" />
+    <child
+      link="wheel_bl_link" />
+    <axis
+      xyz="-0.0023488 1 0" />
+    <limit
+      lower="0"
+      effort="1.5"
+      velocity="20" />
+  </joint>
+</robot>
