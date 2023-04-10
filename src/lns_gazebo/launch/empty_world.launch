@@ -2,6 +2,9 @@
 
 <launch>
 
+  <!-- Load gazebo pid configurations from YAML file to parameter server [ NO NEED controllers used just forward the inputs]-->
+  <!--<rosparam file="$(find lns_gazebo)/config/gazebo_pid_param.yaml" command="load"/> -->
+
   <!-- these are the arguments you can pass this launch file, for example paused:=true -->
   <arg name="model" default="$(find lns_description)/urdf/lns_robot_sim.xacro"/>
   <arg name="paused" default="false"/>
