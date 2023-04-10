@@ -1,0 +1,38 @@
+#lns_robot:
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50
+
+  # Position Controllers ---------------------------------------
+  steering_fl_position_controller:
+    type: position_controllers/JointPositionController
+    joint: steering_fl_joint
+    pid: {p: 100.0, i: 5.0, d: 0.0}
+  steering_fr_position_controller:
+    type: position_controllers/JointPositionController
+    joint: steering_fr_joint
+    pid: {p: 100.0, i: 5.0, d: 0.0}
+  steering_br_position_controller:
+    type: position_controllers/JointPositionController
+    joint: steering_br_joint
+    pid: {p: 100.0, i: 5.0, d: 0.0}
+  steering_bl_position_controller:
+    type: position_controllers/JointPositionController
+    joint: steering_bl_joint
+    pid: {p: 100.0, i: 5.0, d: 0.0}
+  wheel_fl_velocity_controller:
+    type: velocity_controllers/JointVelocityController
+    joint: wheel_fl_joint
+    pid: {p: 100.0, i: 25.0, d: 0.0}
+  wheel_fr_velocity_controller:
+    type: velocity_controllers/JointVelocityController
+    joint: wheel_fr_joint
+    pid: {p: 100.0, i: 25.0, d: 0.0}
+  wheel_br_velocity_controller:
+    type: velocity_controllers/JointVelocityController
+    joint: wheel_br_joint
+    pid: {p: 100.0, i: 25.0, d: 0.0}
+  wheel_bl_velocity_controller:
+    type: velocity_controllers/JointVelocityController
+    joint: wheel_bl_joint
+    pid: {p: 100.0, i: 25.0, d: 0.0}

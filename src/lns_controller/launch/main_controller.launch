@@ -1,9 +1,19 @@
 <?xml version="1.0"?>
 
 <launch>
-   <!-- Driving Motors  -->
+   <!-- Main Controller  -->
    <node pkg="lns_controller" type="main_controller" name="main_controller"  output="screen"/>
-   
+
+   <!-- convert joint states to TF transforms for rviz, etc -->
+   <node 
+      name="robot_state_publisher" 
+      pkg="robot_state_publisher" 
+      type="robot_state_publisher"
+      respawn="false" 
+      output="screen">
+   </node>
+
+
 </launch>
 
 
