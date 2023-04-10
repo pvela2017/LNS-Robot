@@ -47,7 +47,6 @@ private:
 
 	void cmdVelCB(const geometry_msgs::Twist&);
 	void updateCommand();
-	double angleScale(double);
 	double speedTorpm(double);
 	double angleLimit(double);
 	double rpmLimit(double rpm);

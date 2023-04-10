@@ -9,9 +9,6 @@ import rospy
 from std_msgs.msg import Float64
 from std_msgs.msg import Int64MultiArray
 
-def degTorad(degree):
-        rad = degree*(3.141592/180.0)
-        return rad
 
 def rpmToradsec(rpm):
         radsec = rpm*0.10472
@@ -19,22 +16,22 @@ def rpmToradsec(rpm):
 
 def talker5(msg):
         new_msg = Float64()
-        new_msg.data = degTorad(msg.data)
+        new_msg.data = msg.data
         translator5.publish(new_msg)
 
 def talker6(msg):
         new_msg = Float64()
-        new_msg.data = degTorad(msg.data)
+        new_msg.data = msg.data
         translator6.publish(new_msg)
 
 def talker7(msg):
         new_msg = Float64()
-        new_msg.data = degTorad(msg.data)
+        new_msg.data = msg.data
         translator7.publish(new_msg)
 
 def talker8(msg):
         new_msg = Float64()
-        new_msg.data = degTorad(msg.data)
+        new_msg.data = msg.data
         translator8.publish(new_msg)
 
 

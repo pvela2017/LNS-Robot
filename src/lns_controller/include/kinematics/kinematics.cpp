@@ -59,6 +59,27 @@ void Kinematics::updateCommand()
 
 
   // Compute wheels velocities:
+  if ((fabs(twist_command_.linear.x) > 0.001) || (fabs(twist_command_.linear.y) > 0.001) ||
+              (fabs(twist_command_.angular.z) > 0.001))
+          {
+              double a = twist_command_.linear.y - twist_command_.angular.z * wheel_base_ / 2;
+              double b = twist_command_.linear.y + twist_command_.angular.z * wheel_base_ / 2;
+              double c = twist_command_.linear.x - twist_command_.angular.z * steering_track / 2;
+              double d = twist_command_.linear.x + twist_command_.angular.z * steering_track / 2;
+
+              vel_left_front = sqrt(pow(b, 2) + pow(c, 2)) / wheel_radius_;
+              vel_right_front = sqrt(pow(b, 2) + pow(d, 2)) / wheel_radius_;
+              vel_left_rear = sqrt(pow(a, 2) + pow(c, 2)) / wheel_radius_;
+              vel_right_rear = sqrt(pow(a, 2) + pow(d, 2)) / wheel_radius_;
+
+              front_left_steering = atan2(b, c);
+              front_right_steering = atan2(b, d);
+              rear_left_steering = atan2(a, c);
+              rear_right_steering = atan2(a, d);
+          }
+
+
+  /*
   if(fabs(twist_command_.linear.x) > 0.001)
   {
     const double vel_steering_offset = (twist_command_.angular.z*wheel_steering_y_offset_)/wheel_radius_;
@@ -101,7 +122,7 @@ void Kinematics::updateCommand()
     front_right_steering = atan(twist_command_.linear.y / twist_command_.linear.x);
     rear_left_steering = front_left_steering;
     rear_right_steering = front_right_steering;        
-  }
+  }*/
 
   // Transform speed to rpm
   vel_left_front = Kinematics::speedTorpm(vel_left_front);
@@ -140,12 +161,6 @@ void Kinematics::updateCommand()
   rpms_.data.clear();
 
 
-  // Adjust angles between 0 -> 180
-  front_left_steering = Kinematics::angleScale(front_left_steering);
-  front_right_steering = Kinematics::angleScale(front_right_steering);
-  rear_left_steering = Kinematics::angleScale(rear_left_steering);
-  rear_right_steering = Kinematics::angleScale(rear_right_steering);
-
   // Limit angles 
   front_left_steering = Kinematics::angleLimit(front_left_steering);
   front_right_steering = Kinematics::angleLimit(front_right_steering);
@@ -166,28 +181,16 @@ void Kinematics::updateCommand()
 
 }
 
-double Kinematics::angleScale(double angle)
-{
-  if (angle >= 180)
-  {
-    angle -= 270;
-  }
-  else
-  {
-    angle += 90;
-  }      
-  return angle;  
-}
 
 double Kinematics::angleLimit(double angle)
 {
-  if (angle > 135)
+  if (angle > 2.1)
   {
-    angle = 135;
+    angle = 2.1;
   }
-  if (angle < 0)
+  if (angle < -2.1)
   {
-    angle = 0;
+    angle = -2.1;
   }
   return angle;
 }
@@ -205,13 +208,13 @@ double Kinematics::speedTorpm(double speed)
 
 double Kinematics::rpmLimit(double rpm)
 {
-  if (rpm > 1000)
+  if (rpm > 10)
   {
-    rpm = 1000;
+    rpm = 10;
   }
-  if (rpm < -1000)
+  if (rpm < -10)
   {
-    rpm = -1000;
+    rpm = -10;
   }
   return rpm;
 }
