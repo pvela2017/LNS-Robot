@@ -91,11 +91,11 @@ target_link_libraries(driving ${catkin_LIBRARIES})
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-catkin_install_python(PROGRAMS
+#catkin_install_python(PROGRAMS
 #scripts/test_rviz_gazebo.py
 #scripts/test_mov.py
-DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+#DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#)
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
