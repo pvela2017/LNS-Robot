@@ -24,67 +24,67 @@
       </actuator>
   </transmission>
 
-    <transmission name="rear_left_steering_trans">
+    <transmission name="back_left_steering_trans">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="steering_bl_joint">
     <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
       </joint>
-    <actuator name="rear_left_steering_motor">
+    <actuator name="back_left_steering_motor">
     <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     <mechanicalReduction>30</mechanicalReduction>
       </actuator>
   </transmission>
 
-    <transmission name="rear_right_steering_trans">
+    <transmission name="back_right_steering_trans">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="steering_br_joint">
     <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
       </joint>
-    <actuator name="rear_right_steering_motor">
+    <actuator name="back_right_steering_motor">
     <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     <mechanicalReduction>30</mechanicalReduction>
       </actuator>
   </transmission>
 
-    <transmission name="ffl_wheel_trans">
+    <transmission name="front_left_wheel_trans">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="wheel_fl_joint">
     <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
       </joint>
-    <actuator name="ffl_wheel_motor">
+    <actuator name="front_left_wheel_motor">
     <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
     <mechanicalReduction>1</mechanicalReduction>
       </actuator>
   </transmission>
   
-      <transmission name="ffr_wheel_trans">
+      <transmission name="front_right_wheel_trans">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="wheel_fr_joint">
     <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
       </joint>
-    <actuator name="ffr_wheel_motor">
+    <actuator name="front_right_wheel_motor">
     <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
     <mechanicalReduction>1</mechanicalReduction>
       </actuator>
   </transmission>
 
-      <transmission name="rfl_wheel_trans">
+      <transmission name="back_left_wheel_trans">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="wheel_bl_joint">
     <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
       </joint>
-    <actuator name="rfl_wheel_motor">
+    <actuator name="back_left_wheel_motor">
     <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
     <mechanicalReduction>1</mechanicalReduction>
       </actuator>
   </transmission>
 
-      <transmission name="rfr_wheel_trans">
+      <transmission name="back_right_wheel_trans">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="wheel_br_joint">
     <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
       </joint>
-    <actuator name="rfr_wheel_motor">
+    <actuator name="back_right_wheel_motor">
     <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
     <mechanicalReduction>1</mechanicalReduction>
       </actuator>
