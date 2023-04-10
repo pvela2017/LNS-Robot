@@ -85,10 +85,10 @@ def request():
     # Check if there was no reply
     if angle0 != None: 
         # Fill values
-        wheels_angle.append(angleScale(int(angle0)))
-        wheels_angle.append(angleScale(int(angle1)))
-        wheels_angle.append(angleScale(int(angle2)))
-        wheels_angle.append(angleScale(int(angle3)))
+        wheels_angle.append(angleWrap(degTorad(angle0)))
+        wheels_angle.append(angleWrap(degTorad(angle1)))
+        wheels_angle.append(angleWrap(degTorad(angle2)))
+        wheels_angle.append(angleWrap(degTorad(angle3)))
         #print('Angle1:{}  Angle2:{}  Angle3:{}  Angle4:{}'.format(wheels_angle[0], wheels_angle[1], wheels_angle[2], wheels_angle[3]))
     else:
         print("No reply")
@@ -108,16 +108,19 @@ def request():
     return ggm_feedback
 
 
-def angleScale(angle):
+def degTorad(degrees):
     """
-    Function to scale the angles values between 0 to 180
+    Function to transform deg to rad
     """
-    if angle >= 180:
-        angle-=270
-    else:
-        angle+=90
+    angle_rad = degrees*3.141592/180
+    return angle_rad
 
-    return angle
+
+def angleWrap(radians):
+    if radians > 3.141592:
+        radians -= 2.*3.141592
+        
+    return radians
 
 
 def talker():
