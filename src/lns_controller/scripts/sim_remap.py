@@ -9,25 +9,32 @@ import rospy
 from std_msgs.msg import Float64
 from std_msgs.msg import Int64MultiArray
 
+def degTorad(degree):
+        rad = degree*(3.141592/180.0)
+        return rad
+
+def rpmToradsec(rpm):
+        radsec = rpm*0.10472
+        return radsec
 
 def talker5(msg):
         new_msg = Float64()
-        new_msg.data = msg.data
+        new_msg.data = degTorad(msg.data)
         translator5.publish(new_msg)
 
 def talker6(msg):
         new_msg = Float64()
-        new_msg.data = msg.data
+        new_msg.data = degTorad(msg.data)
         translator6.publish(new_msg)
 
 def talker7(msg):
         new_msg = Float64()
-        new_msg.data = msg.data
+        new_msg.data = degTorad(msg.data)
         translator7.publish(new_msg)
 
 def talker8(msg):
         new_msg = Float64()
-        new_msg.data = msg.data
+        new_msg.data = degTorad(msg.data)
         translator8.publish(new_msg)
 
 
@@ -36,10 +43,10 @@ def talker9(msg):
         new_msg2 = Float64()
         new_msg3 = Float64()
         new_msg4 = Float64()
-        new_msg1.data = msg.data[0]
-        new_msg2.data = msg.data[1]
-        new_msg3.data = msg.data[2]
-        new_msg4.data = msg.data[3]
+        new_msg1.data = rpmToradsec(msg.data[0])
+        new_msg2.data = -rpmToradsec(msg.data[1])
+        new_msg3.data = -rpmToradsec(msg.data[2])
+        new_msg4.data = rpmToradsec(msg.data[3])
         translator1.publish(new_msg1)
         translator2.publish(new_msg2)
         translator3.publish(new_msg3)
@@ -61,8 +68,8 @@ translator8 = rospy.Publisher('/steering_bl_position_controller/command', Float6
 
 translator1 = rospy.Publisher('/wheel_fl_velocity_controller/command', Float64, queue_size=1)
 translator2 = rospy.Publisher('/wheel_fr_velocity_controller/command', Float64, queue_size=1)
-translator3 = rospy.Publisher('/wheel_bl_velocity_controller/command', Float64, queue_size=1)
-translator4 = rospy.Publisher('/wheel_br_velocity_controller/command', Float64, queue_size=1)
+translator3 = rospy.Publisher('/wheel_br_velocity_controller/command', Float64, queue_size=1)
+translator4 = rospy.Publisher('/wheel_bl_velocity_controller/command', Float64, queue_size=1)
 
 
 rospy.spin()
