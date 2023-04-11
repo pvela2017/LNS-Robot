@@ -4,9 +4,6 @@
    <!-- GPS & IMU Sensors  -->
    <!-- <include file="$(find lns_launch)/launch/nav_sensors.launch" />-->
 
-   <!-- Ranger package for comunication with the robot  -->
-   
-
    <!-- Robot localization package  -->
    <include file="$(find lns_navigation)/launch/start_navigation_with_gps_ekf.launch" />
 

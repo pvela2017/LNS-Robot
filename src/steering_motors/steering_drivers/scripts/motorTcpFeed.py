@@ -85,10 +85,10 @@ def request():
     # Check if there was no reply
     if angle0 != None: 
         # Fill values
-        wheels_angle.append(angleWrap(degTorad(angle0)))
-        wheels_angle.append(angleWrap(degTorad(angle1)))
-        wheels_angle.append(angleWrap(degTorad(angle2)))
-        wheels_angle.append(angleWrap(degTorad(angle3)))
+        wheels_angle.append(angleWrap(degTorad(float(angle0))))
+        wheels_angle.append(angleWrap(degTorad(float(angle1))))
+        wheels_angle.append(angleWrap(degTorad(float(angle2))))
+        wheels_angle.append(angleWrap(degTorad(float(angle3))))
         #print('Angle1:{}  Angle2:{}  Angle3:{}  Angle4:{}'.format(wheels_angle[0], wheels_angle[1], wheels_angle[2], wheels_angle[3]))
     else:
         print("No reply")
