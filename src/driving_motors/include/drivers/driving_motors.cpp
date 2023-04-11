@@ -57,6 +57,7 @@ DrivingMotors::DrivingMotors(ros::NodeHandle n)
     this->alarm_monitor_ = this->n_.advertise<std_msgs::Int8MultiArray>("/driving_motors/alarm_monitor/status", 1);
     this->rpm_feedback_ = this->n_.advertise<std_msgs::Int64MultiArray>("/driving_motors/feedback/rpm", 1);
     this->speed_feedback_ = this->n_.advertise<std_msgs::Float64MultiArray>("/driving_motors/feedback/speed", 1);
+    this->radsec_feedback_ = this->n_.advertise<std_msgs::Float64MultiArray>("/driving_motors/feedback/radsec", 1);
     
     // Buffer initialization
     this->buffer_.DLC = 0x08;
@@ -277,6 +278,7 @@ int DrivingMotors::feedback()
     // Create vector to store data
     std::vector<int> vec_rpm (4);
     std::vector<float> vec_speed (4);
+    std::vector<float> vec_radsec (4);
 
     for (int i = 1; i < 5; i++)
     {
@@ -312,6 +314,7 @@ int DrivingMotors::feedback()
             }
             
             vec_speed[bytes_in_[4] - 1] = DrivingMotors::rpmTovel(vec_rpm[bytes_in_[4] - 1]);
+            vec_radsec[bytes_in_[4] - 1] = DrivingMotors::rpmToradsec(vec_rpm[bytes_in_[4] - 1]);
         }
 
         // Received another message
@@ -335,15 +338,24 @@ int DrivingMotors::feedback()
         speed_.data.push_back(*itr2); 
     }
 
+    std::vector<float>::const_iterator itr3, end3(vec_radsec.end());
+    for(itr3 = vec_radsec.begin(); itr3!= end3; ++itr3) 
+    {
+        radsec_.data.push_back(*itr3); 
+    }
+
     // Publish topics
     rpm_feedback_.publish(rpms_);
     speed_feedback_.publish(speed_);
+    radsec_feedback_.publish(radsec_);
 
     //clear stuff
     vec_rpm.clear();
     rpms_.data.clear();
     vec_speed.clear();
     speed_.data.clear();
+    vec_radsec.clear();
+    radsec_.data.clear();
     
     return 0;
 }
@@ -384,6 +396,18 @@ float DrivingMotors::rpmTovel(int motor_rpm)
     wheel_rpm = motor_rpm/30.0; // DRIVING_GEAR_BOX_RATIO 30 
     speed = wheel_rpm*(2.0*0.4*3.1415)/60.0;  // WHEELS_RADIUS 0.4  
     return speed;
+}
+
+float DrivingMotors::rpmToradsec(int motor_rpm)
+{
+    /* 
+    Transform from motor rpm to rad/s
+    */
+
+    float radsec, wheel_rpm;
+    wheel_rpm = motor_rpm/30.0; // DRIVING_GEAR_BOX_RATIO 30 
+    radsec = wheel_rpm*(2.0*M_PI)/60.0;  
+    return radsec;
 }
     
 
