@@ -55,9 +55,9 @@ DrivingMotors::DrivingMotors(ros::NodeHandle n)
     this->alarm_clear_ = this->n_.subscribe("/driving_motors/alarm_monitor/clear_alarm", 1, &DrivingMotors::clearAlarmCB, this);
     this->motor_command_ = this->n_.subscribe("/driving_motors/commands", 1, &DrivingMotors::commandsCB, this);
     this->alarm_monitor_ = this->n_.advertise<std_msgs::Int8MultiArray>("/driving_motors/alarm_monitor/status", 1);
-    this->rpm_feedback_ = this->n_.advertise<std_msgs::Int64MultiArray>("/driving_motors/feedback/rpm", 1);
-    this->speed_feedback_ = this->n_.advertise<std_msgs::Float64MultiArray>("/driving_motors/feedback/speed", 1);
-    this->radsec_feedback_ = this->n_.advertise<std_msgs::Float64MultiArray>("/driving_motors/feedback/radsec", 1);
+    this->rpm_feedback_ = this->n_.advertise<std_msgs::Int64MultiArray>("/driving_motors/feedback/angular/rpm", 1);
+    this->ms_feedback_ = this->n_.advertise<std_msgs::Float64MultiArray>("/driving_motors/feedback/linear/ms", 1);
+    this->radsec_feedback_ = this->n_.advertise<std_msgs::Float64MultiArray>("/driving_motors/feedback/angular/radsec", 1);
     
     // Buffer initialization
     this->buffer_.DLC = 0x08;
@@ -277,7 +277,7 @@ int DrivingMotors::feedback()
 
     // Create vector to store data
     std::vector<int> vec_rpm (4);
-    std::vector<float> vec_speed (4);
+    std::vector<float> vec_ms (4);
     std::vector<float> vec_radsec (4);
 
     for (int i = 1; i < 5; i++)
@@ -313,7 +313,7 @@ int DrivingMotors::feedback()
                 vec_rpm[bytes_in_[4] - 1] = DrivingMotors::byteTorpm(bytes_in_[6], bytes_in_[7]);
             }
             
-            vec_speed[bytes_in_[4] - 1] = DrivingMotors::rpmTovel(vec_rpm[bytes_in_[4] - 1]);
+            vec_ms[bytes_in_[4] - 1] = DrivingMotors::rpmToms(vec_rpm[bytes_in_[4] - 1]);
             vec_radsec[bytes_in_[4] - 1] = DrivingMotors::rpmToradsec(vec_rpm[bytes_in_[4] - 1]);
         }
 
@@ -332,10 +332,10 @@ int DrivingMotors::feedback()
         rpms_.data.push_back(*itr); 
     }
 
-    std::vector<float>::const_iterator itr2, end2(vec_speed.end());
-    for(itr2 = vec_speed.begin(); itr2!= end2; ++itr2) 
+    std::vector<float>::const_iterator itr2, end2(vec_ms.end());
+    for(itr2 = vec_ms.begin(); itr2!= end2; ++itr2) 
     {
-        speed_.data.push_back(*itr2); 
+        ms_.data.push_back(*itr2); 
     }
 
     std::vector<float>::const_iterator itr3, end3(vec_radsec.end());
@@ -346,14 +346,14 @@ int DrivingMotors::feedback()
 
     // Publish topics
     rpm_feedback_.publish(rpms_);
-    speed_feedback_.publish(speed_);
+    ms_feedback_.publish(ms_);
     radsec_feedback_.publish(radsec_);
 
     //clear stuff
     vec_rpm.clear();
     rpms_.data.clear();
-    vec_speed.clear();
-    speed_.data.clear();
+    vec_ms.clear();
+    ms_.data.clear();
     vec_radsec.clear();
     radsec_.data.clear();
     
@@ -386,16 +386,16 @@ int DrivingMotors::byteTorpm(uint8_t byte0, uint8_t byte1)
     return motor_rpm;
 }
 
-float DrivingMotors::rpmTovel(int motor_rpm)
+float DrivingMotors::rpmToms(int motor_rpm)
 {
     /* 
-    Transform from motor rpm to m/s linear velocity
+    Transform from motor rpm to m/s linear speed
     */
 
-    float speed, wheel_rpm;
+    float ms, wheel_rpm;
     wheel_rpm = motor_rpm/30.0; // DRIVING_GEAR_BOX_RATIO 30 
-    speed = wheel_rpm*(2.0*0.4*3.1415)/60.0;  // WHEELS_RADIUS 0.4  
-    return speed;
+    ms = wheel_rpm*(2.0*0.4*3.1415)/60.0;  // WHEELS_RADIUS 0.4  
+    return ms;
 }
 
 float DrivingMotors::rpmToradsec(int motor_rpm)

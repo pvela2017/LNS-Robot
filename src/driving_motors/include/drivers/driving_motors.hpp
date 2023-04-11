@@ -87,7 +87,7 @@ private:
 	ros::Subscriber motor_command_;
 	ros::Publisher alarm_monitor_;
 	ros::Publisher rpm_feedback_;
-	ros::Publisher speed_feedback_;
+	ros::Publisher ms_feedback_;
 	ros::Publisher radsec_feedback_;
 
 	// Socket variables
@@ -106,12 +106,12 @@ private:
 	// Internals
 	std_msgs::Int8MultiArray alarm_status_;
 	std_msgs::Int64MultiArray rpms_;
-	std_msgs::Float64MultiArray speed_;
+	std_msgs::Float64MultiArray ms_;
 	std_msgs::Float64MultiArray radsec_;
 	uint8_t motorID_[5] = {0xFE, 0x01, 0x02, 0x03, 0x04};
 	void setSpeed(uint8_t, double);
 	int byteTorpm(uint8_t, uint8_t);
-	float rpmTovel(int);
+	float rpmToms(int);
 	float rpmToradsec(int);
 
 	// Callbacks
