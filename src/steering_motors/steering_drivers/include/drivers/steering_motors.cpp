@@ -61,6 +61,7 @@ SteeringMotors::SteeringMotors(ros::NodeHandle n, ros::NodeHandle n1, ros::NodeH
     this->alarm_monitor_ = this->n_.advertise<std_msgs::Int8MultiArray>("/steering_motors/alarm_monitor/status", 1);
     this->rpm_feedback_ = this->n_.advertise<std_msgs::Int64MultiArray>("/steering_motors/feedback/rpm", 1);
     this->alarm_clear_ = this->n_.subscribe("/steering_motors/alarm_monitor/clear_alarm", 1, &SteeringMotors::clearAlarmCB, this); 
+    this->rad_feedback_ = this->n_.subscribe("/steering_motors/feedback/rad", 1, &SteeringMotors::radFeedbackCB, this); 
     
     this->pidWheel_1_ = this->n1_.subscribe("/steering_motors/pid/motor5/control_effort", 1, &SteeringMotors::motor5CB, this);
     this->n2_.setCallbackQueue(&callback_queue_wheel_2_);
@@ -134,7 +135,7 @@ int SteeringMotors::connSocket()
 }
 
 
-void SteeringMotors::setSpeed(uint8_t motorID, double rpm)
+void SteeringMotors::setPos(uint8_t motorID, double pos)
 {
     /*
     Transform rpm to byte and send the speed command
@@ -144,29 +145,49 @@ void SteeringMotors::setSpeed(uint8_t motorID, double rpm)
     // Clear the buffer
     SteeringMotors::clearBuffer();
 
-    // Setup Command PID 130
-    buffer_.PID = 0x86;
+    // Setup Command PID 219
+    buffer_.PID = 0xDB;
 
     // Setup motor ID
     buffer_.ID = motorID;
 
-    // Setup Speed bytes
-    rpm_ = (int)rpm;
-    // If rpm are positive
-    if (rpm_ >= 0)
+    // Setup position bytes
+    // Transform rad to pos 
+    //pos_ = radTopos(motorID, rad); // no need to this, since this is the pid control effort
+    // Hard limits
+    if (pos_ > max_limit_pos_[motorID-5])
+    {
+        pos_ = max_limit_pos_[motorID-5];
+    }
+    if (pos_ < min_limit_pos_[motorID-5])
+    {
+        pos_ = min_limit_pos_[motorID-5];
+    }
+    // Compensate for the offset
+    pos_ = int(pos) + motor_offsets_[motorID-5];
+    // If pos are positive
+    if (pos_ >= 0)
     {
         // 16 bytes = 8bytes0 8bytes1 
-        buffer_.D2 = (rpm_ >> 8) & 0xff; //byte0
-        buffer_.D1 = rpm_ & 0xff; //byte1
+        buffer_.D6 = (pos_ >> 40) & 0xff;
+        buffer_.D5 = (pos_ >> 32) & 0xff;
+        buffer_.D4 = (pos_ >> 24) & 0xff;
+        buffer_.D3 = (pos_ >> 16) & 0xff;
+        buffer_.D2 = (pos_ >> 8) & 0xff; 
+        buffer_.D1 = pos_ & 0xff; 
     }
 
-    // If rpm are negative
+    // If pos are negative
     else
     {
         int neg_dec;
-        neg_dec = 65535 - abs(rpm_); // FFFF- rpm
+        neg_dec = 281474976710655 - abs(pos_); // 6 x FF- pos
         // 16 bytes = 8bytes0 8bytes1 
-        buffer_.D2  = (neg_dec >> 8) & 0xff;
+        buffer_.D6 = (neg_dec >> 40) & 0xff;
+        buffer_.D5 = (neg_dec >> 32) & 0xff;
+        buffer_.D4 = (neg_dec >> 24) & 0xff;
+        buffer_.D3 = (neg_dec >> 16) & 0xff;
+        buffer_.D2 = (neg_dec >> 8) & 0xff; 
         buffer_.D1 = neg_dec & 0xff;
     }
 
@@ -365,6 +386,63 @@ int SteeringMotors::byteTorpm(uint8_t byte0, uint8_t byte1)
     return motor_rpm;
 }
 
+int SteeringMotors::radTopos(uint8_t motorID, double rad)
+{
+    double m;
+    int pos;
+    m = (max_limit_pos_[motorID-5] - min_limit_pos_[motorID-5])/M_PI;
+    pos = int(m*rad);
+    return pos;
+}
+
+void SteeringMotors::calibrationRoutine()
+{
+    /*
+    The zero position will be given by the starting position 
+    of the wheel when the motors are powered, those this routine
+    find the offset for each motor.
+    */
+
+    ROS_INFO("Starting Calibration");
+
+    // Alignement flag
+    bool align = false;
+    // Deadband
+    double deadband_rad = 0.00174; // 0.1 degree
+    // Offset
+    int j = 0;
+
+    for (int i = 1; i < 5; i++)
+    {
+        while (!align)
+        {
+            if (fabs(motor_angles_[i-1]) <= deadband_rad)
+            {
+                align = true;
+                break;
+            }
+
+            if(motor_angles_[i-1] > 0)
+            {
+                j--;
+                SteeringMotors::setPos(motorID_[i], j)
+            }
+            else if (motor_angles_[i-1] < 0)
+            {
+                j++;
+                SteeringMotors::setPos(motorID_[i], j);
+            }
+        }
+        // Save offsets
+        motor_offsets_[i-1] = j;
+
+        // Reset values
+        align = false;
+        j = 0;
+    }
+
+    ROS_INFO("Calibration Successed");
+}
 
 void SteeringMotors::clearAlarmCB(const std_msgs::Int8::ConstPtr& msg)
 {
@@ -388,6 +466,15 @@ void SteeringMotors::clearAlarmCB(const std_msgs::Int8::ConstPtr& msg)
     // Send command
     send(client_, bytes_out_, 13, MSG_DONTWAIT);
     ROS_INFO("MOTOR %d alarms cleared", buffer_.ID);
+}
+
+
+void SteeringMotors::radFeedbackCB(const std_msgs::Float64::ConstPtr& msg)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        motor_angles_[i] = msg->data[i];
+    }    
 }
 
 

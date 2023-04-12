@@ -86,6 +86,7 @@ class SteeringMotors
 private:
 	ros::NodeHandle n_, n1_, n2_, n3_, n4_;
 	ros::Subscriber alarm_clear_;
+	ros::Subscriber rad_feedback_;
 	ros::Publisher alarm_monitor_;
 	ros::Publisher rpm_feedback_;
 	ros::Publisher speed_feedback_;
@@ -117,17 +118,25 @@ private:
 	uint8_t bytes_out_[13];
 	message buffer_;
 	uint8_t bytes_in_[13];
-	int rpm_;
+	int pos_;
+
+	// Calibration parameters
+	int motor_offsets_[4]  = {0, 0, 0, 0};
+	double motor_angles_[4];
+	int max_limit_pos_[4] = {-306, -306, -306, -306};
+	int min_limit_pos_[4] = {298, 298, 298, 298};
 
 	// Internals
 	std_msgs::Int8MultiArray alarm_status_;
 	std_msgs::Int64MultiArray rpms_;
 	uint8_t motorID_[5] = {0xFE, 0x05, 0x06, 0x07, 0x08};
-	void setSpeed(uint8_t, double);
+	void setPos(uint8_t, double);
 	int byteTorpm(uint8_t, uint8_t);
+	int radTopos(uint8_t, double);
 
 	// Callbacks
 	void clearAlarmCB(const std_msgs::Int8::ConstPtr&);
+	void radFeedbackCB(const std_msgs::Float64MultiArray::ConstPtr& msg);
 	void motor5CB(const std_msgs::Float64::ConstPtr&);
   void motor6CB(const std_msgs::Float64::ConstPtr&);
   void motor7CB(const std_msgs::Float64::ConstPtr&);
@@ -137,6 +146,7 @@ private:
 public:
 	SteeringMotors(ros::NodeHandle, ros::NodeHandle, ros::NodeHandle, ros::NodeHandle, ros::NodeHandle);
 	~SteeringMotors();
+	void calibrationRoutine();
 	void spinners();
 	void emergencyStop();
 	int connSocket();

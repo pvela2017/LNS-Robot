@@ -32,6 +32,8 @@ int main(int argc, char **argv)
     SteeringMotors motors(n, n1, n2, n3, n4);
     motors.connSocket();
 
+    // Calibration
+    motors.calibrationRoutine();
 
     while (ros::ok)
     {

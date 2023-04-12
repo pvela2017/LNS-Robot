@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 
 <launch>
-  <arg name="Kp" default="5.0" doc="Proportional gain"/>
-  <arg name="Ki" default="0.0" doc="Integrative gain"/>
+  <arg name="Kp" default="100.0" doc="Proportional gain"/>
+  <arg name="Ki" default="5.0" doc="Integrative gain"/>
   <arg name="Kd" default="0.1" doc="Derivative gain"/>
-  <arg name="upper_limit" default="180" doc="Upper limit"/>
-  <arg name="lower_limit" default="-180" doc="Lower limit"/>
-  <arg name="windup_limit" default="10" doc="Windup limit"/>
+  <arg name="upper_limit" default="300" doc="Upper limit"/>
+  <arg name="lower_limit" default="-300" doc="Lower limit"/>
+  <arg name="windup_limit" default="100" doc="Windup limit"/>
   <arg name="max_loop_frequency" default="100.0" doc="Max loop frequency"/>
   <arg name="min_loop_frequency" default="10.0" doc="Min loop frequency"/>
 

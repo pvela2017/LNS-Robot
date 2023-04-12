@@ -125,7 +125,7 @@ def angleWrap(radians):
 
 def talker():
     rospy.init_node('ggm_feedback')
-    angles_pub = rospy.Publisher("/steering_motors/feedback", Float64MultiArray, queue_size=1)
+    angles_pub = rospy.Publisher("/steering_motors/feedback/rad", Float64MultiArray, queue_size=1)
     rate = rospy.Rate(30) # 50hz
     msg = Float64MultiArray()
 

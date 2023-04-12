@@ -192,7 +192,7 @@ void PidObject::doCalcs()
     Added deadband
     TODO: Add as parameter
     */
-    float deadband = 1.0; // 1 degree error
+    float deadband = 0.0175; // rad = 1 degree error
     if (fabsf(error_.at(0)) < deadband)
     {
       error_.at(0) = 0.0;
