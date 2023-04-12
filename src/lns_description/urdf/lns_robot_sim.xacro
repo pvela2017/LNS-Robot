@@ -203,7 +203,7 @@
     <child
       link="steering_fl_link" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
     <limit
       lower="-2.1"
       upper="2.1"
@@ -315,7 +315,7 @@
     <child
       link="steering_fr_link" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
     <limit
       lower="-2.1"
       upper="2.1"
@@ -372,7 +372,7 @@
     <child
       link="wheel_fr_link" />
     <axis
-      xyz="0.0023488 -1 0" />
+      xyz="0.0023488 1 0" />
     <limit
       effort="1000"
       velocity="20" />
@@ -427,7 +427,7 @@
     <child
       link="steering_br_link" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
     <limit
       lower="-2.1"
       upper="2.1"
@@ -484,7 +484,7 @@
     <child
       link="wheel_br_link" />
     <axis
-      xyz="0.0023488 -1 0" />
+      xyz="0.0023488 1 0" />
     <limit
       effort="1000"
       velocity="20" />
@@ -539,7 +539,7 @@
     <child
       link="steering_bl_link" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
     <limit
       lower="-2.1"
       upper="2.1"
