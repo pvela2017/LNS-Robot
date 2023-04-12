@@ -118,7 +118,7 @@ private:
 	uint8_t bytes_out_[13];
 	message buffer_;
 	uint8_t bytes_in_[13];
-	int pos_;
+	long int pos_;
 
 	// Calibration parameters
 	int motor_offsets_[4]  = {0, 0, 0, 0};

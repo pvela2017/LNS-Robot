@@ -180,7 +180,7 @@ void SteeringMotors::setPos(uint8_t motorID, double pos)
     // If pos are negative
     else
     {
-        int neg_dec;
+        long int neg_dec;
         neg_dec = 281474976710655 - abs(pos_); // 6 x FF- pos
         // 16 bytes = 8bytes0 8bytes1 
         buffer_.D6 = (neg_dec >> 40) & 0xff;
@@ -425,7 +425,7 @@ void SteeringMotors::calibrationRoutine()
             if(motor_angles_[i-1] > 0)
             {
                 j--;
-                SteeringMotors::setPos(motorID_[i], j)
+                SteeringMotors::setPos(motorID_[i], j);
             }
             else if (motor_angles_[i-1] < 0)
             {
@@ -469,7 +469,7 @@ void SteeringMotors::clearAlarmCB(const std_msgs::Int8::ConstPtr& msg)
 }
 
 
-void SteeringMotors::radFeedbackCB(const std_msgs::Float64::ConstPtr& msg)
+void SteeringMotors::radFeedbackCB(const std_msgs::Float64MultiArray::ConstPtr& msg)
 {
     for (int i = 0; i < 4; i++)
     {
@@ -481,26 +481,26 @@ void SteeringMotors::radFeedbackCB(const std_msgs::Float64::ConstPtr& msg)
 void SteeringMotors::motor5CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 5
-    SteeringMotors::setSpeed(this->motorID_[1], msg->data);
+    SteeringMotors::setPos(this->motorID_[1], msg->data);
 }
 
 
 void SteeringMotors::motor6CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 6
-    SteeringMotors::setSpeed(this->motorID_[2], msg->data);
+    SteeringMotors::setPos(this->motorID_[2], msg->data);
 }
 
 void SteeringMotors::motor7CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 7
-    SteeringMotors::setSpeed(this->motorID_[3], msg->data);
+    SteeringMotors::setPos(this->motorID_[3], msg->data);
 }
 
 void SteeringMotors::motor8CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 8
-    SteeringMotors::setSpeed(this->motorID_[4], msg->data);
+    SteeringMotors::setPos(this->motorID_[4], msg->data);
 }
 
 
@@ -512,7 +512,7 @@ void SteeringMotors::emergencyStop()
 
     for (int i = 1; i < 5; i++)
     {
-        SteeringMotors::setSpeed(this->motorID_[i], 0);
+        SteeringMotors::setPos(this->motorID_[i], 0);
     }
 
     // Close the socket
