@@ -31,7 +31,7 @@ std::string path_local, path_abs;
 
 int countWaypointsInFile(std::string path_local)
 {
-    path_abs = ros::package::getPath("ranger_navigation") + path_local;
+    path_abs = ros::package::getPath("lns_navigation") + path_local;
     std::ifstream fileCount(path_abs.c_str());
     if(fileCount.is_open())
     {
