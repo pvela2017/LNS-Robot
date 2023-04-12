@@ -490,19 +490,19 @@ namespace four_wheel_steering_controller{
     // Set wheels velocities:
     if(front_wheel_joints_.size() == 2 && rear_wheel_joints_.size() == 2)
     {
-      front_wheel_joints_[1].setCommand(-vel_left_front);
-      front_wheel_joints_[0].setCommand(vel_right_front);
-      rear_wheel_joints_[1].setCommand(-vel_left_rear);
-      rear_wheel_joints_[0].setCommand(vel_right_rear);
+      front_wheel_joints_[0].setCommand(vel_left_front);
+      front_wheel_joints_[1].setCommand(vel_right_front);
+      rear_wheel_joints_[0].setCommand(vel_left_rear);
+      rear_wheel_joints_[1].setCommand(vel_right_rear);
     }
 
     /// TODO check limits to not apply the same steering on right and left when saturated !
     if(front_steering_joints_.size() == 2 && rear_steering_joints_.size() == 2)
     {
-      front_steering_joints_[1].setCommand(front_left_steering);
-      front_steering_joints_[0].setCommand(front_right_steering);
-      rear_steering_joints_[1].setCommand(rear_left_steering);
-      rear_steering_joints_[0].setCommand(rear_right_steering);
+      front_steering_joints_[0].setCommand(front_left_steering);
+      front_steering_joints_[1].setCommand(front_right_steering);
+      rear_steering_joints_[0].setCommand(rear_left_steering);
+      rear_steering_joints_[1].setCommand(rear_right_steering);
     }
   }
 
