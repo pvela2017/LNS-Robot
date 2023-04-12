@@ -178,16 +178,16 @@ public:
 
 		bytes_out_[4] = motorId;
 
-		// Dummy command, without sending this first the motor doesnt setup speed mode
+		// Dummy command, without sending this first the motor doesnt setup 
 		// TODO: WHY???
 	    bytes_out_[5] = 0x86;
 	    bytes_out_[6] = 0x00;
 	    // Send command
 	    setupMotor::sendCommandNoCheck();
 
-	    // Set operation mode: speed   PID:#183 [Read Write (No need for 0xaa)] 
+	    // Set operation mode: position mode  PID:#183 [Read Write (No need for 0xaa)] 
 	    bytes_out_[5] = 0xB7;
-	    bytes_out_[6] = 0x01;
+	    bytes_out_[6] = 0x02;
 	    // Send command
 	    setupMotor::sendCommand(1);
 	};
