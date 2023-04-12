@@ -58,7 +58,7 @@ std::vector <std::pair<double, double>> getWaypoints(std::string path_local)
 {
     double lati = 0, longi = 0;
 
-    path_abs = ros::package::getPath("ranger_navigation") + path_local;
+    path_abs = ros::package::getPath("lns_navigation") + path_local;
     std::ifstream fileRead(path_abs.c_str());
     for(int i = 0; i < (numWaypoints + 1); i++)
     {
