@@ -3,7 +3,8 @@
      Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
-  name="lns_robot">
+  name="lns_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find lns_description)/urdf/lns_robot_control_transmission.xacro"/>
 
 
 
@@ -201,7 +202,7 @@
     <child
       link="steering_fl_link" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
     <limit
       lower="-2.1"
       upper="2.1"
@@ -260,8 +261,7 @@
     <axis
       xyz="-0.0003039 1 0" />
     <limit
-      lower="0"
-      effort="1.5"
+      effort="1000"
       velocity="20" />
   </joint>
   <link
@@ -314,7 +314,7 @@
     <child
       link="steering_fr_link" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
     <limit
       lower="-2.1"
       upper="2.1"
@@ -371,10 +371,9 @@
     <child
       link="wheel_fr_link" />
     <axis
-      xyz="0.0023488 -1 0" />
+      xyz="0.0023488 1 0" />
     <limit
-      lower="0"
-      effort="1.5"
+      effort="1000"
       velocity="20" />
   </joint>
   <link
@@ -427,7 +426,7 @@
     <child
       link="steering_br_link" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
     <limit
       lower="-2.1"
       upper="2.1"
@@ -484,10 +483,9 @@
     <child
       link="wheel_br_link" />
     <axis
-      xyz="0.0023488 -1 0" />
+      xyz="0.0023488 1 0" />
     <limit
-      lower="0"
-      effort="1.5"
+      effort="1000"
       velocity="20" />
   </joint>
   <link
@@ -540,7 +538,7 @@
     <child
       link="steering_bl_link" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
     <limit
       lower="-2.1"
       upper="2.1"
@@ -599,8 +597,7 @@
     <axis
       xyz="-0.0023488 1 0" />
     <limit
-      lower="0"
-      effort="1.5"
+      effort="1000"
       velocity="20" />
   </joint>
 </robot>
