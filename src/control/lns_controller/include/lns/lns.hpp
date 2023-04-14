@@ -36,7 +36,8 @@ private:
     //std_msgs::Int64MultiArray steering_command_rpms_; TODO
     
     hardware_interface::JointStateInterface jnt_state_;
-    hardware_interface::VelocityJointInterface jnt_cmd_;
+    hardware_interface::VelocityJointInterface jnt_cmd_vel_;
+    hardware_interface::PositionJointInterface jnt_cmd_pos_;
     
     joint_limits_interface::JointLimits jnt_limits_;
     joint_limits_interface::VelocityJointSaturationInterface jnt_vel_sat_;

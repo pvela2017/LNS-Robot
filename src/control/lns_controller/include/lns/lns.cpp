@@ -13,16 +13,16 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
     cmd[0] = 0.0; cmd[1] = 0.0; cmd[2] = 0.0; cmd[3] = 0.0; cmd[4] = 0.0; cmd[5] = 0.0; cmd[6] = 0.0; cmd[7] = 0.0;
     
     // Create joint state handles for driving motors
-    hardware_interface::JointStateHandle state_driving_motor_fl("driving_motor_fl", &pos[0], &vel[0], &eff[0]);
-    hardware_interface::JointStateHandle state_driving_motor_fr("driving_motor_fr", &pos[1], &vel[1], &eff[1]);
-    hardware_interface::JointStateHandle state_driving_motor_br("driving_motor_br", &pos[2], &vel[2], &eff[2]);
-    hardware_interface::JointStateHandle state_driving_motor_bl("driving_motor_bl", &pos[3], &vel[3], &eff[3]);
+    hardware_interface::JointStateHandle state_driving_motor_fl("wheel_fl_joint", &pos[0], &vel[0], &eff[0]);
+    hardware_interface::JointStateHandle state_driving_motor_fr("wheel_fr_joint", &pos[1], &vel[1], &eff[1]);
+    hardware_interface::JointStateHandle state_driving_motor_br("wheel_br_joint", &pos[2], &vel[2], &eff[2]);
+    hardware_interface::JointStateHandle state_driving_motor_bl("wheel_bl_joint", &pos[3], &vel[3], &eff[3]);
 
     // Create joint state handles for steering motors
-    hardware_interface::JointStateHandle state_steering_motor_fl("steering_motor_fl", &pos[4], &vel[4], &eff[4]);
-    hardware_interface::JointStateHandle state_steering_motor_fr("steering_motor_fr", &pos[5], &vel[5], &eff[5]);
-    hardware_interface::JointStateHandle state_steering_motor_br("steering_motor_br", &pos[6], &vel[6], &eff[6]);
-    hardware_interface::JointStateHandle state_steering_motor_bl("steering_motor_bl", &pos[7], &vel[7], &eff[7]);
+    hardware_interface::JointStateHandle state_steering_motor_fl("steering_fl_joint", &pos[4], &vel[4], &eff[4]);
+    hardware_interface::JointStateHandle state_steering_motor_fr("steering_fr_joint", &pos[5], &vel[5], &eff[5]);
+    hardware_interface::JointStateHandle state_steering_motor_br("steering_br_joint", &pos[6], &vel[6], &eff[6]);
+    hardware_interface::JointStateHandle state_steering_motor_bl("steering_bl_joint", &pos[7], &vel[7], &eff[7]);
 
     // Register them
     jnt_state_.registerHandle(state_driving_motor_fl);
@@ -47,16 +47,17 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
     hardware_interface::JointHandle cmd_steering_motor_br (state_steering_motor_br, &cmd[6]);
     hardware_interface::JointHandle cmd_steering_motor_bl (state_steering_motor_bl, &cmd[7]);
 
-    jnt_cmd_.registerHandle(cmd_driving_motor_fl);
-    jnt_cmd_.registerHandle(cmd_driving_motor_fr);
-    jnt_cmd_.registerHandle(cmd_driving_motor_br);
-    jnt_cmd_.registerHandle(cmd_driving_motor_bl);
+    jnt_cmd_vel_.registerHandle(cmd_driving_motor_fl);
+    jnt_cmd_vel_.registerHandle(cmd_driving_motor_fr);
+    jnt_cmd_vel_.registerHandle(cmd_driving_motor_br);
+    jnt_cmd_vel_.registerHandle(cmd_driving_motor_bl);
+    registerInterface(&jnt_cmd_vel_);
 
-    jnt_cmd_.registerHandle(cmd_steering_motor_fl);
-    jnt_cmd_.registerHandle(cmd_steering_motor_fr);
-    jnt_cmd_.registerHandle(cmd_steering_motor_br);
-    jnt_cmd_.registerHandle(cmd_steering_motor_bl);
-    registerInterface(&jnt_cmd_);
+    jnt_cmd_pos_.registerHandle(cmd_steering_motor_fl);
+    jnt_cmd_pos_.registerHandle(cmd_steering_motor_fr);
+    jnt_cmd_pos_.registerHandle(cmd_steering_motor_br);
+    jnt_cmd_pos_.registerHandle(cmd_steering_motor_bl);
+    registerInterface(&jnt_cmd_pos_);
     
     /*
     // Create joint limits handles and register them
@@ -81,7 +82,7 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
     registerInterface(&jnt_vel_sat_);*/
     
     // Create a subscriber to get rad/sec
-    driving_motors_sub_ = n_.subscribe("/diving_motors/feedback/angular/radsec", 1, &LnsRobot::drivingCB, this);
+    driving_motors_sub_ = n_.subscribe("/driving_motors/feedback/angular/radsec", 1, &LnsRobot::drivingCB, this);
     // Create a subscriber to get angle in rad
     steering_motors_sub_ = n_.subscribe("/steering_motors/feedback/rad", 1, &LnsRobot::steeringCB, this);
 
