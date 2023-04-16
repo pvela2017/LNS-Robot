@@ -93,6 +93,7 @@ private:
 
 	// PID
   // Callbacks queues
+  ros::CallbackQueue callback_queue_wheel_1_;
   ros::CallbackQueue callback_queue_wheel_2_;
   ros::CallbackQueue callback_queue_wheel_3_;
   ros::CallbackQueue callback_queue_wheel_4_;
@@ -103,6 +104,7 @@ private:
   ros::Subscriber pidWheel_4_;
 
   // Spinners
+  ros::SingleThreadedSpinner spinner_1_;
   ros::SingleThreadedSpinner spinner_2_;
   ros::SingleThreadedSpinner spinner_3_;
   ros::SingleThreadedSpinner spinner_4_;
