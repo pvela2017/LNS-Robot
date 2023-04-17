@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     motors.connSocket();
 
     // Calibration
-    motors.calibrationRoutine();
+    //motors.calibrationRoutine();
 
     while (ros::ok)
     {
