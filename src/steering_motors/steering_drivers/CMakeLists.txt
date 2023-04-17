@@ -82,6 +82,10 @@ include/drivers/steering_motors.cpp)
 add_dependencies(steering ${steering_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(steering ${catkin_LIBRARIES})
 
+add_executable(anglefeedback src/anglefeedback.cpp)
+add_dependencies(anglefeedback ${anglefeedback_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(anglefeedback ${catkin_LIBRARIES})
+
 #############
 ## Install ##
 #############
