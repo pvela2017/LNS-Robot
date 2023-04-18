@@ -1,4 +1,4 @@
-
+#include <regex>
 #include <sys/wait.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -48,13 +48,16 @@ private:
     std_msgs::Float64 feedback_motor7_;
     std_msgs::Float64 feedback_motor8_;
 
+    // Methods
+    double degTorad(double);
+    double angleWrap(double);
+    bool isNumber(std::string);
+
 public:
     Socket(ros::NodeHandle);
     ~Socket();
 	int connSocket();
     int ReadEncoder();
-    double degTorad(double);
-    double angleWrap(double);
 };
 
 Socket::Socket(ros::NodeHandle n)
@@ -158,6 +161,10 @@ int Socket::ReadEncoder()
         temp += buffer_[1];
         temp += buffer_[2];
         //ROS_WARN("%s",temp.c_str());
+        if (!Socket::isNumber(temp))
+        {
+            return -1;
+        }
         angles_[0] = double(stoi(temp));
         temp.clear();
 
@@ -165,6 +172,10 @@ int Socket::ReadEncoder()
         temp += buffer_[5];
         temp += buffer_[6];
         //ROS_WARN("%s",temp.c_str());
+        if (!Socket::isNumber(temp))
+        {
+            return -1;
+        }
         angles_[1] = double(stoi(temp));
         temp.clear();
 
@@ -172,6 +183,10 @@ int Socket::ReadEncoder()
         temp += buffer_[9];
         temp += buffer_[10];
         //ROS_WARN("%s",temp.c_str());
+        if (!Socket::isNumber(temp))
+        {
+            return -1;
+        }
         angles_[2] = double(stoi(temp));
         temp.clear();
 
@@ -179,6 +194,10 @@ int Socket::ReadEncoder()
         temp += buffer_[13];
         temp += buffer_[14];
         //ROS_WARN("%s",temp.c_str());
+        if (!Socket::isNumber(temp))
+        {
+            return -1;
+        }
         angles_[3] = double(stoi(temp));
         temp.clear();
 
@@ -257,8 +276,10 @@ double Socket::angleWrap(double radians)
     return radians;
 }
 
-
-
+bool Socket::isNumber(std::string token )
+{
+    return std::regex_match( token, std::regex( ( "((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?" ) ) );
+}
 
 int main(int argc, char **argv)
 {
