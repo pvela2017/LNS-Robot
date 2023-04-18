@@ -120,13 +120,14 @@ private:
 	uint8_t bytes_out_[13];
 	message buffer_;
 	uint8_t bytes_in_[13];
-	long int pos_;
+	int pos_;
 
 	// Calibration parameters
 	int motor_offsets_[4]  = {0, 0, 0, 0};
 	double motor_angles_[4];
-	int max_limit_pos_[4] = {-306, -306, -306, -306};
-	int min_limit_pos_[4] = {298, 298, 298, 298};
+
+	int max_limit_pos_[4] = {297, 295, 300, 290};         // pi/2
+	int min_limit_pos_[4] = {-290, -292, -290, -295};     // -pi/2
 
 	// Internals
 	std_msgs::Int8MultiArray alarm_status_;
