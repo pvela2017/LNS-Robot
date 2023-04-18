@@ -94,13 +94,17 @@ roslaunch lns_driving_motors driving_motors.launch
 
 4. Launch steering motors interface
 ```sh
-rosrun steering_drivers motorTcpFeedback.py
-rosrun steering_pid remap_feedback_node.py
-roslaunch steering_drivers steering_motors.launch
+roslaunch steering_drivers steering_feedback.launch
 roslaunch steering_pid steeringposition_pid.launch
+roslaunch steering_drivers steering_motors.launch
 ```
 
-5. Then the whole navigation system can be launch using:
+5. Controller interface:
+```sh
+roslaunch lns_controller main_controller.launch
+```
+
+6. Then the whole navigation system can be launch using:
 ```sh
 roslaunch lns_launch lns_real.launch
 ```
