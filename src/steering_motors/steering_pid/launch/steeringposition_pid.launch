@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 
 <launch>
-  <arg name="Kp" default="100.0" doc="Proportional gain"/>
-  <arg name="Ki" default="5.0" doc="Integrative gain"/>
-  <arg name="Kd" default="0.1" doc="Derivative gain"/>
+  <arg name="Kp" default="300.0" doc="Proportional gain"/>
+  <arg name="Ki" default="300.5" doc="Integrative gain"/>
+  <arg name="Kd" default="50.0" doc="Derivative gain"/>
   <arg name="upper_limit" default="300" doc="Upper limit"/>
   <arg name="lower_limit" default="-300" doc="Lower limit"/>
   <arg name="windup_limit" default="100" doc="Windup limit"/>
@@ -26,8 +26,8 @@
   <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/pid/motor6" output="screen" >
     <param name="node_name" value="steering_pid_motor6" />
     <param name="Kp" value="$(arg Kp)" />
-    <param name="Ki" value="0.0" />
-    <param name="Kd" value="0.1" />
+    <param name="Ki" value="$(arg Ki)" />
+    <param name="Kd" value="$(arg Kd)" />
     <param name="upper_limit" value="$(arg upper_limit)" />
     <param name="lower_limit" value="$(arg lower_limit)" />
     <param name="windup_limit" value="$(arg windup_limit)" />
@@ -39,8 +39,8 @@
   <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/pid/motor7" output="screen" >
     <param name="node_name" value="steering_pid_motor7" />
     <param name="Kp" value="$(arg Kp)" />
-    <param name="Ki" value="0.0" />
-    <param name="Kd" value="0.1" />
+    <param name="Ki" value="$(arg Ki)" />
+    <param name="Kd" value="$(arg Kd)" />
     <param name="upper_limit" value="$(arg upper_limit)" />
     <param name="lower_limit" value="$(arg lower_limit)" />
     <param name="windup_limit" value="$(arg windup_limit)" />
@@ -52,8 +52,8 @@
   <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/pid/motor8" output="screen" >
     <param name="node_name" value="steering_pid_motor8" />
     <param name="Kp" value="$(arg Kp)" />
-    <param name="Ki" value="0.0" />
-    <param name="Kd" value="0.1" />
+    <param name="Ki" value="$(arg Ki)" />
+    <param name="Kd" value="$(arg Kd)" />
     <param name="upper_limit" value="$(arg upper_limit)" />
     <param name="lower_limit" value="$(arg lower_limit)" />
     <param name="windup_limit" value="$(arg windup_limit)" />
