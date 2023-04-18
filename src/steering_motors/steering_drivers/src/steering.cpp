@@ -40,12 +40,6 @@ int main(int argc, char **argv)
 
         //motors.alarmMonitor();
         motors.feedback();
-
-        if (ros::isShuttingDown()) 
-        {
-            motors.emergencyStop();
-        }
-
         motors.spinners();
         ros::spinOnce();
         loop_rate.sleep();
