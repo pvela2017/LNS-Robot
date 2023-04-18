@@ -158,23 +158,26 @@ void SteeringMotors::setPos(uint8_t motorID, double pos)
     // Setup position bytes
     // Transform rad to pos 
     //pos_ = radTopos(motorID, rad); // no need to this, since this is the pid control effort
+    pos_ = int(pos);
     // Hard limits
-    if (pos_ > max_limit_pos_[motorID-5])
+    int hard_top = 0;
+    int hard_low = 0;
+    hard_top = max_limit_pos_[motorID-5] + motor_offsets_[motorID-5];
+    hard_low = min_limit_pos_[motorID-5] + motor_offsets_[motorID-5];
+
+    if (pos_ > hard_top)
     {
-        pos_ = max_limit_pos_[motorID-5];
+        pos_ = hard_top;
     }
-    if (pos_ < min_limit_pos_[motorID-5])
+    if (pos_ < hard_low)
     {
-        pos_ = min_limit_pos_[motorID-5];
+        pos_ = hard_low;
     }
-    // Compensate for the offset
-    pos_ = int(pos) + motor_offsets_[motorID-5];
+
     // If pos are positive
     if (pos_ >= 0)
     {
         // 16 bytes = 8bytes0 8bytes1 
-        buffer_.D6 = (pos_ >> 40) & 0xff;
-        buffer_.D5 = (pos_ >> 32) & 0xff;
         buffer_.D4 = (pos_ >> 24) & 0xff;
         buffer_.D3 = (pos_ >> 16) & 0xff;
         buffer_.D2 = (pos_ >> 8) & 0xff; 
@@ -184,16 +187,17 @@ void SteeringMotors::setPos(uint8_t motorID, double pos)
     // If pos are negative
     else
     {
-        long int neg_dec;
-        neg_dec = 281474976710655 - abs(pos_); // 6 x FF- pos
+        int neg_dec;
+        neg_dec = 4294967295 - abs(pos_); // 6 x FF- pos
         // 16 bytes = 8bytes0 8bytes1 
-        buffer_.D6 = (neg_dec >> 40) & 0xff;
-        buffer_.D5 = (neg_dec >> 32) & 0xff;
         buffer_.D4 = (neg_dec >> 24) & 0xff;
         buffer_.D3 = (neg_dec >> 16) & 0xff;
         buffer_.D2 = (neg_dec >> 8) & 0xff; 
         buffer_.D1 = neg_dec & 0xff;
     }
+
+    buffer_.D6 = 0;
+    buffer_.D5 = 0;
 
     // Data Marshalling
     SteeringMotors::Parser();
