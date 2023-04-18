@@ -137,15 +137,15 @@ public:
 	    setupMotor::sendCommand(1);
 
 	    // Set inversion of moving direction (Some motors) PID:#16 [Read Write (No need for 0xaa)]
-	    if (bytes_out_[4] == 0x05 || bytes_out_[4] == 0x08)
+	    if (bytes_out_[4] == 0x05 || bytes_out_[4] == 0x07)
 	    {
 	    	bytes_out_[5] = 0x10;
-	    	bytes_out_[6] = 0x01;
+	    	bytes_out_[6] = 0x00;
 	    }
 	    else
 	    {
 	    	bytes_out_[5] = 0x10;
-	    	bytes_out_[6] = 0x00;
+	    	bytes_out_[6] = 0x01;
 	    }
 	    // Send command
 	    setupMotor::sendCommand(2);
