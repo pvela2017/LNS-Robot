@@ -60,9 +60,6 @@ Military project for an autonomous  4 wheel independent steering robot using GPS
    sudo apt-get install ros-noetic-hector-gazebo-plugins
    # Move Base Package
    sudo apt-get install ros-noetic-move-base
-   
-   # Keyboard control
-   sudo apt install ros-noetic-teleop-twist-keyboard
    ```
 2. Clone the repo
    ```sh
@@ -121,11 +118,13 @@ This will launch:
 
 </br>
 
-NEEDS TO MODIFY --------------------
 Keyboard control:
 ```sh
-roslaunch ranger_teleop ranger_teleop_keyboard.launch
+roslaunch lns_teleop teleop_keyboard.launch
 ```
+
+NEEDS TO MODIFY --------------------
+
 
 ## Usage Simulation
 The simulation can be launch using:
