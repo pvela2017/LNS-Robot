@@ -5,6 +5,12 @@
 	<!-- Run the map server -->
 	<node name="map_server" pkg="map_server" type="map_server" args="$(find lns_navigation)/maps/mymap_empty.yaml" />
 
+	<!-- Run the ekf for odom to base config -->
+  	<node pkg="robot_localization" type="ekf_localization_node" name="ekf_se_odom" respawn="true">
+  		<rosparam file="$(find lns_navigation)/config/real/ekf_se_odom.yaml" command="load" />
+  		
+  	</node>
+
   	<!-- Run the ekf for map to odom config -->
   	<node pkg="robot_localization" type="ekf_localization_node" name="ekf_se_map" respawn="true">
   		<rosparam file="$(find lns_navigation)/config/real/ekf_se_map.yaml" command="load" />
