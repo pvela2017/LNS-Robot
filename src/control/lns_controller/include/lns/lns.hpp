@@ -11,6 +11,7 @@
 #include <joint_limits_interface/joint_limits_rosparam.h>
 #include <joint_limits_interface/joint_limits_urdf.h>
 
+#include <ros/ros.h>
 #include <std_msgs/Int64MultiArray.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <std_msgs/Float64.h>
@@ -59,7 +60,7 @@ private:
 
 public:
     LnsRobot(ros::NodeHandle& nodehandle);
-    
+    ~LnsRobot();
     void read();
     void write(ros::Duration elapsed_time);
     

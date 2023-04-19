@@ -95,6 +95,11 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
     steering_motor8_pub_ = n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor8/control_effort", 1);
 }
 
+LnsRobot::~LnsRobot()
+{
+
+}
+
 void LnsRobot::read()
 {
     pos[4] = steering_rad_[0];
