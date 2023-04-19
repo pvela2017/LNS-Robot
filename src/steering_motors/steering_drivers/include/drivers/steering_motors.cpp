@@ -407,8 +407,8 @@ void SteeringMotors::calibrationRoutine()
 {
     /*
     The zero position will be given by the starting position 
-    of the wheel when the motors are powered, those this routine
-    find the offset for each motor.
+    of the wheel when the motors are powered, thus this routine
+    finds the offset for each motor.
     */
 
     ROS_INFO("Starting Calibration");
@@ -420,10 +420,11 @@ void SteeringMotors::calibrationRoutine()
     // Offset
     int j = 0;
 
-    for (int i = 1; i < 5; i++)
+    for (int i = 1; i < 2; i++) //TEST cambiar a 5!
     {
         while (!align)
         {
+            ros::spinOnce();
             if (fabs(motor_angles_[i-1]) <= deadband_rad)
             {
                 align = true;
@@ -440,6 +441,7 @@ void SteeringMotors::calibrationRoutine()
                 j++;
                 SteeringMotors::setPos(motorID_[i], j);
             }
+            ros::Duration(0.1).sleep(); // 0.1 second to let the motor steer
         }
         // Save offsets
         motor_offsets_[i-1] = j;
