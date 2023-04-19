@@ -420,7 +420,7 @@ void SteeringMotors::calibrationRoutine()
     // Offset
     int j = 0;
 
-    for (int i = 1; i < 2; i++) //TEST cambiar a 5!
+    for (int i = 1; i < 5; i++) //TEST cambiar a 1 a 5!
     {
         while (!align)
         {
