@@ -89,7 +89,7 @@ roslaunch lns_bringup bringup_steering.launch
 
 3. Launch driving motors interface
 ```sh
-roslaunch lns_driving_motors driving_motors.launch
+roslaunch driving_motors driving_motors.launch
 ```
 
 4. Launch steering motors interface
@@ -99,12 +99,17 @@ roslaunch steering_pid steeringposition_pid.launch
 roslaunch steering_drivers steering_motors.launch
 ```
 
-5. Controller interface:
+5. URDF, TF and joint transforms:
+```sh
+roslaunch lns_bringup lns_bringup.launch
+```
+
+6. Controller interface:
 ```sh
 roslaunch lns_controller main_controller.launch
 ```
 
-6. Then the whole navigation system can be launch using:
+7. Then the whole navigation system can be launch using:
 ```sh
 roslaunch lns_launch lns_real.launch
 ```
