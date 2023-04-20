@@ -89,10 +89,10 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
     // Create a publisher to send data to driving motors
     driving_motors_pub_ = n_.advertise<std_msgs::Int64MultiArray>("/driving_motors/commands", 1);
     // Create a publisher to send data to steering motors
-    steering_motor5_pub_ = n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor5/control_effort", 1);
-    steering_motor6_pub_ = n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor6/control_effort", 1);
-    steering_motor7_pub_ = n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor7/control_effort", 1);
-    steering_motor8_pub_ = n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor8/control_effort", 1);
+    steering_motor5_pub_ = n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor5/setpoint", 1);
+    steering_motor6_pub_ = n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor6/setpoint", 1);
+    steering_motor7_pub_ = n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor7/setpoint", 1);
+    steering_motor8_pub_ = n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor8/setpoint", 1);
 }
 
 LnsRobot::~LnsRobot()
