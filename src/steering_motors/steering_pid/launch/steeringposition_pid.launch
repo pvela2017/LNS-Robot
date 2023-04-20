@@ -7,8 +7,8 @@
   <arg name="upper_limit" default="300" doc="Upper limit"/>
   <arg name="lower_limit" default="-300" doc="Lower limit"/>
   <arg name="windup_limit" default="100" doc="Windup limit"/>
-  <arg name="max_loop_frequency" default="100.0" doc="Max loop frequency"/>
-  <arg name="min_loop_frequency" default="10.0" doc="Min loop frequency"/>
+  <arg name="max_loop_frequency" default="30.0" doc="Max loop frequency"/>
+  <arg name="min_loop_frequency" default="30.0" doc="Min loop frequency"/>
 
   <node name="controller" pkg="steering_pid" type="controller" ns="steering_motors/pid/motor5" output="screen" >
     <param name="node_name" value="steering_pid_motor5" />

@@ -16,8 +16,8 @@ int main(int argc, char** argv)
     LnsRobot robot(nh);
     controller_manager::ControllerManager cm(&robot, nh);
     
-    // set the period and update rate for 10Hz 
-    ros::Duration period(0.1);
+    // set the period and update rate for 30Hz 
+    ros::Duration period(0.0333);
     ros::Rate rate(1.0/period.toSec());
  
     // create a new spinner thread for the callback method and start it
