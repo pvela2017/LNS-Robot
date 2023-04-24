@@ -86,6 +86,10 @@ class PublishThread(threading.Thread):
         self.condition = threading.Condition()
         self.done = False
 
+        # Slope parameter
+        self.LIN_VEL_STEP_SIZE = 0.1
+        self.STEERING_ANGLE_STEP_SIZE = 1
+
         # Set timeout to None if rate is 0 (causes new_message to wait forever
         # for new data to publish)
         if rate != 0.0:
@@ -123,6 +127,17 @@ class PublishThread(threading.Thread):
         self.update(0, 0, 0, 0, 0, 0)
         self.join()
 
+
+    def makeSimpleProfile(self, output, input, slop):
+        if input > output:
+            output = min( input, output + slop )
+        elif input < output:
+            output = max( input, output - slop )
+        else:
+            output = input
+
+        return output
+
     def run(self):
         twist_msg = TwistMsg()
 
@@ -139,13 +154,21 @@ class PublishThread(threading.Thread):
             # Wait for a new message or timeout.
             self.condition.wait(self.timeout)
 
+            # Calculate values for slope
+            control_linear_vel = self.x
+            target_linear_vel = self.x * self.speed
+
+            control_angle = self.th
+            target_angle = self.th * self.turn
+
             # Copy state into twist message.
-            twist.linear.x = self.x * self.speed
+            twist.linear.x = self.makeSimpleProfile(control_linear_vel, target_linear_vel, (self.LIN_VEL_STEP_SIZE/2.0)) 
             twist.linear.y = self.y * self.speed
-            twist.linear.z = self.z * self.speed
+            twist.linear.z = 0
             twist.angular.x = 0
             twist.angular.y = 0
-            twist.angular.z = self.th * self.turn
+            twist.angular.z = self.makeSimpleProfile(control_angle, target_angle, (self.STEERING_ANGLE_STEP_SIZE/1.3))
+            
 
             self.condition.release()
 
