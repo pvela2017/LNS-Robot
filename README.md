@@ -123,13 +123,11 @@ Keyboard control:
 roslaunch lns_teleop teleop_keyboard.launch
 ```
 
-NEEDS TO MODIFY --------------------
-
 
 ## Usage Simulation
 The simulation can be launch using:
 ```
-roslaunch ranger_launch ranger_sim.launch
+roslaunch lns_launch lns_sim.launch
 ```
 
 This will launch:
@@ -142,21 +140,21 @@ This will launch:
 ### Gazebo
 1. Start the gazebo simulation environment.
 ```sh
-roslaunch ranger_gazebo empty_world.launch
+roslaunch lns_gazebo empty_world.launch
 ```
 2. Start the robot control package.
 ```sh
-roslaunch ranger_mini_control robot_control.launch
+roslaunch lns_controller main_controller_sim.launch
 ```
 
 3. Start the robot_localization package.
 ```sh
-roslaunch ranger_navigation start_navigation_with_gps_ekf_sim.launch
+roslaunch lns_navigation start_navigation_with_gps_ekf_sim.launch 
 ```
 
 3. Start the move base package.
 ```sh
-roslaunch ranger_navigation move_sim.launch
+roslaunch lns_navigation move_sim.launch
 ```
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
