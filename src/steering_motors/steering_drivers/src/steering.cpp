@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     {
 
         //motors.alarmMonitor();
-        motors.feedback();
+        //motors.feedback();
         motors.spinners();
         ros::spinOnce();
         loop_rate.sleep();
