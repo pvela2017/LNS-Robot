@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<launch>
+   <!-- Hardware interface  -->
+   <node pkg="lns_controller" type="hardware_interface_controller" name="hardware_interface_controller"  output="screen"/>
+
+
+   <!-- Load joint controller configurations from YAML file to parameter server -->
+   <rosparam file="$(find lns_controller)/config/controller_swerve.yaml" command="load"/>
+
+   <!-- load the controllers -->
+   <node name="controller_spawner" pkg="controller_manager"
+      type="spawner" output="screen" 
+      args="joint_state_controller swerve_controller">
+   </node>
+ 
+</launch>
+
+

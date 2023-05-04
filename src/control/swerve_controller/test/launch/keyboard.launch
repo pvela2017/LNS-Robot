@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+	<node name="keyboard" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py">
+			<remap from="/cmd_vel" to="/swervebot/swerve_controller/cmd_vel" />
+		</node>
+</launch>
+
