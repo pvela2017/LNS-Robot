@@ -2,10 +2,10 @@
 
 <launch>
    <!-- Gazebo  -->
-   <!--<include file="$(find ranger_gazebo)/launch/empty_world.launch" />-->
+   <include file="$(find ranger_gazebo)/launch/empty_world.launch" />
 
    <!-- ros_control motoman launch file -->
-   
+   <include file="$(find lns_controller)/launch/main_controller_sim.launch" />
 
    <!-- Robot localization package  -->
    <include file="$(find lns_navigation)/launch/start_navigation_with_gps_ekf_sim.launch" />
