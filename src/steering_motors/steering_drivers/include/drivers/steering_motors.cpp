@@ -326,7 +326,7 @@ int SteeringMotors::feedback()
 
         // Data Marshalling
         SteeringMotors::Parser();
-
+        
         // Send command
         send(client_, bytes_out_, 13, MSG_DONTWAIT);
 
@@ -491,26 +491,34 @@ void SteeringMotors::radFeedbackCB(const std_msgs::Float64MultiArray::ConstPtr& 
 void SteeringMotors::motor5CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 5
+    send_time_mutex_.lock();
     SteeringMotors::setPos(this->motorID_[1], msg->data);
+    send_time_mutex_.unlock();
 }
 
 
 void SteeringMotors::motor6CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 6
+    send_time_mutex_.lock();
     SteeringMotors::setPos(this->motorID_[2], msg->data);
+    send_time_mutex_.unlock();
 }
 
 void SteeringMotors::motor7CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 7
+    send_time_mutex_.lock();
     SteeringMotors::setPos(this->motorID_[3], msg->data);
+    send_time_mutex_.unlock();
 }
 
 void SteeringMotors::motor8CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 8
+    send_time_mutex_.lock();
     SteeringMotors::setPos(this->motorID_[4], msg->data);
+    send_time_mutex_.unlock();
 }
 
 

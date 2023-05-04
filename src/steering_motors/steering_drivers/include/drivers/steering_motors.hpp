@@ -114,6 +114,9 @@ private:
 	int client_;
 	int status_;
 
+	// Threads
+	std::mutex send_time_mutex_; 
+
 	// Parser
 	void Parser();
 	void clearBuffer();
