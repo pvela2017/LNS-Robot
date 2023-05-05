@@ -452,6 +452,9 @@ void SteeringMotors::calibrationRoutine()
     }
 
     ROS_INFO("Calibration Successed");
+
+    // Unsubscribe from the topic
+    rad_feedback_.shutdown();
 }
 
 void SteeringMotors::clearAlarmCB(const std_msgs::Int8::ConstPtr& msg)
