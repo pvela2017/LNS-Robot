@@ -19,8 +19,8 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
     hardware_interface::JointStateHandle state_driving_motor_bl("wheel_bl_joint", &pos[3], &vel[3], &eff[3]);
 
     // Create joint state handles for steering motors
-    hardware_interface::JointStateHandle state_steering_motor_fl("steering_fl_joint", &pos[4], &vel[4], &eff[4]);
-    hardware_interface::JointStateHandle state_steering_motor_fr("steering_fr_joint", &pos[5], &vel[5], &eff[5]);
+    hardware_interface::JointStateHandle state_steering_motor_fr("steering_fr_joint", &pos[4], &vel[4], &eff[4]);
+    hardware_interface::JointStateHandle state_steering_motor_fl("steering_fl_joint", &pos[5], &vel[5], &eff[5]);
     hardware_interface::JointStateHandle state_steering_motor_bl("steering_bl_joint", &pos[6], &vel[6], &eff[6]);
     hardware_interface::JointStateHandle state_steering_motor_br("steering_br_joint", &pos[7], &vel[7], &eff[7]);
 
@@ -30,8 +30,8 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
     jnt_state_.registerHandle(state_driving_motor_br);
     jnt_state_.registerHandle(state_driving_motor_bl);
 
-    jnt_state_.registerHandle(state_steering_motor_fl);
     jnt_state_.registerHandle(state_steering_motor_fr);
+    jnt_state_.registerHandle(state_steering_motor_fl);
     jnt_state_.registerHandle(state_steering_motor_bl);
     jnt_state_.registerHandle(state_steering_motor_br);
     registerInterface(&jnt_state_);
@@ -42,8 +42,8 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
     hardware_interface::JointHandle cmd_driving_motor_br (state_driving_motor_br, &cmd[2]);
     hardware_interface::JointHandle cmd_driving_motor_bl (state_driving_motor_bl, &cmd[3]);
 
-    hardware_interface::JointHandle cmd_steering_motor_fl (state_steering_motor_fl, &cmd[4]);
-    hardware_interface::JointHandle cmd_steering_motor_fr (state_steering_motor_fr, &cmd[5]);
+    hardware_interface::JointHandle cmd_steering_motor_fr (state_steering_motor_fr, &cmd[4]);
+    hardware_interface::JointHandle cmd_steering_motor_fl (state_steering_motor_fl, &cmd[5]);
     hardware_interface::JointHandle cmd_steering_motor_bl (state_steering_motor_bl, &cmd[6]);
     hardware_interface::JointHandle cmd_steering_motor_br (state_steering_motor_br, &cmd[7]);
 
@@ -53,8 +53,8 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
     jnt_cmd_vel_.registerHandle(cmd_driving_motor_bl);
     registerInterface(&jnt_cmd_vel_);
 
-    jnt_cmd_pos_.registerHandle(cmd_steering_motor_fl);
     jnt_cmd_pos_.registerHandle(cmd_steering_motor_fr);
+    jnt_cmd_pos_.registerHandle(cmd_steering_motor_fl);
     jnt_cmd_pos_.registerHandle(cmd_steering_motor_bl);
     jnt_cmd_pos_.registerHandle(cmd_steering_motor_br);
     registerInterface(&jnt_cmd_pos_);
