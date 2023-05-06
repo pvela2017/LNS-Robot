@@ -18,7 +18,7 @@ motor_7 = rospy.Publisher('/steering_motors/pid/motor7/setpoint', Float64, queue
 motor_8 = rospy.Publisher('/steering_motors/pid/motor8/setpoint', Float64, queue_size=1)
 
 msg = Float64()
-msg = 0.0
+msg = 0.5
 
 while True:
     motor_5.publish(msg)

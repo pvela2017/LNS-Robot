@@ -90,8 +90,6 @@ SteeringMotors::SteeringMotors(ros::NodeHandle n, ros::NodeHandle n1, ros::NodeH
     this->buffer_.D5 = 0x00;
     this->buffer_.D6 = 0x00;
     this->buffer_.D7 = 0x00;
-
-    cv_.notify_all();
 }
 
 SteeringMotors::~SteeringMotors()
@@ -141,15 +139,12 @@ int SteeringMotors::connSocket()
 }
 
 
-void SteeringMotors::setPos(uint8_t motorID, double pos, int thread)
+void SteeringMotors::setPos(uint8_t motorID, double pos)
 {
     /*
     Transform rpm to byte and send the speed command
     If the DLC is change from 0x08 feedback becomes unstable
     */
-    std::unique_lock<std::mutex> lck(send_time_mutex_);
-    cv_.wait(lck, [&](){return threadCount_ == thread;});
-    //send_time_mutex_.lock();
 
     // Clear the buffer
     SteeringMotors::clearBuffer();
@@ -210,92 +205,7 @@ void SteeringMotors::setPos(uint8_t motorID, double pos, int thread)
     // Send command
     send(client_, bytes_out_, 13, MSG_DONTWAIT);
 
-    //send_time_mutex_.unlock();
-    threadCount_++;
-    if (threadCount_ > 3)
-    {
-        threadCount_ = 0;
-    }
-    cv_.notify_all();
 }
-
-
-void SteeringMotors::setPos_nothreads(uint8_t motorID, double pos)
-{
-    /*
-    Transform rpm to byte and send the speed command
-    If the DLC is change from 0x08 feedback becomes unstable
-    */
-
-    //send_time_mutex_.lock();
-
-    // Clear the buffer
-    SteeringMotors::clearBuffer();
-
-    // Setup Command PID 219
-    buffer_.PID = 0xDB;
-
-    // Setup motor ID
-    buffer_.ID = motorID;
-
-    // Setup position bytes
-    // Transform rad to pos 
-    //pos_ = radTopos(motorID, rad); // no need to this, since this is the pid control effort
-    pos_ = int(pos);
-    // Hard limits
-    int hard_top = 0;
-    int hard_low = 0;
-    hard_top = max_limit_pos_[motorID-5] + motor_offsets_[motorID-5];
-    hard_low = min_limit_pos_[motorID-5] + motor_offsets_[motorID-5];
-
-    if (pos_ > hard_top)
-    {
-        pos_ = hard_top;
-    }
-    if (pos_ < hard_low)
-    {
-        pos_ = hard_low;
-    }
-
-    // If pos are positive
-    if (pos_ >= 0)
-    {
-        // 16 bytes = 8bytes0 8bytes1 
-        buffer_.D4 = (pos_ >> 24) & 0xff;
-        buffer_.D3 = (pos_ >> 16) & 0xff;
-        buffer_.D2 = (pos_ >> 8) & 0xff; 
-        buffer_.D1 = pos_ & 0xff; 
-    }
-
-    // If pos are negative
-    else
-    {
-        int neg_dec;
-        neg_dec = 4294967295 - abs(pos_); // 6 x FF- pos
-        // 16 bytes = 8bytes0 8bytes1 
-        buffer_.D4 = (neg_dec >> 24) & 0xff;
-        buffer_.D3 = (neg_dec >> 16) & 0xff;
-        buffer_.D2 = (neg_dec >> 8) & 0xff; 
-        buffer_.D1 = neg_dec & 0xff;
-    }
-
-    buffer_.D6 = 0;
-    buffer_.D5 = 0;
-
-    // Data Marshalling
-    SteeringMotors::Parser();
-
-    // Send command
-    send(client_, bytes_out_, 13, MSG_DONTWAIT);
-
-    //send_time_mutex_.unlock();
-    threadCount_++;
-    if (threadCount_ > 3)
-    {
-        threadCount_ = 0;
-    }
-}
-
 
 int SteeringMotors::alarmMonitor()
 {
@@ -524,12 +434,12 @@ void SteeringMotors::calibrationRoutine()
             if(motor_angles_[i-1] > 0)
             {
                 j--;
-                SteeringMotors::setPos_nothreads(motorID_[i], j);
+                SteeringMotors::setPos(motorID_[i], j);
             }
             else if (motor_angles_[i-1] < 0)
             {
                 j++;
-                SteeringMotors::setPos_nothreads(motorID_[i], j);
+                SteeringMotors::setPos(motorID_[i], j);
             }
             ros::Duration(0.1).sleep(); // 0.1 second to let the motor steer
         }
@@ -584,30 +494,34 @@ void SteeringMotors::radFeedbackCB(const std_msgs::Float64MultiArray::ConstPtr& 
 void SteeringMotors::motor5CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 5
-    int thread = 0;
-    SteeringMotors::setPos(this->motorID_[1], msg->data, thread);
+    send_time_mutex_.lock();
+    SteeringMotors::setPos(this->motorID_[1], msg->data);
+    send_time_mutex_.unlock();
 }
 
 
 void SteeringMotors::motor6CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 6
-    int thread = 1;
-    SteeringMotors::setPos(this->motorID_[2], msg->data, thread);
+    send_time_mutex_.lock();
+    SteeringMotors::setPos(this->motorID_[2], msg->data);
+    send_time_mutex_.unlock();
 }
 
 void SteeringMotors::motor7CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 7
-    int thread = 2;
-    SteeringMotors::setPos(this->motorID_[3], msg->data, thread);
+    send_time_mutex_.lock();
+    SteeringMotors::setPos(this->motorID_[3], msg->data);
+    send_time_mutex_.unlock();
 }
 
 void SteeringMotors::motor8CB(const std_msgs::Float64::ConstPtr& msg)
 {
     //Motor 8
-    int thread = 3;
-    SteeringMotors::setPos(this->motorID_[4], msg->data, thread);
+    send_time_mutex_.lock();
+    SteeringMotors::setPos(this->motorID_[4], msg->data);
+    send_time_mutex_.unlock();
 }
 
 
@@ -619,7 +533,7 @@ void SteeringMotors::emergencyStop()
 
     for (int i = 1; i < 5; i++)
     {
-        SteeringMotors::setPos_nothreads(this->motorID_[i], 0);
+        SteeringMotors::setPos(this->motorID_[i], 0);
     }
 
     // Close the socket

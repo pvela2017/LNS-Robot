@@ -50,8 +50,6 @@ Workaround:
 #include <std_msgs/Float64MultiArray.h>
 #include <ros/callback_queue.h>
 #include <thread>
-#include <mutex>
-#include <condition_variable>
 #include <string.h>
 #include <vector>
 #include <sys/wait.h>
@@ -118,8 +116,6 @@ private:
 
 	// Threads
 	std::mutex send_time_mutex_; 
-	std::condition_variable cv_;
-	int threadCount_ = 0;
 
 	// Parser
 	void Parser();
@@ -140,8 +136,7 @@ private:
 	std_msgs::Int8MultiArray alarm_status_;
 	std_msgs::Int64MultiArray rpms_;
 	uint8_t motorID_[5] = {0xFE, 0x05, 0x06, 0x07, 0x08};
-	void setPos(uint8_t, double, int);
-	void setPos_nothreads(uint8_t, double);
+	void setPos(uint8_t, double);
 	int byteTorpm(uint8_t, uint8_t);
 	int radTopos(uint8_t, double);
 
