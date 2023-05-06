@@ -64,16 +64,16 @@ SteeringMotors::SteeringMotors(ros::NodeHandle n, ros::NodeHandle n1, ros::NodeH
     this->rad_feedback_ = this->n_.subscribe("/steering_motors/feedback/rad", 1, &SteeringMotors::radFeedbackCB, this); 
     
     this->n1_.setCallbackQueue(&callback_queue_wheel_1_);
-    this->pidWheel_1_ = this->n1_.subscribe("/steering_motors/pid/motor5/control_effort", 1, &SteeringMotors::motor5CB, this);
+    this->pidWheel_1_ = this->n1_.subscribe("/steering_motors/pid/motor5/control_effort", 1, &SteeringMotors::motor5CB, this, ros::TransportHints().udp());
     
     this->n2_.setCallbackQueue(&callback_queue_wheel_2_);
-    this->pidWheel_2_ = this->n2_.subscribe("/steering_motors/pid/motor6/control_effort", 1, &SteeringMotors::motor6CB, this);
+    this->pidWheel_2_ = this->n2_.subscribe("/steering_motors/pid/motor6/control_effort", 1, &SteeringMotors::motor6CB, this, ros::TransportHints().udp());
 
     this->n3_.setCallbackQueue(&callback_queue_wheel_3_);
-    this->pidWheel_3_ = this->n3_.subscribe("/steering_motors/pid/motor7/control_effort", 1, &SteeringMotors::motor7CB, this);
+    this->pidWheel_3_ = this->n3_.subscribe("/steering_motors/pid/motor7/control_effort", 1, &SteeringMotors::motor7CB, this, ros::TransportHints().udp());
 
     this->n4_.setCallbackQueue(&callback_queue_wheel_4_);
-    this->pidWheel_4_ = this->n4_.subscribe("/steering_motors/pid/motor8/control_effort", 1, &SteeringMotors::motor8CB, this) ;
+    this->pidWheel_4_ = this->n4_.subscribe("/steering_motors/pid/motor8/control_effort", 1, &SteeringMotors::motor8CB, this, ros::TransportHints().udp()) ;
 
     
     // Buffer initialization
@@ -227,8 +227,6 @@ void SteeringMotors::setPos_nothreads(uint8_t motorID, double pos)
     If the DLC is change from 0x08 feedback becomes unstable
     */
 
-    //send_time_mutex_.lock();
-
     // Clear the buffer
     SteeringMotors::clearBuffer();
 
@@ -288,12 +286,6 @@ void SteeringMotors::setPos_nothreads(uint8_t motorID, double pos)
     // Send command
     send(client_, bytes_out_, 13, MSG_DONTWAIT);
 
-    //send_time_mutex_.unlock();
-    threadCount_++;
-    if (threadCount_ > 3)
-    {
-        threadCount_ = 0;
-    }
 }
 
 

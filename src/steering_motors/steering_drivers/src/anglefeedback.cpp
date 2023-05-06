@@ -285,7 +285,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "steering_feedback");
     ros::NodeHandle n;
-    ros::Rate loop_rate(30);
+    ros::Rate loop_rate(100);
 
     Socket steering_angle_feedback(n);
     steering_angle_feedback.connSocket();

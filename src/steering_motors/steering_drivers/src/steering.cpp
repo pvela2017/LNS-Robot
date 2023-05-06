@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "steering_motors");
     ros::NodeHandle n, n1, n2, n3, n4;
-    ros::Rate loop_rate(30);
+    ros::Rate loop_rate(100);
 
     SteeringMotors motors(n, n1, n2, n3, n4);
     motors.connSocket();
