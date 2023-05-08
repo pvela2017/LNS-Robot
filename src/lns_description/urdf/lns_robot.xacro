@@ -4,8 +4,6 @@
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
   name="lns_robot" xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:include filename="$(find lns_description)/urdf/lns_robot_control_transmission.xacro"/>
-
 
 
   <link name="base_footprint"/>
