@@ -31,10 +31,10 @@
         base_frame_id: "base_footprint"
 
         # Geometry (Do not provide the following if you want it to be parsed in the URDF)
-        # track: 0.34317
-        # wheel_steering_y_offset: -0.1
-        # wheel_radius: 0.1
-        # wheel_base: 0.36
+        track: 0.99
+        wheel_steering_y_offset: 0.0
+        wheel_radius: 0.4
+        wheel_base: 1.02
 
     # Low-Level Controllers -------------------------------------
     gazebo_ros_control:
