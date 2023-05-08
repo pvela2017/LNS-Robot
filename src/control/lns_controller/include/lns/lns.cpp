@@ -13,10 +13,10 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
     cmd[0] = 0.0; cmd[1] = 0.0; cmd[2] = 0.0; cmd[3] = 0.0; cmd[4] = 0.0; cmd[5] = 0.0; cmd[6] = 0.0; cmd[7] = 0.0;
     
     // Create joint state handles for driving motors
-    hardware_interface::JointStateHandle state_driving_motor_fl("wheel_fl_joint", &pos[0], &vel[0], &eff[0]);
-    hardware_interface::JointStateHandle state_driving_motor_fr("wheel_fr_joint", &pos[1], &vel[1], &eff[1]);
-    hardware_interface::JointStateHandle state_driving_motor_br("wheel_br_joint", &pos[2], &vel[2], &eff[2]);
-    hardware_interface::JointStateHandle state_driving_motor_bl("wheel_bl_joint", &pos[3], &vel[3], &eff[3]);
+    hardware_interface::JointStateHandle state_driving_motor_fr("wheel_fr_joint", &pos[0], &vel[0], &eff[0]);
+    hardware_interface::JointStateHandle state_driving_motor_fl("wheel_fl_joint", &pos[1], &vel[1], &eff[1]);
+    hardware_interface::JointStateHandle state_driving_motor_bl("wheel_bl_joint", &pos[2], &vel[2], &eff[2]);
+    hardware_interface::JointStateHandle state_driving_motor_br("wheel_br_joint", &pos[3], &vel[3], &eff[3]);
 
     // Create joint state handles for steering motors
     hardware_interface::JointStateHandle state_steering_motor_fr("steering_fr_joint", &pos[4], &vel[4], &eff[4]);
@@ -25,10 +25,10 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
     hardware_interface::JointStateHandle state_steering_motor_br("steering_br_joint", &pos[7], &vel[7], &eff[7]);
 
     // Register them
-    jnt_state_.registerHandle(state_driving_motor_fl);
     jnt_state_.registerHandle(state_driving_motor_fr);
-    jnt_state_.registerHandle(state_driving_motor_br);
+    jnt_state_.registerHandle(state_driving_motor_fl);
     jnt_state_.registerHandle(state_driving_motor_bl);
+    jnt_state_.registerHandle(state_driving_motor_br);
 
     jnt_state_.registerHandle(state_steering_motor_fr);
     jnt_state_.registerHandle(state_steering_motor_fl);
@@ -37,20 +37,20 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
     registerInterface(&jnt_state_);
 
     // Create joint command handles and register them
-    hardware_interface::JointHandle cmd_driving_motor_fl (state_driving_motor_fl, &cmd[0]);
-    hardware_interface::JointHandle cmd_driving_motor_fr (state_driving_motor_fr, &cmd[1]);
-    hardware_interface::JointHandle cmd_driving_motor_br (state_driving_motor_br, &cmd[2]);
-    hardware_interface::JointHandle cmd_driving_motor_bl (state_driving_motor_bl, &cmd[3]);
+    hardware_interface::JointHandle cmd_driving_motor_fl (state_driving_motor_fr, &cmd[0]);
+    hardware_interface::JointHandle cmd_driving_motor_fr (state_driving_motor_fl, &cmd[1]);
+    hardware_interface::JointHandle cmd_driving_motor_br (state_driving_motor_bl, &cmd[2]);
+    hardware_interface::JointHandle cmd_driving_motor_bl (state_driving_motor_br, &cmd[3]);
 
     hardware_interface::JointHandle cmd_steering_motor_fr (state_steering_motor_fr, &cmd[4]);
     hardware_interface::JointHandle cmd_steering_motor_fl (state_steering_motor_fl, &cmd[5]);
     hardware_interface::JointHandle cmd_steering_motor_bl (state_steering_motor_bl, &cmd[6]);
     hardware_interface::JointHandle cmd_steering_motor_br (state_steering_motor_br, &cmd[7]);
 
-    jnt_cmd_vel_.registerHandle(cmd_driving_motor_fl);
     jnt_cmd_vel_.registerHandle(cmd_driving_motor_fr);
-    jnt_cmd_vel_.registerHandle(cmd_driving_motor_br);
+    jnt_cmd_vel_.registerHandle(cmd_driving_motor_fl);
     jnt_cmd_vel_.registerHandle(cmd_driving_motor_bl);
+    jnt_cmd_vel_.registerHandle(cmd_driving_motor_br);
     registerInterface(&jnt_cmd_vel_);
 
     jnt_cmd_pos_.registerHandle(cmd_steering_motor_fr);
@@ -200,11 +200,8 @@ int LnsRobot::radsecTorpm(double radsec)
 {
     double wheel_rpm = 0;
     int motor_rpm = 0;
-    double rpm = 0;
 
-    rpm = radsec *0.10472;
-    // Transform from m/s linear velocity to motor rpm
-    wheel_rpm = (rpm*60)/(2*0.4*M_PI_2); // WHEELS_RADIUS from robot dic
+    wheel_rpm = (radsec *60.0)/(2*M_PI);
     motor_rpm = int(wheel_rpm*30); // DRIVING_GEAR_BOX_RATIO from robot dic
     return motor_rpm;
 }
