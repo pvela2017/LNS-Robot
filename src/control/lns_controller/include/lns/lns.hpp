@@ -16,6 +16,8 @@
 #include <std_msgs/Float64MultiArray.h>
 #include <std_msgs/Float64.h>
 
+#include <math.h>
+
 class LnsRobot : public hardware_interface::RobotHW
 {
 private:
