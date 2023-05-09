@@ -2,7 +2,7 @@
 
 <launch>
    <!-- Gazebo  -->
-   <include file="$(find ranger_gazebo)/launch/empty_world.launch" />
+   <include file="$(find lns_gazebo)/launch/empty_world.launch" />
 
    <!-- ros_control motoman launch file -->
    <include file="$(find lns_controller)/launch/main_controller_sim.launch" />
