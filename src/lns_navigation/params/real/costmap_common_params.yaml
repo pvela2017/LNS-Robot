@@ -7,7 +7,7 @@ footprint_padding: 0.00
 
 
 #Set the tolerance we're willing to have for tf transforms
-transform_tolerance: 0.2
+transform_tolerance: 0.1
 #Set map type
 map_type: costmap
 

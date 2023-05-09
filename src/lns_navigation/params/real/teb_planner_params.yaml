@@ -19,15 +19,15 @@ TebLocalPlannerROS:
     
  # Robot
          
- max_vel_x: 1.667
- max_vel_x_backwards: 0.0
- max_vel_theta: 3.14
- acc_lim_x: 0.2
- acc_lim_theta: 0.2
+ max_vel_x: 0.8
+ max_vel_x_backwards: 0.8
+ max_vel_theta: 0.8
+ acc_lim_x: 0.1
+ acc_lim_theta: 0.1
 
  # Car like
- min_turning_radius: 0.3
- wheel_base: 0.36
+ min_turning_radius: 0
+ wheel_base: 0.99
  cmd_angle_instead_rotvel: False
 
  # Omnidirectional
@@ -73,8 +73,8 @@ TebLocalPlannerROS:
  weight_acc_lim_x: 1
  weight_acc_lim_theta: 1
  weight_kinematics_nh: 1000
- weight_kinematics_forward_drive: 1.0 # Original 1.0, [ 700 makes the robot to rotate in place] https://answers.ros.org/question/322151/can-teb-perform-rotations-in-place-on-differential-drive-bases/
- weight_kinematics_turning_radius: 700.0
+ weight_kinematics_forward_drive: 1000.0 # Original 1.0, [ 700 makes the robot to rotate in place] https://answers.ros.org/question/322151/can-teb-perform-rotations-in-place-on-differential-drive-bases/
+ weight_kinematics_turning_radius: 1
  weight_optimaltime: 1 # must be > 0
  weight_shortest_path: 0.0
  weight_obstacle: 100 # Original 50, 100 works better
