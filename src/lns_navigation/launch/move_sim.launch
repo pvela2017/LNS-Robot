@@ -17,7 +17,7 @@
 		<rosparam file="$(find lns_navigation)/params/sim/teb_planner_params.yaml" command="load" />
 		<rosparam file="$(find lns_navigation)/params/sim/move_base_params.yaml" command="load" />
 
-		<remap from="cmd_vel" to="/four_wheel_steering_controller/cmd_vel" />
+		<remap from="cmd_vel" to="/swerve_controller/cmd_vel" />
 
 
 	</node>
