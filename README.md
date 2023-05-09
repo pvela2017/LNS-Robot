@@ -74,22 +74,27 @@ Military project for an autonomous  4 wheel independent steering robot using GPS
 
 <!-- USAGE LNS ROBOT -->
 ## Usage of the robot
-1. Bringup driving motor interface
+1. Initialize IMU and GPS
+```sh
+roslaunch lns_launch nav_sensors.launch
+```
+
+2. Bringup driving motor interface
 ```sh
 roslaunch lns_bringup bringup_driving.launch
 ```
 
-2. Bringup steering motor interface
+3. Bringup steering motor interface
 ```sh
 roslaunch lns_bringup bringup_steering.launch
 ```
 
-3. Launch driving motors interface
+4. Launch driving motors interface
 ```sh
 roslaunch driving_motors driving_motors.launch
 ```
 
-4. Launch steering motors interface
+5. Launch steering motors interface
 ```sh
 roslaunch steering_drivers steering_feedback.launch
 roslaunch steering_pid steeringposition_pid.launch
@@ -103,7 +108,10 @@ roslaunch lns_bringup lns_bringup.launch
 
 6. Controller interface:
 ```sh
+# Four Wheel Steering Controller
 roslaunch lns_controller main_controller.launch
+# Swerve Controller
+roslaunch lns_controller main_controller_swerve.launch
 ```
 
 7. Then the whole navigation system can be launch using:
@@ -115,6 +123,10 @@ This will launch:
 - The navigation sensor (GPS & IMU) package
 - The localization package
 - The navigation package
+
+</br>
+
+> __Warning__ Depending on the controller odometry and cmd_vel must be changed!  
 
 </br>
 
