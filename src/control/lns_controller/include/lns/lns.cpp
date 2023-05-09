@@ -13,50 +13,50 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
     cmd[0] = 0.0; cmd[1] = 0.0; cmd[2] = 0.0; cmd[3] = 0.0; cmd[4] = 0.0; cmd[5] = 0.0; cmd[6] = 0.0; cmd[7] = 0.0;
     
     // Create joint state handles for driving motors
-    hardware_interface::JointStateHandle state_driving_motor_fr("wheel_fr_joint", &pos[0], &vel[0], &eff[0]);
-    hardware_interface::JointStateHandle state_driving_motor_fl("wheel_fl_joint", &pos[1], &vel[1], &eff[1]);
-    hardware_interface::JointStateHandle state_driving_motor_bl("wheel_bl_joint", &pos[2], &vel[2], &eff[2]);
-    hardware_interface::JointStateHandle state_driving_motor_br("wheel_br_joint", &pos[3], &vel[3], &eff[3]);
+    hardware_interface::JointStateHandle state_driving_motor_fl("wheel_fl_joint", &pos[0], &vel[0], &eff[0]);
+    hardware_interface::JointStateHandle state_driving_motor_fr("wheel_fr_joint", &pos[1], &vel[1], &eff[1]);
+    hardware_interface::JointStateHandle state_driving_motor_br("wheel_br_joint", &pos[2], &vel[2], &eff[2]);
+    hardware_interface::JointStateHandle state_driving_motor_bl("wheel_bl_joint", &pos[3], &vel[3], &eff[3]);
 
     // Create joint state handles for steering motors
-    hardware_interface::JointStateHandle state_steering_motor_fr("steering_fr_joint", &pos[4], &vel[4], &eff[4]);
-    hardware_interface::JointStateHandle state_steering_motor_fl("steering_fl_joint", &pos[5], &vel[5], &eff[5]);
-    hardware_interface::JointStateHandle state_steering_motor_bl("steering_bl_joint", &pos[6], &vel[6], &eff[6]);
-    hardware_interface::JointStateHandle state_steering_motor_br("steering_br_joint", &pos[7], &vel[7], &eff[7]);
+    hardware_interface::JointStateHandle state_steering_motor_fl("steering_fl_joint", &pos[4], &vel[4], &eff[4]);
+    hardware_interface::JointStateHandle state_steering_motor_fr("steering_fr_joint", &pos[5], &vel[5], &eff[5]);
+    hardware_interface::JointStateHandle state_steering_motor_br("steering_br_joint", &pos[6], &vel[6], &eff[6]);
+    hardware_interface::JointStateHandle state_steering_motor_bl("steering_bl_joint", &pos[7], &vel[7], &eff[7]);
 
     // Register them
-    jnt_state_.registerHandle(state_driving_motor_fr);
     jnt_state_.registerHandle(state_driving_motor_fl);
-    jnt_state_.registerHandle(state_driving_motor_bl);
+    jnt_state_.registerHandle(state_driving_motor_fr);
     jnt_state_.registerHandle(state_driving_motor_br);
+    jnt_state_.registerHandle(state_driving_motor_bl);
 
-    jnt_state_.registerHandle(state_steering_motor_fr);
     jnt_state_.registerHandle(state_steering_motor_fl);
-    jnt_state_.registerHandle(state_steering_motor_bl);
+    jnt_state_.registerHandle(state_steering_motor_fr);
     jnt_state_.registerHandle(state_steering_motor_br);
+    jnt_state_.registerHandle(state_steering_motor_bl);
     registerInterface(&jnt_state_);
 
     // Create joint command handles and register them
-    hardware_interface::JointHandle cmd_driving_motor_fl (state_driving_motor_fr, &cmd[0]);
-    hardware_interface::JointHandle cmd_driving_motor_fr (state_driving_motor_fl, &cmd[1]);
-    hardware_interface::JointHandle cmd_driving_motor_br (state_driving_motor_bl, &cmd[2]);
-    hardware_interface::JointHandle cmd_driving_motor_bl (state_driving_motor_br, &cmd[3]);
+    hardware_interface::JointHandle cmd_driving_motor_fl (state_driving_motor_fl, &cmd[0]);
+    hardware_interface::JointHandle cmd_driving_motor_fr (state_driving_motor_fr, &cmd[1]);
+    hardware_interface::JointHandle cmd_driving_motor_br (state_driving_motor_br, &cmd[2]);
+    hardware_interface::JointHandle cmd_driving_motor_bl (state_driving_motor_bl, &cmd[3]);
 
-    hardware_interface::JointHandle cmd_steering_motor_fr (state_steering_motor_fr, &cmd[4]);
-    hardware_interface::JointHandle cmd_steering_motor_fl (state_steering_motor_fl, &cmd[5]);
-    hardware_interface::JointHandle cmd_steering_motor_bl (state_steering_motor_bl, &cmd[6]);
-    hardware_interface::JointHandle cmd_steering_motor_br (state_steering_motor_br, &cmd[7]);
+    hardware_interface::JointHandle cmd_steering_motor_fl (state_steering_motor_fl, &cmd[4]);
+    hardware_interface::JointHandle cmd_steering_motor_fr (state_steering_motor_fr, &cmd[5]);
+    hardware_interface::JointHandle cmd_steering_motor_br (state_steering_motor_br, &cmd[6]);
+    hardware_interface::JointHandle cmd_steering_motor_bl (state_steering_motor_bl, &cmd[7]);
 
-    jnt_cmd_vel_.registerHandle(cmd_driving_motor_fr);
     jnt_cmd_vel_.registerHandle(cmd_driving_motor_fl);
-    jnt_cmd_vel_.registerHandle(cmd_driving_motor_bl);
+    jnt_cmd_vel_.registerHandle(cmd_driving_motor_fr);
     jnt_cmd_vel_.registerHandle(cmd_driving_motor_br);
+    jnt_cmd_vel_.registerHandle(cmd_driving_motor_bl);
     registerInterface(&jnt_cmd_vel_);
 
-    jnt_cmd_pos_.registerHandle(cmd_steering_motor_fr);
     jnt_cmd_pos_.registerHandle(cmd_steering_motor_fl);
-    jnt_cmd_pos_.registerHandle(cmd_steering_motor_bl);
+    jnt_cmd_pos_.registerHandle(cmd_steering_motor_fr);
     jnt_cmd_pos_.registerHandle(cmd_steering_motor_br);
+    jnt_cmd_pos_.registerHandle(cmd_steering_motor_bl);
     registerInterface(&jnt_cmd_pos_);
     
     /*
@@ -102,14 +102,16 @@ LnsRobot::~LnsRobot()
 
 void LnsRobot::read()
 {
-    pos[4] = steering_rad_[0];
-    pos[5] = steering_rad_[1];
-    pos[6] = steering_rad_[2];
-    pos[7] = steering_rad_[3];
+    // TODO: Fix this in drivers
+    pos[4] = -steering_rad_[0];
+    pos[5] = -steering_rad_[1];
+    pos[6] = -steering_rad_[2];
+    pos[7] = -steering_rad_[3];
     
+    // TODO: Fix this in drivers
     vel[0] = driving_radsec_[0];
-    vel[1] = driving_radsec_[1];
-    vel[2] = driving_radsec_[2];
+    vel[1] = -driving_radsec_[1];
+    vel[2] = -driving_radsec_[2];
     vel[3] = driving_radsec_[3];
 }
 
@@ -169,10 +171,11 @@ void LnsRobot::write(ros::Duration elapsed_time)
     vec_rpm2.clear();
     steering_command_rpms_.data.clear();
     */
-    motor5_rad_.data = cmd[4];
-    motor6_rad_.data = cmd[5];
-    motor7_rad_.data = cmd[6];
-    motor8_rad_.data = cmd[7];
+    // TODO: Fix this in drivers
+    motor5_rad_.data = -cmd[4];
+    motor6_rad_.data = -cmd[5];
+    motor7_rad_.data = -cmd[6];
+    motor8_rad_.data = -cmd[7];
     steering_motor5_pub_.publish(motor5_rad_);
     steering_motor6_pub_.publish(motor6_rad_);
     steering_motor7_pub_.publish(motor7_rad_);
@@ -181,19 +184,19 @@ void LnsRobot::write(ros::Duration elapsed_time)
 
 void LnsRobot::drivingCB(const std_msgs::Float64MultiArray::ConstPtr& msg)
 {
-    driving_radsec_[0] = rpmToradsec(msg->data[0]);
-    driving_radsec_[1] = rpmToradsec(msg->data[1]);
-    driving_radsec_[2] = rpmToradsec(msg->data[2]);
-    driving_radsec_[3] = rpmToradsec(msg->data[3]);    
+    driving_radsec_[0] = msg->data[0];
+    driving_radsec_[1] = msg->data[1];
+    driving_radsec_[2] = msg->data[2];
+    driving_radsec_[3] = msg->data[3];    
 }
 
 
 void LnsRobot::steeringCB(const std_msgs::Float64MultiArray::ConstPtr& msg)
 {
-    steering_rad_[0] = angleWrapper(msg->data[0]);
-    steering_rad_[1] = angleWrapper(msg->data[1]);
-    steering_rad_[2] = angleWrapper(msg->data[2]);
-    steering_rad_[3] = angleWrapper(msg->data[3]);
+    steering_rad_[0] = msg->data[0];
+    steering_rad_[1] = msg->data[1];
+    steering_rad_[2] = msg->data[2];
+    steering_rad_[3] = msg->data[3];
 }
 
 int LnsRobot::radsecTorpm(double radsec)
@@ -222,5 +225,3 @@ double LnsRobot::angleWrapper(double rad)
     }       
     return rad;
 }
-
-
