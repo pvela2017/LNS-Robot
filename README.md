@@ -132,7 +132,10 @@ This will launch:
 
 Keyboard control:
 ```sh
-roslaunch lns_teleop teleop_keyboard.launch
+# Swerve Teleop
+roslaunch lns_teleop teleop_keyboard_swerve.launch
+# Four Wheel Steering Teleop
+roslaunch lns_teleop teleop_keyboard_four.launch
 ```
 
 
