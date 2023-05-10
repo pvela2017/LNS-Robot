@@ -45,13 +45,14 @@ Workaround:
 
 #include "driving_motors.hpp"
 
-DrivingMotors::DrivingMotors(ros::NodeHandle n)
+DrivingMotors::DrivingMotors(ros::NodeHandle n) : spinner_(2)
 {
     /*
     Class Inicialization
     Assign the subscribers and publishers
     */
     this->n_ = n;
+    spinner_.start();
     this->alarm_clear_ = this->n_.subscribe("/driving_motors/alarm_monitor/clear_alarm", 1, &DrivingMotors::clearAlarmCB, this);
     this->motor_command_ = this->n_.subscribe("/driving_motors/commands", 1, &DrivingMotors::commandsCB, this);
     this->alarm_monitor_ = this->n_.advertise<std_msgs::Int8MultiArray>("/driving_motors/alarm_monitor/status", 1);
@@ -77,7 +78,8 @@ DrivingMotors::DrivingMotors(ros::NodeHandle n)
 
 DrivingMotors::~DrivingMotors()
 {
-
+    spinner_.stop();
+    shutdown(client_, SHUT_RDWR);
 }
 
 

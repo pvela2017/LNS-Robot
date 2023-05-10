@@ -44,7 +44,7 @@ int main(int argc, char **argv)
             motors.emergencyStop();
         }
 
-        ros::spinOnce();
+        //ros::spinOnce();
         loop_rate.sleep();
     }
 

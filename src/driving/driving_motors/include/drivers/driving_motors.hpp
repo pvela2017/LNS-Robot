@@ -89,6 +89,7 @@ private:
 	ros::Publisher rpm_feedback_;
 	ros::Publisher ms_feedback_;
 	ros::Publisher radsec_feedback_;
+	ros::AsyncSpinner spinner_;
 
 	// Socket variables
 	struct sockaddr_in serv_addr_;
