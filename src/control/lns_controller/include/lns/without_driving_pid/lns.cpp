@@ -88,18 +88,11 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
 
     // Create a publisher to send data to driving motors
     driving_motors_pub_ = n_.advertise<std_msgs::Int64MultiArray>("/driving_motors/commands", 1);
-
     // Create a publisher to send data to steering motors
     steering_motor5_pub_ = n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor5/setpoint", 1);
     steering_motor6_pub_ = n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor6/setpoint", 1);
     steering_motor7_pub_ = n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor7/setpoint", 1);
     steering_motor8_pub_ = n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor8/setpoint", 1);
-
-    // Driving PID
-    driving_motor1_pub_ = n_.advertise<std_msgs::Float64>("/driving_pid/pid/motor1/setpoint", 1);
-    driving_motor2_pub_ = n_.advertise<std_msgs::Float64>("/driving_pid/pid/motor2/setpoint", 1);
-    driving_motor3_pub_ = n_.advertise<std_msgs::Float64>("/driving_pid/pid/motor3/setpoint", 1);
-    driving_motor4_pub_ = n_.advertise<std_msgs::Float64>("/driving_pid/pid/motor4/setpoint", 1);
 }
 
 LnsRobot::~LnsRobot()
@@ -126,16 +119,6 @@ void LnsRobot::write(ros::Duration elapsed_time)
 {
     //jnt_vel_sat.enforceLimits(elapsed_time);
 
-    motor1_rpm_.data = radsecTorpm(cmd[0]);
-    motor2_rpm_.data = radsecTorpm(cmd[1]);
-    motor3_rpm_.data = radsecTorpm(cmd[2]);
-    motor4_rpm_.data = radsecTorpm(cmd[3]);
-    driving_motor1_pub_.publish(motor1_rpm_);
-    driving_motor2_pub_.publish(motor2_rpm_);
-    driving_motor3_pub_.publish(motor3_rpm_);
-    driving_motor4_pub_.publish(motor4_rpm_); 
-
-    /*
     // Driving motors
     // Create vector to store driving data
     std::vector<int> vec_rpm (4);
@@ -157,7 +140,7 @@ void LnsRobot::write(ros::Duration elapsed_time)
 
     // Clear stuff
     vec_rpm.clear();
-    driving_command_rpms_.data.clear();*/
+    driving_command_rpms_.data.clear();
 
 
     // Steering motors

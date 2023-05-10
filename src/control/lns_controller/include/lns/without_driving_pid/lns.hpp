@@ -31,23 +31,12 @@ private:
     ros::Publisher steering_motor8_pub_;
     ros::Subscriber steering_motors_sub_;
 
-    //Driving PID
-    ros::Publisher driving_motor1_pub_;
-    ros::Publisher driving_motor2_pub_;
-    ros::Publisher driving_motor3_pub_;
-    ros::Publisher driving_motor4_pub_;
-
     std_msgs::Int64MultiArray driving_command_rpms_;
     std_msgs::Float64 motor5_rad_;
     std_msgs::Float64 motor6_rad_;
     std_msgs::Float64 motor7_rad_;
     std_msgs::Float64 motor8_rad_;
     //std_msgs::Int64MultiArray steering_command_rpms_; TODO
-    // Driving PID
-    std_msgs::Float64 motor1_rpm_;
-    std_msgs::Float64 motor2_rpm_;
-    std_msgs::Float64 motor3_rpm_;
-    std_msgs::Float64 motor4_rpm_;
     
     hardware_interface::JointStateInterface jnt_state_;
     hardware_interface::VelocityJointInterface jnt_cmd_vel_;
