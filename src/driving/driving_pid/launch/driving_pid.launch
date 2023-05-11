@@ -6,7 +6,7 @@
   <arg name="Kd" default="51.0" doc="Derivative gain"/>
   <arg name="upper_limit" default="3000" doc="Upper limit"/>
   <arg name="lower_limit" default="-3000" doc="Lower limit"/>
-  <arg name="windup_limit" default="50" doc="Windup limit"/>
+  <arg name="windup_limit" default="1000" doc="Windup limit"/>
   <arg name="max_loop_frequency" default="30.0" doc="Max loop frequency"/>
   <arg name="min_loop_frequency" default="30.0" doc="Min loop frequency"/>
 
@@ -14,7 +14,7 @@
     <param name="node_name" value="driving_pid_motor1" />
     <param name="Kp" value="3" />
     <param name="Ki" value="2.5" />
-    <param name="Kd" value="0.8" />
+    <param name="Kd" value="0.1" />
     <param name="upper_limit" value="$(arg upper_limit)" />
     <param name="lower_limit" value="$(arg lower_limit)" />
     <param name="windup_limit" value="$(arg windup_limit)" />
@@ -25,9 +25,9 @@
 
   <node name="controller2" pkg="driving_pid" type="controller2" ns="driving_pid/pid/motor2" output="screen" >
     <param name="node_name" value="driving_pid_motor2" />
-    <param name="Kp" value="15" />
-    <param name="Ki" value="20" />
-    <param name="Kd" value="0.8" />
+    <param name="Kp" value="27" />
+    <param name="Ki" value="27" />
+    <param name="Kd" value="0.1" />
     <param name="upper_limit" value="$(arg upper_limit)" />
     <param name="lower_limit" value="$(arg lower_limit)" />
     <param name="windup_limit" value="$(arg windup_limit)" />
@@ -53,7 +53,7 @@
     <param name="node_name" value="driving_pid_motor4" />
     <param name="Kp" value="3" />
     <param name="Ki" value="2.5" />
-    <param name="Kd" value="0.8" />
+    <param name="Kd" value="0.1" />
     <param name="upper_limit" value="$(arg upper_limit)" />
     <param name="lower_limit" value="$(arg lower_limit)" />
     <param name="windup_limit" value="$(arg windup_limit)" />
