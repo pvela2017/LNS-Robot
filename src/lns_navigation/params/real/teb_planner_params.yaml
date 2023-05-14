@@ -19,11 +19,11 @@ TebLocalPlannerROS:
     
  # Robot
          
- max_vel_x: 0.8
- max_vel_x_backwards: 0.8
- max_vel_theta: 0.8
- acc_lim_x: 0.1
- acc_lim_theta: 0.1
+ max_vel_x: 0.04
+ max_vel_x_backwards: 0.04
+ max_vel_theta: 0.01
+ acc_lim_x: 0.01
+ acc_lim_theta: 0.001
 
  # Car like
  min_turning_radius: 0
