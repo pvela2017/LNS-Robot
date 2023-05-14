@@ -192,7 +192,7 @@ void PidObject::doCalcs()
     Added deadband
     TODO: Add as parameter
     */
-    float deadband = 0.0; // 0.1rpm error
+    float deadband = 0.02; // 0.2rpm error
     if (fabsf(error_.at(0)) < deadband)
     {
       error_.at(0) = 0.0;
