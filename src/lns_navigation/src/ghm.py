@@ -15,8 +15,8 @@ def talker(msg):
         # GPS orientation rotation is clockwise it should be counter clockwise
         # https://danceswithcode.net/engineeringnotes/quaternions/quaternions.html#:~:text=Inverting%20or%20conjugating%20a%20rotation,it%20to%20its%20original%20location.
         heading.orientation.x = msg.quaternion.x
-        heading.orientation.y = -msg.quaternion.y
-        heading.orientation.z = -msg.quaternion.z
+        heading.orientation.y = msg.quaternion.y
+        heading.orientation.z = msg.quaternion.z
         heading.orientation.w = -msg.quaternion.w
 
         # Dummy data
