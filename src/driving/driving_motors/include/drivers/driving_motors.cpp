@@ -57,7 +57,6 @@ DrivingMotors::DrivingMotors(ros::NodeHandle n) : spinner_(6)
     this->receiveCAN_ = this->n_.subscribe<can_msgs::Frame>("/received_messages", 10, &DrivingMotors::canCB, this);
 
     this->sendtoCAN_ = this->n_.advertise<can_msgs::Frame>("/sent_messages", 10);
-    this->radsec_feedback_ = this->n_.advertise<std_msgs::Float64MultiArray>("/driving_motors/feedback/wheel_radsec", 1);
     this->motor1_state_ = this->n_.advertise<std_msgs::Float64>("/driving_pid/pid/motor1/state", 1);
     this->motor2_state_ = this->n_.advertise<std_msgs::Float64>("/driving_pid/pid/motor2/state", 1);
     this->motor3_state_ = this->n_.advertise<std_msgs::Float64>("/driving_pid/pid/motor3/state", 1);

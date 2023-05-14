@@ -68,7 +68,6 @@ private:
 	ros::Publisher motor2_state_;
 	ros::Publisher motor3_state_;
 	ros::Publisher motor4_state_;
-	ros::Publisher radsec_feedback_;
 	ros::Publisher sendtoCAN_;
 	ros::AsyncSpinner spinner_;
 
