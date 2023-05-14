@@ -30,21 +30,22 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(30);
 
     DrivingMotors motors(n);
-    motors.connSocket();
+    //motors.connSocket();
 
 
     while (ros::ok)
     {
 
-        //motors.alarmMonitor();
-        motors.feedback();
+        motors.setSpeed();
+        motors.requestFeedback();
+        motors.publishFeedback();
 
-        if (ros::isShuttingDown()) 
-        {
-            motors.emergencyStop();
-        }
+        //if (ros::isShuttingDown()) 
+        //{
+        //    motors.emergencyStop();
+        //}
 
-        //ros::spinOnce();
+        ros::spinOnce();
         loop_rate.sleep();
     }
 
