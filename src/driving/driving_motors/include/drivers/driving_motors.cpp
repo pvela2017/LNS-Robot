@@ -3,7 +3,7 @@ Class to setup  RPMs of driving motors through TCP-CAN converter,
 check rpm of each motor and speed based on the wheel diameter.
 Also check controller alarm status and can clear the alarms.
 
-Connect to socket 1
+Connect to CAN
 
 node: /driving_motors
 
@@ -15,11 +15,8 @@ Publish to: /driving_motors/alarm_monitor/status
             /driving_motors/feedback/speed
 
 by Pablo
-Last review: 2023/03/23
+Last review: 2023/05/13
 
-TODO: 
-add multithreading according to
-https://codereview.stackexchange.com/questions/151044/socket-client-in-c-using-threads
 
 TODO:
 Message get mixed, from feedback() function and alarmMonitor() function
@@ -45,7 +42,7 @@ Workaround:
 
 #include "driving_motors.hpp"
 
-DrivingMotors::DrivingMotors(ros::NodeHandle n) : spinner_(2)
+DrivingMotors::DrivingMotors(ros::NodeHandle n) : spinner_(6)
 {
     /*
     Class Inicialization
@@ -53,314 +50,288 @@ DrivingMotors::DrivingMotors(ros::NodeHandle n) : spinner_(2)
     */
     this->n_ = n;
     spinner_.start();
-    this->alarm_clear_ = this->n_.subscribe("/driving_motors/alarm_monitor/clear_alarm", 1, &DrivingMotors::clearAlarmCB, this);
-    this->motor_command_ = this->n_.subscribe("/driving_motors/commands", 1, &DrivingMotors::commandsCB, this);
-    this->alarm_monitor_ = this->n_.advertise<std_msgs::Int8MultiArray>("/driving_motors/alarm_monitor/status", 1);
-    this->rpm_feedback_ = this->n_.advertise<std_msgs::Int64MultiArray>("/driving_motors/feedback/angular/rpm", 1);
-    this->ms_feedback_ = this->n_.advertise<std_msgs::Float64MultiArray>("/driving_motors/feedback/linear/ms", 1);
-    this->radsec_feedback_ = this->n_.advertise<std_msgs::Float64MultiArray>("/driving_motors/feedback/angular/radsec", 1);
+    this->motor1_command_ = this->n_.subscribe("/driving_pid/pid/motor1/control_effort", 1, &DrivingMotors::m1spCB, this);
+    this->motor2_command_ = this->n_.subscribe("/driving_pid/pid/motor2/control_effort", 1, &DrivingMotors::m2spCB, this);
+    this->motor3_command_ = this->n_.subscribe("/driving_pid/pid/motor3/control_effort", 1, &DrivingMotors::m3spCB, this);
+    this->motor4_command_ = this->n_.subscribe("/driving_pid/pid/motor4/control_effort", 1, &DrivingMotors::m4spCB, this);
+    this->receiveCAN_ = this->n_.subscribe<can_msgs::Frame>("/received_messages", 10, &DrivingMotors::canCB, this);
+
+    this->sendtoCAN_ = this->n_.advertise<can_msgs::Frame>("/sent_messages", 10);
+    this->radsec_feedback_ = this->n_.advertise<std_msgs::Float64MultiArray>("/driving_motors/feedback/wheel_radsec", 1);
+    this->motor1_state_ = this->n_.advertise<std_msgs::Float64>("/driving_pid/pid/motor1/state", 1);
+    this->motor2_state_ = this->n_.advertise<std_msgs::Float64>("/driving_pid/pid/motor2/state", 1);
+    this->motor3_state_ = this->n_.advertise<std_msgs::Float64>("/driving_pid/pid/motor3/state", 1);
+    this->motor4_state_ = this->n_.advertise<std_msgs::Float64>("/driving_pid/pid/motor4/state", 1);
     
-    // Buffer initialization
-    this->buffer_.DLC = 0x08;
-    this->buffer_.NC1 = 0x00;
-    this->buffer_.NC2 = 0x00;
-    this->buffer_.NC3 = 0x00;
-    this->buffer_.ID = 0x00;
-    this->buffer_.PID = 0x00;
-    this->buffer_.D1 = 0x00;
-    this->buffer_.D2 = 0x00;
-    this->buffer_.D3 = 0x00;
-    this->buffer_.D4 = 0x00;
-    this->buffer_.D5 = 0x00;
-    this->buffer_.D6 = 0x00;
-    this->buffer_.D7 = 0x00;
 }
 
 DrivingMotors::~DrivingMotors()
 {
     spinner_.stop();
-    shutdown(client_, SHUT_RDWR);
 }
 
 
-int DrivingMotors::connSocket()
+
+void DrivingMotors::setSpeed()
 {
-    /*
-    Create and connect the client
-    */
+    /**/
+    std::vector<uint8_t> motor_rpm_bytes(2);
+    double motor_rpm;
 
-    // Create the socket 
-    if ((client_ = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    {
-        ROS_FATAL("Socket creation error");
-        return -1;
-    }
+    // Set message
+    message_.is_rtr = false;
+    message_.is_extended = false;
+    message_.is_error = false;
+    message_.dlc = 8;
 
-    serv_addr_.sin_family = AF_INET;
-    serv_addr_.sin_port = htons(PORT);
+
+    // Set motor 1
+    message_.id = 0x01;
     
-    if (inet_pton(AF_INET, SERVER_IP, &serv_addr_.sin_addr) <= 0)
+    // Set PID 130
+    message_.data[0] = 0x86;
+    // Set Speed
+    motor_rpm = radsecTorpm(wheel_rad_sp_[0])*30.0; // 30 => Gear box 
+    motor_rpm_bytes = rpmTobyte(motor_rpm);
+    message_.data[1] = motor_rpm_bytes[0];
+    message_.data[2] = motor_rpm_bytes[1];
+    // Dont care
+    for (int i = 3; i < 8; i++)
     {
-        ROS_FATAL("Invalid address");
-        return -1;
+        message_.data[i] = 0;
     }
 
-    // Set the client as non-blocking
-    // On Linux, this command can change only the O_APPEND, O_ASYNC, O_DIRECT, O_NOATIME, and O_NONBLOCK flags.
-    fcntl(client_, F_SETFL, O_NONBLOCK);
+    // Publish message motor 1
+    sendtoCAN_.publish(message_);
 
-    // Connect to the server
-    status_ = connect(client_, (struct sockaddr *)&serv_addr_, sizeof(serv_addr_));
-    while (status_ < 0)
+
+    // Set motor 2
+    message_.id = 0x02;
+    
+    // Set PID 130
+    message_.data[0] = 0x86;
+    // Set Speed
+    motor_rpm = radsecTorpm(wheel_rad_sp_[1])*30.0; // 30 => Gear box
+    motor_rpm_bytes = rpmTobyte(motor_rpm);
+    message_.data[1] = motor_rpm_bytes[0];
+    message_.data[2] = motor_rpm_bytes[1];
+    // Dont care
+    for (int i = 3; i < 8; i++)
     {
-        ROS_ERROR("Socket connection to the server failed");
-        status_ = connect(client_, (struct sockaddr *)&serv_addr_, sizeof(serv_addr_));
-        sleep(1);
+        message_.data[i] = 0;
     }
 
-    // Connected
-    ROS_INFO("Connected to the server successfully");
-    return 0;
+    // Publish message motor 2
+    sendtoCAN_.publish(message_);
+
+
+    // Set motor 3
+    message_.id = 0x03;
+    
+    // Set PID 130
+    message_.data[0] = 0x86;
+    // Set Speed
+    motor_rpm = radsecTorpm(wheel_rad_sp_[2])*30.0; // 30 => Gear box
+    motor_rpm_bytes = rpmTobyte(motor_rpm);
+    message_.data[1] = motor_rpm_bytes[0];
+    message_.data[2] = motor_rpm_bytes[1];
+    // Dont care
+    for (int i = 3; i < 8; i++)
+    {
+        message_.data[i] = 0;
+    }
+
+    // Publish message motor 3
+    sendtoCAN_.publish(message_);
+
+
+    // Set motor 4
+    message_.id = 0x04;
+    
+    // Set PID 130
+    message_.data[0] = 0x86;
+    // Set Speed
+    motor_rpm = radsecTorpm(wheel_rad_sp_[3])*30.0; // 30 => Gear box
+    motor_rpm_bytes = rpmTobyte(motor_rpm);
+    message_.data[1] = motor_rpm_bytes[0];
+    message_.data[2] = motor_rpm_bytes[1];
+    // Dont care
+    for (int i = 3; i < 8; i++)
+    {
+        message_.data[i] = 0;
+    }
+
+    // Publish message motor 4
+    sendtoCAN_.publish(message_);
 }
 
 
-void DrivingMotors::setSpeed(uint8_t motorID, double rpm)
+
+void DrivingMotors::requestFeedback()
 {
     /*
-    Transform rpm to byte and send the speed command
-    If the DLC is change from 0x08 feedback becomes unstable
     */
 
-    // Clear the buffer
-    DrivingMotors::clearBuffer();
+    // Set message
+    message_.is_rtr = false;
+    message_.is_extended = false;
+    message_.is_error = false;
+    message_.dlc = 8;
+  
+    // Command PID 138
+    message_.data[0] = 0x04;
+    message_.data[1] = 0x8A;
+    // Dont care
+    for (int i = 2; i < 8; i++)
+    {
+        message_.data[i] = 0;
+    }
 
-    // Setup Command PID 130
-    buffer_.PID = 0x86;
+    // Request rpm
+    for (int i = 1; i < 5; i++)
+    {
+        message_.id = i;
+        sendtoCAN_.publish(message_);
+    }
+}
 
-    // Setup motor ID
-    buffer_.ID = motorID;
 
-    // Setup Speed bytes
-    rpm_ = (int)rpm;
+void DrivingMotors::publishFeedback()
+{
+    /*
+    */
+    int motor_rpm;
+    double wheel_radsec;
+    std_msgs::Float64 wheel_state;
+
+    // Motor 1
+    motor_rpm = byteTorpm(wheel_byte1_state_[0], wheel_byte2_state_[0]);
+    wheel_radsec = rpmToradsec((double(motor_rpm)/30.0)); // 30 => Gear box
+    wheel_state.data = wheel_radsec;
+    motor1_state_.publish(wheel_state);
+
+    // Motor 2
+    motor_rpm = byteTorpm(wheel_byte1_state_[1], wheel_byte2_state_[1]);
+    wheel_radsec = rpmToradsec((double(motor_rpm)/30.0)); // 30 => Gear box
+    wheel_state.data = wheel_radsec;
+    motor2_state_.publish(wheel_state);
+
+    // Motor 3
+    motor_rpm = byteTorpm(wheel_byte1_state_[2], wheel_byte2_state_[2]);
+    wheel_radsec = rpmToradsec((double(motor_rpm)/30.0)); // 30 => Gear box
+    wheel_state.data = wheel_radsec;
+    motor3_state_.publish(wheel_state);
+
+    // Motor 4
+    motor_rpm = byteTorpm(wheel_byte1_state_[3], wheel_byte2_state_[3]);
+    wheel_radsec = rpmToradsec((double(motor_rpm)/30.0)); // 30 => Gear box
+    wheel_state.data = wheel_radsec;
+    motor4_state_.publish(wheel_state);
+}
+
+
+
+
+void DrivingMotors::m1spCB(const std_msgs::Float64::ConstPtr& msg)
+{
+    /**/
+    wheel_rad_sp_[0] = msg->data;
+}
+
+void DrivingMotors::m2spCB(const std_msgs::Float64::ConstPtr& msg)
+{
+    /**/
+    wheel_rad_sp_[1] = msg->data;
+}
+
+void DrivingMotors::m3spCB(const std_msgs::Float64::ConstPtr& msg)
+{
+    /**/
+    wheel_rad_sp_[2] = msg->data;
+}
+
+void DrivingMotors::m4spCB(const std_msgs::Float64::ConstPtr& msg)
+{
+    /**/
+    wheel_rad_sp_[3] = msg->data;
+}
+
+void DrivingMotors::canCB(const can_msgs::Frame::ConstPtr& msg)
+{
+    /**/
+    switch(msg->id) 
+    {
+        case 1793:
+            if (msg->data[0] == 0x8A) // motor 1 rpm
+            {
+                wheel_byte1_state_[0] = msg->data[1];
+                wheel_byte2_state_[0] = msg->data[2];
+            }
+            break;
+
+        case 1794:
+            if (msg->data[0] == 0x8A) // motor 2 rpm
+            {
+                wheel_byte1_state_[1] = msg->data[1];
+                wheel_byte2_state_[1] = msg->data[2];
+            }
+            break;
+
+        case 1795:
+            if (msg->data[0] == 0x8A) // motor 3 rpm
+            {
+                wheel_byte1_state_[2] = msg->data[1];
+                wheel_byte2_state_[2] = msg->data[2];
+            }
+            break;
+
+        case 1796:
+            if (msg->data[0] == 0x8A) // motor 4 rpm
+            {
+                wheel_byte1_state_[3] = msg->data[1];
+                wheel_byte2_state_[3] = msg->data[2];
+            }
+            break;
+
+        default:
+            break;
+    }
+
+}
+
+
+std::vector<uint8_t> DrivingMotors::rpmTobyte(double rpm)
+{
+    /*
+    Transform rpm into bytes
+    */
+    std::vector<uint8_t> bytes(2);
+    int rpm_int; 
+
+    // Cast to int
+    rpm_int = int(rpm);
+
     // If rpm are positive
-    if (rpm_ >= 0)
+    if (rpm_int >= 0)
     {
         // 16 bytes = 8bytes0 8bytes1 
-        buffer_.D2 = (rpm_ >> 8) & 0xff; //byte0
-        buffer_.D1 = rpm_ & 0xff; //byte1
+        bytes[1] = (rpm_int >> 8) & 0xff; //byte0
+        bytes[0] = rpm_int & 0xff; //byte1
     }
 
     // If rpm are negative
     else
     {
         int neg_dec;
-        neg_dec = 65535 - abs(rpm_); // FFFF- rpm
+        neg_dec = 65535 - abs(rpm_int); // FFFF- rpm
         // 16 bytes = 8bytes0 8bytes1 
-        buffer_.D2  = (neg_dec >> 8) & 0xff;
-        buffer_.D1 = neg_dec & 0xff;
+        bytes[1] = (neg_dec >> 8) & 0xff;
+        bytes[0] = neg_dec & 0xff;
     }
 
-    // Data Marshalling
-    DrivingMotors::Parser();
-
-    // Send command
-    send(client_, bytes_out_, 13, MSG_DONTWAIT);
-
+    return bytes;
 }
 
-int DrivingMotors::alarmMonitor()
-{
-    /*
-    Check the controller status.
-    Reply: DATA(BIT0~7)
-    BIT0 : ALARM, (1-> alarm status, 0->normal)
-    BIT1 : CTRL_FAIL, Speed control fail
-    BIT2 : OVER_VOLT, Over voltage
-    BIT3 : OVER_TEMP, Over temperature
-    BIT4 : OVER_LOAD, Overload
-    BIT5 : HALL_FAIL, Hall sensor or encoder fail
-    BIT6 : INV_VEL, Motor speed inversed
-    BIT7 : STALL, motor not moved
-
-    If the DLC is change from 0x08 feedback becomes unstable
-    */
-
-    // Clear the buffer
-    DrivingMotors::clearBuffer();
-
-    // Setup Command PID 34
-    buffer_.PID = 0x04;
-    buffer_.D1 = 0x22;
-
-    // Create vector to store data
-    std::vector<int> vec_alarms (4);
-
-    for (int i = 1; i < 5; i++)
-    {
-        // Setup motor ID
-        buffer_.ID = this->motorID_[i];
-
-        // Data Marshalling
-        DrivingMotors::Parser();
-
-        // Send command
-        send(client_, bytes_out_, 13, MSG_DONTWAIT);
-
-        // Read reply
-        if (recv(client_, bytes_in_, 13, MSG_WAITALL) <= 0) //attempts to read up to count bytes from file descriptor fd into the buffer starting at buf.
-        {
-            ROS_WARN("Cannot read alarms status");
-        }
-
-        // Check message received is correct
-        if (bytes_in_[5] == buffer_.D1)
-        {
-            // Checks for fault if == 0  No fault if == 1 faulty
-            if (bytes_in_[6] == 0)
-            {
-                ROS_DEBUG("Status ok");
-                alarm_status_.data[i-1] = 0;               
-            }
-            else
-            {
-                ROS_FATAL("MOTOR %d faulty", bytes_in_[4]);
-                for (int j = 7; j < 13; j++) // From byte D2  to D7 error according to datasheet
-                {
-                    if (bytes_in_[j] == 1)
-                    {
-                        // bytes_in_[4] is motor ID 1,2,3,4 so we susbtract -1 to start the array from 0
-                        // the postion in the array which motor is faulty. Ex.: vec_alarms[0] -> motor 1
-                        vec_alarms[bytes_in_[4] - 1] = j;
-                        break;
-                    }
-                }
-            }
-        }
-
-        // Received another message
-        else
-        {
-            ROS_WARN("Wrong motor alarm reply received");
-        }
-    }
-
-    //push data into data blob
-    std::vector<int>::const_iterator itr, end(vec_alarms.end());
-    for(itr = vec_alarms.begin(); itr!= end; ++itr) 
-    {
-        alarm_status_.data.push_back(*itr); 
-    }
-
-    // Publish topics
-    alarm_monitor_.publish(alarm_status_);
-
-    //clear stuff
-    vec_alarms.clear();
-    alarm_status_.data.clear();
-
-    return 0;
-}
-
-int DrivingMotors::feedback()
-{
-    /*
-    Calculates the RPM of the motor and speed of the wheel.
-    Then publish the rpm and speed topics
-
-    If the DLC is change from 0x08 feedback becomes unstable
-    */
-
-    // Clear the buffer
-    DrivingMotors::clearBuffer();
-
-    // Setup Command PID 138
-    buffer_.PID = 0x04;
-    buffer_.D1 = 0x8A;
-
-    // Create vector to store data
-    std::vector<int> vec_rpm (4);
-    std::vector<float> vec_ms (4);
-    std::vector<float> vec_radsec (4);
-
-    for (int i = 1; i < 5; i++)
-    {
-        // Setup motor ID
-        buffer_.ID = this->motorID_[i];
-
-        // Data Marshalling
-        DrivingMotors::Parser();
-
-        // Send command
-        send(client_, bytes_out_, 13, MSG_DONTWAIT);
-
-        // Read reply
-        if (recv(client_, bytes_in_, 13, MSG_WAITALL) <= 0) //attempts to read up to count bytes from file descriptor fd into the buffer starting at buf.
-        {
-            ROS_WARN("Cannot read rpm motor %d", this->motorID_[i]);
-            return -1;
-        }
-        // Check message received is correct
-        if (bytes_in_[5] == buffer_.D1)
-        {
-            // Motor 2 and 4 
-            // TODO: WHY THESE 2 MOTORS ????? MAKES NO SENSE
-            if (bytes_in_[4] == 2 || bytes_in_[4] == 4)
-            {
-                // bytes_in_[4] is motor ID 1,2,3,4 so we susbtract -1 to start the array from 0
-                vec_rpm[bytes_in_[4] - 1] = -1*DrivingMotors::byteTorpm(bytes_in_[6], bytes_in_[7]);
-            }
-            else
-            {
-                // bytes_in_[4] is motor ID 1,2,3,4 so we susbtract -1 to start the array from 0
-                vec_rpm[bytes_in_[4] - 1] = DrivingMotors::byteTorpm(bytes_in_[6], bytes_in_[7]);
-            }
-            
-            vec_ms[bytes_in_[4] - 1] = DrivingMotors::rpmToms(vec_rpm[bytes_in_[4] - 1]);
-            vec_radsec[bytes_in_[4] - 1] = DrivingMotors::rpmToradsec(vec_rpm[bytes_in_[4] - 1]);
-        }
-
-        // Received another message
-        else
-        {
-            ROS_WARN("Wrong motor rpm reply received");
-            return -1;
-        }
-    }
-
-    //push data into data blob
-    std::vector<int>::const_iterator itr, end(vec_rpm.end());
-    for(itr = vec_rpm.begin(); itr!= end; ++itr) 
-    {
-        rpms_.data.push_back(*itr); 
-    }
-
-    std::vector<float>::const_iterator itr2, end2(vec_ms.end());
-    for(itr2 = vec_ms.begin(); itr2!= end2; ++itr2) 
-    {
-        ms_.data.push_back(*itr2); 
-    }
-
-    std::vector<float>::const_iterator itr3, end3(vec_radsec.end());
-    for(itr3 = vec_radsec.begin(); itr3!= end3; ++itr3) 
-    {
-        radsec_.data.push_back(*itr3); 
-    }
-
-    // Publish topics
-    rpm_feedback_.publish(rpms_);
-    ms_feedback_.publish(ms_);
-    radsec_feedback_.publish(radsec_);
-
-    //clear stuff
-    vec_rpm.clear();
-    rpms_.data.clear();
-    vec_ms.clear();
-    ms_.data.clear();
-    vec_radsec.clear();
-    radsec_.data.clear();
-    
-    return 0;
-}
 
 int DrivingMotors::byteTorpm(uint8_t byte0, uint8_t byte1)
 {
@@ -368,132 +339,46 @@ int DrivingMotors::byteTorpm(uint8_t byte0, uint8_t byte1)
     Transform the bytes received into the motor rpm
     */
 
-    int motor_rpm, pre_motor_rpm;
+    int rpm, pre_rpm;
     int dec = static_cast<int>(byte1 << 8 | byte0);
 
     // Positive rpm
     if (dec <= 32767)
     {
-        motor_rpm = dec;
+        rpm = dec;
     }  
         
     // Negative rpm
     // http://www.technosoft.ro/KB/index.php?/article/AA-15440/0/Negative-numbers-representation-in-hex.html
     else
     {
-        pre_motor_rpm = 65535 - dec; //FFFF - dec
-        motor_rpm = -1*pre_motor_rpm;
+        pre_rpm = 65535 - dec; //FFFF - dec
+        rpm = -1*pre_rpm;
     }
         
-    return motor_rpm;
+    return rpm;
 }
 
-float DrivingMotors::rpmToms(int motor_rpm)
+
+double DrivingMotors::rpmToradsec(int rpm)
 {
     /* 
-    Transform from motor rpm to m/s linear speed
+    Transform from rpm to rad/s
     */
 
-    float ms, wheel_rpm;
-    wheel_rpm = motor_rpm/30.0; // DRIVING_GEAR_BOX_RATIO 30 
-    ms = wheel_rpm*(2.0*0.4*3.1415)/60.0;  // WHEELS_RADIUS 0.4  
-    return ms;
-}
-
-float DrivingMotors::rpmToradsec(int motor_rpm)
-{
-    /* 
-    Transform from motor rpm to rad/s
-    */
-
-    float radsec, wheel_rpm;
-    wheel_rpm = motor_rpm/30.0; // DRIVING_GEAR_BOX_RATIO 30 
-    radsec = wheel_rpm*(2.0*M_PI)/60.0;  
+    double radsec;
+    radsec = rpm*((2.0*M_PI)/60.0);  
     return radsec;
 }
-    
 
-void DrivingMotors::clearAlarmCB(const std_msgs::Int8::ConstPtr& msg)
+
+double DrivingMotors::radsecTorpm(double radsec)
 {
     /* 
-    Clear the alarm of the motor controller in msg
-    Just 1 motor controller at time
+    Transform from rad/s to rpm 
     */
 
-    // Clear the buffer
-    DrivingMotors::clearBuffer();
-
-    // Setup Command PID 12
-    buffer_.PID = 0x0C;
-
-    // Setup motor ID
-    buffer_.ID = msg->data;
-
-    // Data Marshalling
-    DrivingMotors::Parser();
-
-    // Send command
-    send(client_, bytes_out_, 13, MSG_DONTWAIT);
-    ROS_INFO("MOTOR %d alarms cleared", buffer_.ID);
-}
-
-void DrivingMotors::commandsCB(const std_msgs::Int64MultiArray::ConstPtr& msg)
-{
-    /*
-    Set motors rpm
-    */
-
-    for (int i = 1; i < 5; i++)
-    {
-        DrivingMotors::setSpeed(this->motorID_[i], msg->data[i-1]);
-    }
-}
-
-void DrivingMotors::emergencyStop()
-{
-    /*
-    Set motors rpm to 0
-    */
-    
-    for (int i = 1; i < 5; i++)
-    {
-        DrivingMotors::setSpeed(this->motorID_[i], 0);
-    }
-
-    // Close the socket
-    close(client_);
-}
-
-void DrivingMotors::Parser()
-{
-    bytes_out_[0] = buffer_.DLC;
-    bytes_out_[1] = buffer_.NC1;
-    bytes_out_[2] = buffer_.NC2;
-    bytes_out_[3] = buffer_.NC3;
-    bytes_out_[4] = buffer_.ID;
-    bytes_out_[5] = buffer_.PID;
-    bytes_out_[6] = buffer_.D1;
-    bytes_out_[7] = buffer_.D2;
-    bytes_out_[8] = buffer_.D3;
-    bytes_out_[9] = buffer_.D4;
-    bytes_out_[10] = buffer_.D5;
-    bytes_out_[11] = buffer_.D6;
-    bytes_out_[12] = buffer_.D7;
-}
-
-void DrivingMotors::clearBuffer()
-{
-    this->buffer_.DLC = 0x08;
-    this->buffer_.NC1 = 0x00;
-    this->buffer_.NC2 = 0x00;
-    this->buffer_.NC3 = 0x00;
-    this->buffer_.ID = 0x00;
-    this->buffer_.PID = 0x00;
-    this->buffer_.D1 = 0x00;
-    this->buffer_.D2 = 0x00;
-    this->buffer_.D3 = 0x00;
-    this->buffer_.D4 = 0x00;
-    this->buffer_.D5 = 0x00;
-    this->buffer_.D6 = 0x00;
-    this->buffer_.D7 = 0x00;
+    double rpm;
+    rpm = radsec*(60.0/(2.0*M_PI));  
+    return rpm;
 }
