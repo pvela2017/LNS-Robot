@@ -59,28 +59,7 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
     jnt_cmd_pos_.registerHandle(cmd_steering_motor_bl);
     registerInterface(&jnt_cmd_pos_);
     
-    /*
-    // Create joint limits handles and register them
-    joint_limits_interface::getJointLimits("driving_motor_fl", n_, jnt_limits_);
-    joint_limits_interface::VelocityJointSaturationHandle limit_driving_motor_fl(cmd_driving_motor_fl, jnt_limits_);
 
-    joint_limits_interface::getJointLimits("driving_motor_fr", n_, jnt_limits_);
-    joint_limits_interface::VelocityJointSaturationHandle limit_driving_motor_fr(driving_motor_fr, jnt_limits_);
-
-    joint_limits_interface::getJointLimits("driving_motor_br", n_, jnt_limits_);
-    joint_limits_interface::VelocityJointSaturationHandle limit_driving_motor_br(driving_motor_br, jnt_limits_);
-
-    joint_limits_interface::getJointLimits("driving_motor_bl", n_, jnt_limits_);
-    joint_limits_interface::VelocityJointSaturationHandle limit_driving_motor_br(driving_motor_bl, jnt_limits_);
-
-
-
-    jnt_vel_sat_.registerHandle(limit_driving_motor_fl);
-    jnt_vel_sat_.registerHandle(limit_steering_motor_fr);
-    jnt_vel_sat_.registerHandle(limit_driving_motor_br);
-    jnt_vel_sat_.registerHandle(limit_driving_motor_br);
-    registerInterface(&jnt_vel_sat_);*/
-    
     // Create a subscriber to get rad/sec
     driving_motors_sub_ = n_.subscribe("/driving_motors/feedback/angular/radsec", 1, &LnsRobot::drivingCB, this);
     // Create a subscriber to get angle in rad
@@ -124,70 +103,15 @@ void LnsRobot::read()
 
 void LnsRobot::write(ros::Duration elapsed_time)
 {
-    //jnt_vel_sat.enforceLimits(elapsed_time);
-
-    motor1_rpm_.data = radsecTorpm(cmd[0]);
-    motor2_rpm_.data = radsecTorpm(cmd[1]);
-    motor3_rpm_.data = radsecTorpm(cmd[2]);
-    motor4_rpm_.data = radsecTorpm(cmd[3]);
+    motor1_rpm_.data = cmd[0];
+    motor2_rpm_.data = cmd[1];
+    motor3_rpm_.data = cmd[2];
+    motor4_rpm_.data = cmd[3];
     driving_motor1_pub_.publish(motor1_rpm_);
     driving_motor2_pub_.publish(motor2_rpm_);
     driving_motor3_pub_.publish(motor3_rpm_);
     driving_motor4_pub_.publish(motor4_rpm_); 
 
-    /*
-    // Driving motors
-    // Create vector to store driving data
-    std::vector<int> vec_rpm (4);
-
-    vec_rpm[0] = radsecTorpm(cmd[0]);
-    vec_rpm[1] = radsecTorpm(cmd[1]);
-    vec_rpm[2] = radsecTorpm(cmd[2]);
-    vec_rpm[3] = radsecTorpm(cmd[3]);
-
-    // Push data into data blob
-    std::vector<int>::const_iterator itr, end(vec_rpm.end());
-    for(itr = vec_rpm.begin(); itr!= end; ++itr) 
-    {
-        driving_command_rpms_.data.push_back(*itr); 
-    }
-    
-    // Publish topic
-    driving_motors_pub_.publish(driving_command_rpms_);
-
-    // Clear stuff
-    vec_rpm.clear();
-    driving_command_rpms_.data.clear();*/
-
-
-    // Steering motors
-    /*
-    
-    TODO: 
-        LOW LEVEL CONTROLLER IN HARDWARE
-
-    // Create vector to store steering data
-    std::vector<int> vec_rpm2 (4);
-
-    vec_rpm2[0] = radsecTorpm(cmd[4]);
-    vec_rpm2[1] = radsecTorpm(cmd[5]);
-    vec_rpm2[2] = radsecTorpm(cmd[6]);
-    vec_rpm2[3] = radsecTorpm(cmd[7]);
-
-    // Push data into data blob
-    std::vector<int>::const_iterator itr2, end2(vec_rpm2.end());
-    for(itr2 = vec_rpm2.begin(); itr!= end2; ++itr2) 
-    {
-        steering_command_rpms_.data.push_back(*itr2); 
-    }
-
-    // Publish topic
-    steering_motors_pub_.publish(steering_command_rpms_);
-
-    // Clear stuff
-    vec_rpm2.clear();
-    steering_command_rpms_.data.clear();
-    */
     // TODO: Fix this in drivers
     motor5_rad_.data = -cmd[4];
     motor6_rad_.data = -cmd[5];
@@ -214,31 +138,4 @@ void LnsRobot::steeringCB(const std_msgs::Float64MultiArray::ConstPtr& msg)
     steering_rad_[1] = msg->data[1];
     steering_rad_[2] = msg->data[2];
     steering_rad_[3] = msg->data[3];
-}
-
-int LnsRobot::radsecTorpm(double radsec)
-{
-    double wheel_rpm = 0;
-    int motor_rpm = 0;
-
-    wheel_rpm = (radsec *60.0)/(2*M_PI);
-    motor_rpm = int(wheel_rpm*30); // DRIVING_GEAR_BOX_RATIO from robot dic
-    return motor_rpm;
-}
-
-double LnsRobot::rpmToradsec(int rpm)
-{
-    double radsec;
-    radsec = rpm*9.5492;
-    return radsec;
-}
-
-
-double LnsRobot::angleWrapper(double rad)
-{
-    if (rad > 3.141592)
-    {
-        rad -= 2.*3.141592;
-    }       
-    return rad;
 }

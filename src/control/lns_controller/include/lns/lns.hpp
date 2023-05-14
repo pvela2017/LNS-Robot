@@ -65,9 +65,6 @@ private:
     double driving_radsec_[4];
     double steering_rad_[4];
     
-    int radsecTorpm(double);
-    double rpmToradsec(int);
-    double angleWrapper(double);
     void drivingCB(const std_msgs::Float64MultiArray::ConstPtr&);
     void steeringCB(const std_msgs::Float64MultiArray::ConstPtr&);
 
