@@ -26,11 +26,10 @@ Last review: 2023/03/30
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "steering_motors");
-    ros::NodeHandle n, n1, n2, n3, n4;
+    ros::NodeHandle n;
     ros::Rate loop_rate(100);
 
-    SteeringMotors motors(n, n1, n2, n3, n4);
-    motors.connSocket();
+    SteeringMotors motors(n);
 
     // Calibration
     motors.calibrationRoutine();
@@ -38,9 +37,7 @@ int main(int argc, char **argv)
     while (ros::ok)
     {
 
-        //motors.alarmMonitor();
-        //motors.feedback();
-        motors.spinners();
+        //motors.setPos();
         ros::spinOnce();
         loop_rate.sleep();
     }
