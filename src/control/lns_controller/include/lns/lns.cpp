@@ -94,10 +94,9 @@ void LnsRobot::read()
     pos[6] = -steering_rad_[2];
     pos[7] = -steering_rad_[3];
     
-    // TODO: Fix this in drivers
     vel[0] = driving_radsec_[0];
-    vel[1] = -driving_radsec_[1];
-    vel[2] = -driving_radsec_[2];
+    vel[1] = driving_radsec_[1];
+    vel[2] = driving_radsec_[2];
     vel[3] = driving_radsec_[3];
 }
 
