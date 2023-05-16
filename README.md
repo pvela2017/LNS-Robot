@@ -111,9 +111,9 @@ roslaunch driving_motors driving_motors.launch
 
 7. Launch steering motors interface
 ```sh
-roslaunch steering_drivers steering_feedback.launch
+roslaunch steering_motors steering_feedback.launch
 roslaunch steering_pid steeringposition_pid.launch
-roslaunch steering_drivers steering_motors.launch
+roslaunch steering_motors steering_motors.launch
 ```
 
 8. URDF, TF and joint transforms:
