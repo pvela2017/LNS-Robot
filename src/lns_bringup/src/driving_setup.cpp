@@ -125,15 +125,36 @@ int main(int argc, char **argv)
     setupMotor drivingMotors(n);
 
 
-    while (!drivingMotors.success_[0] && !drivingMotors.success_[1] && !drivingMotors.success_[2] && !drivingMotors.success_[3])
+    while (!drivingMotors.success_[0])
     {
-    	drivingMotors.setMotor(0x01);
-    	drivingMotors.setMotor(0x02); 
-    	drivingMotors.setMotor(0x03); 
-    	drivingMotors.setMotor(0x04);         
+    	drivingMotors.setMotor(0x01);      
     }
+    ROS_INFO("Motor 1 OK");
+
+
+
+    while (!drivingMotors.success_[1])
+    {
+    	drivingMotors.setMotor(0x02);      
+    }
+    ROS_INFO("Motor 2 OK");
+
+
+
+    while (!drivingMotors.success_[2])
+    {
+    	drivingMotors.setMotor(0x03);      
+    }
+    ROS_INFO("Motor 3 OK");
+
+
+
+    while (!drivingMotors.success_[3])
+    {
+    	drivingMotors.setMotor(0x04);      
+    }
+    ROS_INFO("Motor 4 OK");
 
     
-    ROS_INFO("All motors OK");
     spinner.stop();
 }
