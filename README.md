@@ -48,12 +48,13 @@ Military project for an autonomous  4 wheel independent steering robot using GPS
 ### Installation
 1. Install dependencies
    ```sh
+   # CAN
+   sudo apt-get install ros-noetic-ros-canopen
    # NMEA GPS Package
    sudo apt-get install python3-testresources
    sudo apt-get install ros-noetic-catkin-virtualenv
    # TEB Local Planner
    sudo apt-get install ros-noetic-teb-local-planner
-   sudo apt-get install ros-noetic-sbpl
    # Robot Localization Package
    sudo apt-get install ros-noetic-robot-localization
    # GPS Plugin
@@ -74,47 +75,59 @@ Military project for an autonomous  4 wheel independent steering robot using GPS
 
 <!-- USAGE LNS ROBOT -->
 ## Usage of the robot
-1. Initialize IMU and GPS
+1. Prepare the CAN bus
+```sh
+# CAN0
+sudo ip link set can0 up type can bitrate 1000000
+# CAN1
+sudo ip link set can1 up type can bitrate 1000000
+```
+
+2. Initialize IMU and GPS
 ```sh
 roslaunch lns_launch nav_sensors.launch
 ```
 
-2. Bringup driving motor interface
+3. Launch the CAN buses
+```sh
+roslaunch lns_launch can_bus.launch
+```
+
+4. Bringup driving motor interface
 ```sh
 roslaunch lns_bringup bringup_driving.launch
 ```
 
-3. Bringup steering motor interface
+5. Bringup steering motor interface
 ```sh
 roslaunch lns_bringup bringup_steering.launch
 ```
 
-4. Launch driving motors interface
+6. Launch driving motors interface
 ```sh
+roslaunch driving_pid driving_pid.launch
 roslaunch driving_motors driving_motors.launch
 ```
 
-5. Launch steering motors interface
+7. Launch steering motors interface
 ```sh
-roslaunch steering_drivers steering_feedback.launch
+roslaunch steering_motors steering_feedback.launch
 roslaunch steering_pid steeringposition_pid.launch
-roslaunch steering_drivers steering_motors.launch
+roslaunch steering_motors steering_motors.launch
 ```
 
-5. URDF, TF and joint transforms:
+8. URDF, TF and joint transforms:
 ```sh
 roslaunch lns_bringup lns_bringup.launch
 ```
 
-6. Controller interface:
+9. Controller interface:
 ```sh
-# Four Wheel Steering Controller
-roslaunch lns_controller main_controller.launch
 # Swerve Controller
 roslaunch lns_controller main_controller_swerve.launch
 ```
 
-7. Then the whole navigation system can be launch using:
+10. Then the whole navigation system can be launch using:
 ```sh
 roslaunch lns_launch lns_real.launch
 ```
@@ -124,18 +137,10 @@ This will launch:
 - The localization package
 - The navigation package
 
-</br>
-
-> __Warning__ Depending on the controller odometry and cmd_vel must be changed!  
-
-</br>
-
 Keyboard control:
 ```sh
 # Swerve Teleop
 roslaunch lns_teleop teleop_keyboard_swerve.launch
-# Four Wheel Steering Teleop
-roslaunch lns_teleop teleop_keyboard_four.launch
 ```
 
 
