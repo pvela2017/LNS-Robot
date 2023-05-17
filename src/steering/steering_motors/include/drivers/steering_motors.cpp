@@ -218,7 +218,7 @@ void SteeringMotors::calibrationRoutine()
     ros::spinOnce();
     ros::Duration(0.5).sleep();
 
-    for (int i = 1; i < 2; i++) //TEST cambiar a 1 a 5!
+    for (int i = 1; i < 5; i++) //TEST cambiar a 1 a 5!
     {
         while (!align)
         {
@@ -239,7 +239,7 @@ void SteeringMotors::calibrationRoutine()
                 j++;
                 SteeringMotors::setPos_calibration(motorID_[i], j);
             }
-            ros::Duration(0.1).sleep(); // 0.1 second to let the motor steer
+            ros::Duration(0.2).sleep(); // 0.1 second to let the motor steer
         }
         // Save offsets
         motor_offsets_[i-1] = j;

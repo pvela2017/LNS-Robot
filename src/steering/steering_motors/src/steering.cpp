@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     while (ros::ok)
     {
 
-        //motors.setPos();
+        motors.setPos();
         ros::spinOnce();
         loop_rate.sleep();
     }
