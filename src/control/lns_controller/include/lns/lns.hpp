@@ -22,9 +22,13 @@ class LnsRobot : public hardware_interface::RobotHW
 {
 private:
     ros::NodeHandle n_;
+    ros::AsyncSpinner spinner_;
 
     ros::Publisher driving_motors_pub_;
-    ros::Subscriber driving_motors_sub_;
+    ros::Subscriber motor1_state_sub_;
+    ros::Subscriber motor2_state_sub_;
+    ros::Subscriber motor3_state_sub_;
+    ros::Subscriber motor4_state_sub_;
     ros::Publisher steering_motor5_pub_;
     ros::Publisher steering_motor6_pub_;
     ros::Publisher steering_motor7_pub_;
@@ -65,7 +69,10 @@ private:
     double driving_radsec_[4];
     double steering_rad_[4];
     
-    void drivingCB(const std_msgs::Float64MultiArray::ConstPtr&);
+    void m1stateCB(const std_msgs::Float64::ConstPtr&);
+    void m2stateCB(const std_msgs::Float64::ConstPtr&);
+    void m3stateCB(const std_msgs::Float64::ConstPtr&);
+    void m4stateCB(const std_msgs::Float64::ConstPtr&);
     void steeringCB(const std_msgs::Float64MultiArray::ConstPtr&);
 
 public:

@@ -1,10 +1,11 @@
 #include "lns.hpp"
 
-LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
+LnsRobot::LnsRobot(ros::NodeHandle& nodehandle) : spinner_(6)
 {
     // store the node handle passed to the hardware interface
     // in the private member variable
     n_ = nodehandle;
+    spinner_.start();
 
     // Initialize the other private member variables
     pos[0] = 0.0; pos[1] = 0.0; pos[2] = 0.0; pos[3] = 0.0; pos[4] = 0.0; pos[5] = 0.0; pos[6] = 0.0; pos[7] = 0.0;
@@ -60,10 +61,13 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
     registerInterface(&jnt_cmd_pos_);
     
 
-    // Create a subscriber to get rad/sec
-    driving_motors_sub_ = n_.subscribe("/driving_motors/feedback/angular/radsec", 1, &LnsRobot::drivingCB, this);
     // Create a subscriber to get angle in rad
     steering_motors_sub_ = n_.subscribe("/steering_motors/feedback/rad", 1, &LnsRobot::steeringCB, this);
+    // Create a subscriber to get rad/sec
+    motor1_state_sub_ = n_.subscribe("/driving_pid/pid/motor1/state", 1, &LnsRobot::m1stateCB, this);
+    motor2_state_sub_ = n_.subscribe("/driving_pid/pid/motor2/state", 1, &LnsRobot::m2stateCB, this);
+    motor3_state_sub_ = n_.subscribe("/driving_pid/pid/motor3/state", 1, &LnsRobot::m3stateCB, this);
+    motor4_state_sub_ = n_.subscribe("/driving_pid/pid/motor4/state", 1, &LnsRobot::m4stateCB, this);
 
     // Create a publisher to send data to driving motors
     driving_motors_pub_ = n_.advertise<std_msgs::Int64MultiArray>("/driving_motors/commands", 1);
@@ -83,7 +87,7 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle)
 
 LnsRobot::~LnsRobot()
 {
-
+    spinner_.stop();
 }
 
 void LnsRobot::read()
@@ -122,12 +126,24 @@ void LnsRobot::write(ros::Duration elapsed_time)
     steering_motor8_pub_.publish(motor8_rad_);    
 }
 
-void LnsRobot::drivingCB(const std_msgs::Float64MultiArray::ConstPtr& msg)
+void LnsRobot::m1stateCB(const std_msgs::Float64::ConstPtr& msg)
 {
-    driving_radsec_[0] = msg->data[0];
-    driving_radsec_[1] = msg->data[1];
-    driving_radsec_[2] = msg->data[2];
-    driving_radsec_[3] = msg->data[3];    
+    driving_radsec_[0] = msg->data; 
+}
+
+void LnsRobot::m2stateCB(const std_msgs::Float64::ConstPtr& msg)
+{
+    driving_radsec_[1] = msg->data; 
+}
+
+void LnsRobot::m3stateCB(const std_msgs::Float64::ConstPtr& msg)
+{
+    driving_radsec_[2] = msg->data; 
+}
+
+void LnsRobot::m4stateCB(const std_msgs::Float64::ConstPtr& msg)
+{
+    driving_radsec_[3] = msg->data; 
 }
 
 
