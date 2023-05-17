@@ -120,22 +120,40 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "steering_setup");
     ros::NodeHandle n;
+    ros::AsyncSpinner spinner(2);
+    spinner.start();
     
     setupMotor steeringMotors(n);
 
-    // Motor 1
-    steeringMotors.setMotor(0x05);
+    while (!steeringMotors.success_[0])
+    {
+    	steeringMotors.setMotor(0x05);      
+    }
     ROS_INFO("Motor 5 OK");
 
-    // Motor 2
-    steeringMotors.setMotor(0x06);
+
+
+    while (!steeringMotors.success_[1])
+    {
+    	steeringMotors.setMotor(0x06);      
+    }
     ROS_INFO("Motor 6 OK");
 
-    // Motor 3
-    steeringMotors.setMotor(0x07);
+
+
+    while (!steeringMotors.success_[2])
+    {
+    	steeringMotors.setMotor(0x07);      
+    }
     ROS_INFO("Motor 7 OK");
 
-    // Motor 4
-    steeringMotors.setMotor(0x08);
+
+
+    while (!steeringMotors.success_[3])
+    {
+    	steeringMotors.setMotor(0x08);      
+    }
     ROS_INFO("Motor 8 OK");
+
+    spinner.stop();
 }
