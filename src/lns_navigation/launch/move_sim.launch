@@ -6,6 +6,7 @@
 	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" >
 
 		<param name="GlobalPlanner/use_dijkstra" value="true" />
+		<!--<param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS" /> -->
 		<param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
 		
 		<rosparam file="$(find lns_navigation)/params/sim/costmap_common_params.yaml" command="load" ns="global_costmap" />

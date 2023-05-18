@@ -1,0 +1,87 @@
+TrajectoryPlannerROS:
+
+ odom_topic: odometry/filtered
+    
+ # The acceleration limit of the robot in the x direction   
+ acc_lim_x: 0.05
+
+ # The acceleration limit of the robot in the y direction
+ acc_lim_y: 0.05
+
+ # The acceleration limit of the robot in the theta direction
+ acc_lim_theta: 0.01 
+
+ # The maximum x velocity for the robot in m/s
+ max_vel_x: 0.2
+
+ # The minimum x velocity for the robot in m/s
+ min_vel_x: 0.0 
+
+ # The absolute value of the maximum rotational velocity for the robot in rad/s
+ max_vel_theta: 0.1
+
+ # The absolute value of the minimum rotational velocity for the robot in rad/s
+ min_vel_theta: -0.1 
+
+ # The absolute value of the minimum in-place rotational velocity the controller will explore
+ min_in_place_vel_theta:  0.3
+
+ # The amount of time to roll trajectories out for in seconds
+ sim_time: 0.8 
+
+ # The granularity with which to check for collisions along each trajectory in meters
+ sim_granularity: 0.5
+
+ # The distance between simulation points for angular velocity should be small enough that the robot doesn't hit things
+ angular_sim_granularity: 0.025
+
+ # The weight for the path distance part of the cost function
+ path_distance_bias: 0.6
+
+ # The weight for the goal distance part of the cost function
+ goal_distance_bias: 0.8
+
+ # The weight for the obstacle distance part of the cost function
+ occdist_scale: 0.01
+
+ # The distance the robot must travel before oscillation flags are reset, in meters
+oscillation_reset_dist:  0.3
+
+# The distance the robot must travel before oscillation flags are reset, in meters
+escape_reset_dist: 0.5
+
+# The distance the robot must travel before oscillation flags are reset, in meters
+escape_reset_theta: 1.57
+
+ # The number of samples to use when exploring the x velocity space
+ vx_samples: 20
+
+ # The number of samples to use when exploring the theta velocity space
+ vtheta_samples: 20
+
+ # How far the robot should look ahead of itself when differentiating between different rotational velocities
+ heading_lookahead: 1
+
+ # Set this to true if the robot being controlled can take y velocities and false otherwise
+ holonomic_robot: True
+
+ # The velocity to use while backing up
+ escape_vel: -0.2
+
+ # Set this to true to use the Dynamic Window Approach, false to use acceleration limits
+ dwa: False
+
+ # Set this to true to use the Dynamic Window Approach, false to use acceleration limits
+ heading_scoring: False
+
+ # How far to look ahead in time when we score heading based trajectories
+ heading_scoring_timestep: 0.1
+
+ # Set this to true to allow simple attraction to a goal point instead of intelligent cost propagation
+ simple_attractor: False
+
+ # A comma delimited list of the y velocities the controller will explore
+ #y_vels:
+
+ # Retore to the default configuration
+ restore_defaults: False
