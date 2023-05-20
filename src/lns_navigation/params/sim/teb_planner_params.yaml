@@ -67,25 +67,25 @@ TebLocalPlannerROS:
  # Robot
  
  # Maximum velocity in the x direction of the robot. May be overruled by the max_vel_trans parameter
- max_vel_x: 1.667
+ max_vel_x: 0.5
 
  # Maximum translational velocity of the robot for driving backwards
- max_vel_x_backwards: 0.1
+ max_vel_x_backwards: 0.5
 
  # Maximum angular velocity of the robot
- max_vel_theta: 3.14
+ max_vel_theta: 0.3
 
  # Maximum translational acceleration of the robot
- acc_lim_x: 1.0
+ acc_lim_x: 0.2
 
  # Maximum angular acceleration of the robot
- acc_lim_theta: 1.0
+ acc_lim_theta: 0.1
 
  # If true, updated the footprint before checking trajectory feasibility
  is_footprint_dynamic: False
 
  # If true, reduce all twists components (linear x and y, and angular z) proportionally if any exceed its corresponding bounds, instead of saturating each one individually
- use_proportional_saturation: True
+ use_proportional_saturation: False
 
  # Tolerance when querying the TF Tree for a transformation (seconds)
  # transform_tolerance:
@@ -96,7 +96,7 @@ TebLocalPlannerROS:
  # Car like
 
  # Minimum turning radius of a carlike robot (diff-drive robot: zero)
- min_turning_radius: 0
+ min_turning_radius: 0.0
 
  # The distance between the drive shaft and steering axle (only required for a carlike robot with 'cmd_angle_instead_rotvel' enabled); The value might be negative for back-wheeled robots!
  wheel_base: 0.99
@@ -226,7 +226,7 @@ TebLocalPlannerROS:
  weight_acc_lim_theta: 1
 
  # Optimization weight for satisfying the non-holonomic kinematics
- weight_kinematics_nh: 1000
+ weight_kinematics_nh: 700
 
  # Optimization weight for forcing the robot to choose only forward directions (positive transl. velocities, only diffdrive robot)
  weight_kinematics_forward_drive: 1000.0 # Original 1.0, [ 700 makes the robot to rotate in place] https://answers.ros.org/question/322151/can-teb-perform-rotations-in-place-on-differential-drive-bases/
@@ -340,20 +340,3 @@ TebLocalPlannerROS:
 
  # Maximum acceptable Mahalanobis distance above which it is assumed that the optimization diverged
  #divergence_detection_max_chi_squared:
-
-
-
- # Others
-
- footprint_model:
-   type: "point"
-
- complete_global_plan: True
-
- enable_homotopy_class_planning: True
-
- shrink_horizon_min_duration: 10
- oscillation_v_eps: 0.1
- oscillation_omega_eps: 0.1
- oscillation_recovery_min_duration: 10
- oscillation_filter_duration: 10
