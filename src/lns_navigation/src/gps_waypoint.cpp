@@ -134,6 +134,24 @@ move_base_msgs::MoveBaseGoal buildGoal(geometry_msgs::PointStamped map_point, ge
     goal.target_pose.pose.position.y = map_point.point.y; //specify y goal
 
     // Specify heading goal using current goal and next goal (point robot towards its next goal once it has achieved its current goal)
+    goal.target_pose.pose.orientation.w = 1.0;
+
+    return goal;
+}
+
+
+move_base_msgs::MoveBaseGoal rotInplace(geometry_msgs::PointStamped map_point, geometry_msgs::PointStamped map_next, bool last_point)
+{
+    move_base_msgs::MoveBaseGoal goal;
+
+    //Specify what frame we want the goal to be published in
+    goal.target_pose.header.frame_id = "odom";
+    goal.target_pose.header.stamp = ros::Time::now();
+
+    goal.target_pose.pose.position.x = map_point.point.x; //specify x goal
+    goal.target_pose.pose.position.y = map_point.point.y; //specify y goal
+
+    // Specify heading goal using current goal and next goal (point robot towards its next goal once it has achieved its current goal)
     if(last_point == false)
     {
         tf::Matrix3x3 rot_euler;
@@ -260,6 +278,32 @@ int main(int argc, char** argv)
             pubWaypointNodeEnded.publish(node_ended);
             ros::shutdown();
         }
+
+        // Rotate in place
+        move_base_msgs::MoveBaseGoal rotate = rotInplace(map_point, map_next, final_point); //initiate a move_base_msg called goal
+        // Send Goal
+        ROS_INFO("Sending rotation");
+        ac.sendGoal(rotate); //push goal to move_base node
+
+        //Wait for result
+        ac.waitForResult(); //waiting to see if move_base was able to reach goal
+
+        if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+        {
+            ROS_INFO("Robot has rotated!");
+            //switch to next waypoint and repeat
+        }
+        else
+        {
+            ROS_ERROR("Robot was unable to rotate. GPS Waypoint unreachable.");
+            ROS_INFO("Exiting node...");
+            // Notify joy_launch_control that waypoint following is complete
+            std_msgs::Bool node_ended;
+            node_ended.data = true;
+            pubWaypointNodeEnded.publish(node_ended);
+            ros::shutdown();
+        }
+        
     } // End for loop iterating through waypoint vector
 
     ROS_INFO("Robot has reached all of its goals!!!\n");
