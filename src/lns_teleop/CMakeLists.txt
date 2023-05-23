@@ -75,15 +75,11 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
- include
- ${catkin_INCLUDE_DIRS}
-)
+include_directories(include ${catkin_INCLUDE_DIRS} include/logitechF710.h)
 
-## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+add_executable(teleop_joystick src/teleop_joystick.cpp src/logitechF710.cpp)
+add_dependencies(driving ${teleop_joystick_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(teleop_joystick ${catkin_LIBRARIES})
 
 #############
 ## Install ##
