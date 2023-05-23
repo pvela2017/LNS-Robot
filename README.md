@@ -80,12 +80,14 @@ Military project for an autonomous  4 wheel independent steering robot using GPS
 
 <!-- USAGE LNS ROBOT -->
 ## Usage of the robot
-1. Prepare the CAN bus
+1. Prepare the CAN bus and Joystick
 ```sh
 # CAN0
 sudo ip link set can0 up type can bitrate 1000000
 # CAN1
 sudo ip link set can1 up type can bitrate 1000000
+# Joystick
+sudo chmod a+rw /dev/input/js0
 ```
 
 2. Initialize IMU and GPS
