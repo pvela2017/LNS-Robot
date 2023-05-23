@@ -61,6 +61,11 @@ Military project for an autonomous  4 wheel independent steering robot using GPS
    sudo apt-get install ros-noetic-hector-gazebo-plugins
    # Move Base Package
    sudo apt-get install ros-noetic-move-base
+   
+   # Keyboard control
+   sudo apt install ros-noetic-teleop-twist-keyboard
+   # Joystick control
+   sudo apt install ros-noetic-joy
    ```
 2. Clone the repo
    ```sh
