@@ -36,7 +36,7 @@ import math
 
 import rospy
 
-from sensor_msgs.msg import NavSatFix, NavSatStatus, TimeReference
+from sensor_msgs.msg import NavSatFix, NavSatStatus, TimeReference, Imu
 from geometry_msgs.msg import TwistStamped, QuaternionStamped
 from tf.transformations import quaternion_from_euler
 
@@ -77,7 +77,7 @@ class RosNMEADriver(object):
         self.fix_pub = rospy.Publisher('fix', NavSatFix, queue_size=1)
         self.vel_pub = rospy.Publisher('vel', TwistStamped, queue_size=1)
         self.heading_pub = rospy.Publisher('heading', QuaternionStamped, queue_size=1)
-        self.heading_imu_pub = self.create_publisher(Imu, 'heading/imu', queue_size=1)
+        self.heading_imu_pub = rospy.Publisher('heading/imu', Imu, queue_size=1)
         self.use_GNSS_time = rospy.get_param('~use_GNSS_time', False)
         if not self.use_GNSS_time:
             self.time_ref_pub = rospy.Publisher(
@@ -334,7 +334,7 @@ class RosNMEADriver(object):
                 current_heading.quaternion.w = q[3]
                 self.heading_pub.publish(current_heading)
 
-                q_imu = quaternion_from_euler(0, 0, -math.radians(data['heading']) + math.pi/2)
+                q_imu = quaternion_from_euler(0, 0, -math.radians(data['heading']))
                 current_heading_as_imu = Imu()
                 current_heading_as_imu.header = current_heading.header
                 current_heading_as_imu.orientation.x = q_imu[0]

@@ -24,7 +24,7 @@ delay: 3.0
 # ~~~~~~ IF USE GPS TDR-3000 for heading angle~~~~~~~
 magnetic_declination_radians: 0.0
 # GPS points true north, but NMEA driver correct to ENU frame
-yaw_offset: 1.57 # But antennas are inverted so they must be compesated 180 degrees
+yaw_offset: 1.57 # NWU coordinates to ENU coordinates
 
 
 zero_altitude: true
