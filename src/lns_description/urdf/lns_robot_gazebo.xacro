@@ -45,29 +45,49 @@
 
     <gazebo reference="wheel_fl_link">
       <!-- <selfCollide>false</selfCollide> -->
-      <mu1 value="10" />
-      <mu2 value="10" />
+      <mu1>0.8</mu1>
+      <mu2>0.8</mu2>
+      <kp>10000000.0</kp>
+      <kd>1.0</kd>
+      <minDepth>0.001</minDepth>
+      <maxVel>0.1</maxVel>
+      <fdir1>1 0 0</fdir1>
       <material>Gazebo/Grey</material>
     </gazebo>
 
     <gazebo reference="wheel_fr_link">
       <!-- <selfCollide>false</selfCollide> -->
-      <mu1 value="10" />
-      <mu2 value="10" />
+      <mu1>0.8</mu1>
+      <mu2>0.8</mu2>
+      <kp>10000000.0</kp>
+      <kd>1.0</kd>
+      <minDepth>0.001</minDepth>
+      <maxVel>0.1</maxVel>
+      <fdir1>1 0 0</fdir1>
       <material>Gazebo/Grey</material>
     </gazebo>
 
     <gazebo reference="wheel_bl_link">
       <!-- <selfCollide>false</selfCollide> -->
-      <mu1 value="10" />
-      <mu2 value="10" />
+      <mu1>0.8</mu1>
+      <mu2>0.8</mu2>
+      <kp>10000000.0</kp>
+      <kd>1.0</kd>
+      <minDepth>0.001</minDepth>
+      <maxVel>0.1</maxVel>
+      <fdir1>1 0 0</fdir1>
       <material>Gazebo/Grey</material>
     </gazebo>
 
     <gazebo reference="wheel_br_link">
       <!-- <selfCollide>false</selfCollide> -->
-      <mu1 value="10" />
-      <mu2 value="10" />
+      <mu1>0.8</mu1>
+      <mu2>0.8</mu2>
+      <kp>10000000.0</kp>
+      <kd>1.0</kd>
+      <minDepth>0.001</minDepth>
+      <maxVel>0.1</maxVel>
+      <fdir1>1 0 0</fdir1>
       <material>Gazebo/Grey</material>
     </gazebo>
 
@@ -85,8 +105,8 @@
           <frameId>gps_link</frameId>
           <topicName>/fix</topicName>
           <velocityTopicName>/fix_velocity</velocityTopicName>
-          <referenceLatitude>-30.06022459407145675</referenceLatitude>
-          <referenceLongitude>-51.173913575780311191</referenceLongitude>
+          <referenceLatitude>35.175046058333336</referenceLatitude>
+          <referenceLongitude>126.89969593166667</referenceLongitude>
           <referenceHeading>90</referenceHeading>
           <referenceAltitude>10</referenceAltitude>
           <offset>0 0 0</offset>
