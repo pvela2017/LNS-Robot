@@ -1,0 +1,5 @@
+ <library path="lib/libsimple_planner_lib">
+  <class name="simple_planner/StaticPlanner" type="simple_planner::SimplePlanner" base_class_type="nav_core::BaseGlobalPlanner">
+    <description>Static planner to GPS navigation test.</description>
+  </class>
+ </library>
