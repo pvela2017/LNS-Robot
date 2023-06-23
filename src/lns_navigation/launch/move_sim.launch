@@ -6,6 +6,7 @@
 	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" >
 
 		<param name="GlobalPlanner/use_dijkstra" value="true" />
+		<param name="planner_frequency" value="0.0" />
 		<!--<param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS" /> -->
 		<param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
 		
