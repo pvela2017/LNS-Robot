@@ -41,7 +41,7 @@ private:
 
     //
     double angles_[4];
-    double offsets_[4] = {0.0, 0.0, 0.08726646259971647, 0.01745329238474369};
+    double offsets_[4] = {0.0, 0.0, 0.0, 0.01745329238474369};
     std_msgs::Float64MultiArray feedback_;
     std_msgs::Float64 feedback_motor5_;
     std_msgs::Float64 feedback_motor6_;
