@@ -253,6 +253,48 @@ move_base_msgs::MoveBaseGoal GpsWaypoints::rotation(geometry_msgs::PointStamped 
     return goal;
 }
 
+move_base_msgs::MoveBaseGoal GpsWaypoints::buildGoal(geometry_msgs::PointStamped map_point, geometry_msgs::PointStamped map_next, bool last_point)
+{
+    move_base_msgs::MoveBaseGoal goal;
+
+    //Specify what frame we want the goal to be published in
+    goal.target_pose.header.frame_id = "odom";
+    goal.target_pose.header.stamp = ros::Time::now();
+
+    // Specify x and y goal
+    goal.target_pose.pose.position.x = map_point.point.x; //specify x goal
+    goal.target_pose.pose.position.y = map_point.point.y; //specify y goal
+
+    // Specify heading goal using current goal and next goal (point robot towards its next goal once it has achieved its current goal)
+    if(last_point == false)
+    {
+        tf::Matrix3x3 rot_euler;
+        tf::Quaternion rot_quat;
+
+        // Calculate quaternion
+        float x_curr = map_point.point.x, y_curr = map_point.point.y; // set current coords.
+        float x_next = map_next.point.x, y_next = map_next.point.y; // set coords. of next waypoint
+        float delta_x = x_next - x_curr, delta_y = y_next - y_curr;   // change in coords.
+        float yaw_curr = 0, pitch_curr = 0, roll_curr = 0;
+        yaw_curr = atan2(delta_y, delta_x);
+
+        // Specify quaternions
+        rot_euler.setEulerYPR(yaw_curr, pitch_curr, roll_curr);
+        rot_euler.getRotation(rot_quat);
+
+        goal.target_pose.pose.orientation.x = rot_quat.getX();
+        goal.target_pose.pose.orientation.y = rot_quat.getY();
+        goal.target_pose.pose.orientation.z = rot_quat.getZ();
+        goal.target_pose.pose.orientation.w = rot_quat.getW();
+    }
+    else
+    {
+        goal.target_pose.pose.orientation.w = 1.0;
+    }
+
+    return goal;
+}
+
 
 int GpsWaypoints::loadFile(void)
 {
@@ -385,6 +427,95 @@ void GpsWaypoints::RotateinPlace(void)
     node_ended.data = true;
     pubWaypointNodeEnded_.publish(node_ended);
 }
+
+
+void GpsWaypoints::Normal(void)
+{
+    /*
+    */
+
+    // Auxiliary variables definition
+    geometry_msgs::PointStamped UTM_goal, map_goal, UTM_next_goal, map_next_goal, odom_pose;
+    double latiGoal, longiGoal, headingGoal, latiNextGoal, longiNextGoal, headingNextGoal;
+    std_msgs::Bool node_ended;
+
+    // Init. iterator
+    std::vector<std::tuple<double, double, double> > ::iterator iter; 
+
+    // Iterate through vector of waypoints for setting goals
+    for(iter = waypointVect_.begin(); iter < waypointVect_.end(); iter++)
+    {
+        //Setting goal:
+        latiGoal = std::get<0>(*iter);
+        longiGoal = std::get<1>(*iter);
+        headingGoal = std::get<2>(*iter);
+        bool final_point = false;
+
+        // Set next goal point if not at last waypoint
+        if(iter < (waypointVect_.end() - 1))
+        {
+            iter++;
+            latiNextGoal = std::get<0>(*iter);
+            longiNextGoal = std::get<1>(*iter);
+            headingNextGoal = std::get<2>(*iter);
+            iter--;
+        }
+        else // Set to current
+        {
+            latiNextGoal = std::get<0>(*iter);
+            longiNextGoal = std::get<1>(*iter);
+            headingNextGoal = std::get<2>(*iter);
+            final_point = true;
+        }
+
+        ROS_INFO("Received Latitude goal:%.8f", latiGoal);
+        ROS_INFO("Received longitude goal:%.8f", longiGoal);
+        ROS_INFO("Received orientation goal:%.3f", headingGoal);
+
+        // Convert lat/long to utm:
+        UTM_goal = latLongtoUTM(latiGoal, longiGoal);
+        UTM_next_goal = latLongtoUTM(latiNextGoal, longiNextGoal);
+
+        // Transform UTM to map point in odom frame
+        map_goal = UTMtoMapPoint(UTM_goal, &map_goal);
+        map_next_goal = UTMtoMapPoint(UTM_next_goal, &map_next_goal);
+
+        // Build goal to send to move_base
+        move_base_msgs::MoveBaseGoal goal = buildGoal(map_goal, map_next_goal, final_point); //initiate a move_base_msg called goal
+
+        // Send Goal
+        ROS_INFO("Sending goal");
+        ac_.sendGoal(goal); //push goal to move_base node
+
+        //Wait for result
+        ac_.waitForResult(); //waiting to see if move_base was able to reach goal
+
+        if(ac_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+        {
+            ROS_INFO("Robot has reached its goal!");
+            //switch to next waypoint and repeat
+        }
+        else
+        {
+            ROS_ERROR("Robot was unable to reach its goal. GPS Waypoint unreachable.");
+            ROS_INFO("Exiting node...");
+            // Notify joy_launch_control that waypoint following is complete
+            node_ended.data = true;
+            pubWaypointNodeEnded_.publish(node_ended);
+            ros::shutdown();
+        }
+
+    } // End for loop iterating through waypoint vector
+
+
+    ROS_INFO("Robot has reached all of its goals!!!\n");
+    ROS_INFO("Ending node...");
+
+    // Notify joy_launch_control that waypoint following is complete
+    node_ended.data = true;
+    pubWaypointNodeEnded_.publish(node_ended);
+}
+
 
 
 void GpsWaypoints::odomCB(const nav_msgs::Odometry::ConstPtr& msg)

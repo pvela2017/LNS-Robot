@@ -44,6 +44,7 @@ private:
 	geometry_msgs::PointStamped MaptoOdom(geometry_msgs::PointStamped, geometry_msgs::PointStamped*);
 	move_base_msgs::MoveBaseGoal translation(geometry_msgs::PointStamped, double);
 	move_base_msgs::MoveBaseGoal rotation(geometry_msgs::PointStamped, geometry_msgs::PointStamped);
+	move_base_msgs::MoveBaseGoal buildGoal(geometry_msgs::PointStamped, geometry_msgs::PointStamped, bool);
 
 	// Callbacks
 	void odomCB(const nav_msgs::Odometry::ConstPtr&);
@@ -56,5 +57,6 @@ public:
 	~GpsWaypoints();
 	int loadFile(void);
 	void RotateinPlace(void);
+	void Normal(void);
 
 };
