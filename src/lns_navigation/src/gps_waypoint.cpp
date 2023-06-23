@@ -14,6 +14,6 @@ int main(int argc, char** argv)
 
     if(load_file_status != -1)
     {
-        Gps.RotateinPlace();
+        Gps.Normal();
     }
 }
