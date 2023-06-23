@@ -24,7 +24,7 @@ TebLocalPlannerROS:
  allow_init_with_backwards_motion: True
  
  # Specify maximum length (cumulative Euclidean distances) of the subset of the global plan taken into account for optimization [if 0 or negative: disabled; the length is also bounded by the local costmap size]"
- max_global_plan_lookahead_dist: 3.0
+ max_global_plan_lookahead_dist: 0.0
  
  # Force the planner to reinitialize the trajectory if a previous goal is updated with a seperation of more than the specified value in meters (skip hot-starting)
  #force_reinit_new_goal_dist:
@@ -238,7 +238,7 @@ TebLocalPlannerROS:
  weight_optimaltime: 1 # must be > 0
 
  # Optimization weight for contracting the trajectory w.r.t. path length
- weight_shortest_path: 0.0
+ weight_shortest_path: 100.0
 
  # Optimization weight for satisfying a minimum seperation from obstacles
  weight_obstacle: 100 # Original 50, 100 works better

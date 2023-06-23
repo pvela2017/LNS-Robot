@@ -238,7 +238,7 @@ TebLocalPlannerROS:
  weight_optimaltime: 1 # must be > 0
 
  # Optimization weight for contracting the trajectory w.r.t. path length
- weight_shortest_path: 0.0
+ weight_shortest_path: 100.0
 
  # Optimization weight for satisfying a minimum seperation from obstacles
  weight_obstacle: 100 # Original 50, 100 works better
