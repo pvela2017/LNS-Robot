@@ -78,7 +78,7 @@ catkin_package(
 include_directories(include ${catkin_INCLUDE_DIRS} include/logitechF710.h)
 
 add_executable(teleop_joystick src/teleop_joystick.cpp src/logitechF710.cpp)
-add_dependencies(driving ${teleop_joystick_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(teleop_joystick ${teleop_joystick_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(teleop_joystick ${catkin_LIBRARIES})
 
 #############
