@@ -18,7 +18,7 @@ TebLocalPlannerROS:
  dt_hysteresis: 0.1
  
  # Some global planners are not considering the orientation at local subgoals between start and global goal, therefore determine it automatically
- global_plan_overwrite_orientation: True
+ global_plan_overwrite_orientation: False
  
  # If true, the underlying trajectories might be initialized with backwards motions in case the goal is behind the start within the local costmap (this is only recommended if the robot is equipped with rear sensors
  allow_init_with_backwards_motion: True
@@ -36,7 +36,7 @@ TebLocalPlannerROS:
  feasibility_check_no_poses: 5
  
  # Specify up to which distance (and with an index below feasibility_check_no_poses) from the robot the feasibility should be checked each sampling interval; if -1, all poses up to feasibility_check_no_poses are checked.
- #feasibility_check_lookahead_distance:
+ feasibility_check_lookahead_distance: 3
  
  # If true, the planner uses the exact arc length in velocity, acceleration and turning rate computations [-> increased cpu time], otherwise the euclidean approximation is used.
  exact_arc_length: False
@@ -52,14 +52,13 @@ TebLocalPlannerROS:
 
 
 
-
  # ViaPoints
 
  # Min. separation between each two consecutive via-points extracted from the global plan [if negative: disabled]
- global_plan_viapoint_sep: -0.3
+ global_plan_viapoint_sep: 0.3
 
  # If true, the planner adheres to the order of via-points in the storage container
- global_plan_prune_distance: False
+ global_plan_prune_distance: True
  
 
   
@@ -91,6 +90,8 @@ TebLocalPlannerROS:
  # transform_tolerance:
 
 
+ footprint_model:
+  type: "polygon"
 
 
  # Car like
@@ -226,7 +227,7 @@ TebLocalPlannerROS:
  weight_acc_lim_theta: 1
 
  # Optimization weight for satisfying the non-holonomic kinematics
- weight_kinematics_nh: 700
+ weight_kinematics_nh: 700.0
 
  # Optimization weight for forcing the robot to choose only forward directions (positive transl. velocities, only diffdrive robot)
  weight_kinematics_forward_drive: 1000.0 # Original 1.0, [ 700 makes the robot to rotate in place] https://answers.ros.org/question/322151/can-teb-perform-rotations-in-place-on-differential-drive-bases/
@@ -235,7 +236,7 @@ TebLocalPlannerROS:
  weight_kinematics_turning_radius: 1.0
 
  # Optimization weight for contracting the trajectory w.r.t. transition time
- weight_optimaltime: 1 # must be > 0
+ weight_optimaltime: 0.1 # must be > 0
 
  # Optimization weight for contracting the trajectory w.r.t. path length
  weight_shortest_path: 100.0
@@ -256,7 +257,7 @@ TebLocalPlannerROS:
  #weight_velocity_obstacle_ratio:
 
  # Optimization weight for minimizing the distance to via-points
- weight_viapoint: 1.0
+ weight_viapoint: 10000.0
 
  # Some special weights (currently 'weight_obstacle') are repeatedly scaled by this factor in each outer TEB iteration (weight_new: weight_old * factor); Increasing weights iteratively instead of setting a huge value a-priori leads to better numerical conditions of the underlying optimization problem.
  weight_adapt_factor: 1
@@ -271,7 +272,7 @@ TebLocalPlannerROS:
  # Homotopy Class Planner
 
  # Activate multiple threading for planning multiple trajectories in parallel
- enable_multithreading: True
+ enable_multithreading: False
 
  # Specify the maximum number of allowed alternative homotopy classes (limits computational effort)
  max_number_classes: 4
@@ -304,7 +305,7 @@ TebLocalPlannerROS:
  roadmap_graph_no_samples: 15
 
  # Specify the width of the area in which sampled will be generated between start and goal [m] (the height equals the start-goal distance)
- roadmap_graph_area_width: 5
+ roadmap_graph_area_width: 1.0
 
  # The length of the rectangular region is determined by the distance between start and goal. This parameter further scales the distance such that the geometric center remains equal!)
  roadmap_graph_area_length_scale: 1.0
@@ -326,7 +327,6 @@ TebLocalPlannerROS:
 
 
 
-
  # Recovery
 
  # Allows the planner to shrink the horizon temporary (50%) in case of automatically detected issues. 
@@ -336,7 +336,7 @@ TebLocalPlannerROS:
  oscillation_recovery: True
 
  # True to enable divergence detection
- #divergence_detection_enable: 
+ divergence_detection_enable: True
 
  # Maximum acceptable Mahalanobis distance above which it is assumed that the optimization diverged
- #divergence_detection_max_chi_squared:
+ divergence_detection_max_chi_squared: 8
