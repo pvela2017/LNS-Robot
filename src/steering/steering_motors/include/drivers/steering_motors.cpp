@@ -225,6 +225,7 @@ void SteeringMotors::calibrationRoutine()
             ros::spinOnce();
             if (fabs(motor_angles_[i-1]) <= deadband_rad)
             {
+                steering_angle_sp_[i-1] = j; // Keeps last position
                 align = true;
                 break;
             }
