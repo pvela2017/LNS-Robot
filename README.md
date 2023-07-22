@@ -146,8 +146,10 @@ This will launch:
 
 Keyboard control:
 ```sh
-# Swerve Teleop
+# Keyboard
 roslaunch lns_teleop teleop_keyboard_swerve.launch
+# Joystick
+roslaunch lns_teleop teleop_joystick_swerve.launch 
 ```
 
 
