@@ -1,43 +1,22 @@
 /*
-Class to setup  RPMs of steering motors through TCP-CAN converter,
-check rpm of each motor.
-Also check controller alarm status and can clear the alarms.
+Class to setup the angle of the steering motors through USB-CAN 
+converter. It depends on the ros canopen package.
 
-Connect to socket 2
 
-node: /steering_motors
+Subscribe to: /steering_motors/pid/motor5/control_effort
+              /steering_motors/pid/motor6/control_effort
+              /steering_motors/pid/motor7/control_effort
+              /steering_motors/pid/motor8/control_effort
+              /steering_motors/feedback/rad
 
-Subscribe to: /steering_motors/commands
-              /steering_motors/alarm_monitor/clear_alarm
 
-Publish to: /steering_motors/alarm_monitor/status
-            /steering_motors/feedback/rpm
+Publish to: /sent_messages
 
 by Pablo
-Last review: 2023/03/30
+Last review: 2023/07/10
 
-TODO: 
-add multithreading according to
-https://codereview.stackexchange.com/questions/151044/socket-client-in-c-using-threads
-
-TODO:
-Message get mixed, from feedback() function and alarmMonitor() function
-[ WARN] [1679557677.097555829]: Wrong motor alarm reply received 138
-[ WARN] [1679557677.097981996]: Wrong motor rpm reply received
-[ WARN] [1679557678.097529224]: Wrong motor alarm reply received 138
-[ WARN] [1679557678.097844338]: Wrong motor rpm reply received
-
-Also message received order is not always 1,2,3,4 sometimes is random
-
-Possible causes:
-- CAN bus is busy transmitting commands from pc to devices, so then they 
-  replied at the same time messing up the order
-
-- Ethernet CAN module mess up the order. 
-  Unable to debug with logic analyzer cables quality is not good so it cant sample
-
-Workaround:
- Use only feedback() function
+TODO: Add function to read alarms
+      Add function to clear alarms.
 
 */
 

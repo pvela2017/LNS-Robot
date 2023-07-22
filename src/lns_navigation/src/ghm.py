@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 
 """
-Change blabla
+Change the GPS heanding angle msg
+into a IMU msg type to be able to use 
+it in the robot_localization 
+package.
+
+
+by Pablo
+Last review: 2023/07/10
 """
 
 import rospy

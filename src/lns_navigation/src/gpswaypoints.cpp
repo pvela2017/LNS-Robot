@@ -1,3 +1,28 @@
+/*
+Class to navigate the robot based on GPS points,
+this class will read the GPS and orientation points
+saved in a txt file and transform them to map points.
+2 modes can be set for navigation, Rotation in place 
+and Normal (Orientation is calculated based as half 
+of the angle between the destination and next 
+destination point).
+
+
+Subscribe to: /odometry/filtered
+
+
+Publish to: /waypoint_following_status
+
+by Pablo
+Last review: 2023/07/10
+
+TODO: Find a better way to provide the orientation
+      independent of the robot position when the 
+      map is initialized.
+
+*/
+
+
 #include "gpswaypoints.h"
 
 
@@ -5,6 +30,13 @@ GpsWaypoints::GpsWaypoints(ros::NodeHandle n) :
     ac_("/move_base", true),
     spinner_(2)
 {
+    /*
+    Constructor,
+        Initialize spinners, subscribers, publishers
+        Get path to the waypoint file
+    */
+
+
 	n_ = n;
     spinner_.start();
 	// Initiate publisher to send end of node message
@@ -40,6 +72,11 @@ GpsWaypoints::GpsWaypoints(ros::NodeHandle n) :
 
 GpsWaypoints::~GpsWaypoints()
 {
+    /*
+        Destructor,
+        Kill spinners.
+    */
+
     spinner_.stop();
 }
 
@@ -49,7 +86,7 @@ void GpsWaypoints::countWaypointsInFile()
 		Gets the total number of waypoints to
 		be send to the planner.
 
-		latitude longitude heading
+		<latitude longitude heading>
 	*/
 
 	int count = 0;
@@ -82,7 +119,7 @@ void GpsWaypoints::countWaypointsInFile()
 void GpsWaypoints::getWaypoints()
 {
 	/*
-		Fill the waypoint vector with the information of the file
+		Fill the waypoint vector with the information from the file
 	*/
 
 	// Initialize variables
@@ -114,6 +151,7 @@ geometry_msgs::PointStamped GpsWaypoints::latLongtoUTM(double lati_input, double
 	/*
 		Transform GPS coordinates into UTM coordinates
 	*/
+
     double utm_x = 0, utm_y = 0;
     // Should be 52S for korea
     // https://www.dmap.co.uk/utmworld.htm
@@ -136,6 +174,10 @@ geometry_msgs::PointStamped GpsWaypoints::latLongtoUTM(double lati_input, double
 
 geometry_msgs::PointStamped GpsWaypoints::UTMtoMapPoint(geometry_msgs::PointStamped UTM_input, geometry_msgs::PointStamped* UTM_point)
 {
+    /*
+        Transform UTM coordinates into MAP coordinates
+    */
+
     geometry_msgs::PointStamped map_point_output;
     bool notDone = true;
     tf::TransformListener listener; //create transformlistener object called listener
@@ -162,6 +204,10 @@ geometry_msgs::PointStamped GpsWaypoints::UTMtoMapPoint(geometry_msgs::PointStam
 
 geometry_msgs::PointStamped GpsWaypoints::MaptoOdom(geometry_msgs::PointStamped map_point, geometry_msgs::PointStamped* odom_pose)
 {
+    /*
+        Transform MAP coordinates into ODOM coordinates
+    */
+
     geometry_msgs::PointStamped odom_point_output;
     bool notDone = true;
     tf::TransformListener listener; //create transformlistener object called listener
@@ -189,6 +235,12 @@ geometry_msgs::PointStamped GpsWaypoints::MaptoOdom(geometry_msgs::PointStamped 
 
 move_base_msgs::MoveBaseGoal GpsWaypoints::translation(geometry_msgs::PointStamped map_point, double yaw)
 {
+    /*
+        Calculates the translation and rotation coordinates,
+        to keep the same orientation of the robot and just 
+        generate a translation.
+    */
+
     move_base_msgs::MoveBaseGoal goal;
 
     //Specify what frame we want the goal to be published in
@@ -221,6 +273,12 @@ move_base_msgs::MoveBaseGoal GpsWaypoints::translation(geometry_msgs::PointStamp
 
 move_base_msgs::MoveBaseGoal GpsWaypoints::rotation(geometry_msgs::PointStamped odom_point, geometry_msgs::PointStamped map_next)
 {
+    /*
+        Calculates the translation and rotation coordinates,
+        to keep the same position of the robot and just 
+        generate a rotation.
+    */
+
     move_base_msgs::MoveBaseGoal goal;
 
     //Specify what frame we want the goal to be published in
@@ -255,6 +313,13 @@ move_base_msgs::MoveBaseGoal GpsWaypoints::rotation(geometry_msgs::PointStamped 
 
 move_base_msgs::MoveBaseGoal GpsWaypoints::buildGoal(geometry_msgs::PointStamped map_point, geometry_msgs::PointStamped map_next, bool last_point)
 {
+    /*
+        Generates the translattion and rotation for the
+        waypoints. Orientation is calculated based as half 
+        of the angle between the destination and next 
+        destination point.
+    */
+
     move_base_msgs::MoveBaseGoal goal;
 
     //Specify what frame we want the goal to be published in
@@ -298,7 +363,10 @@ move_base_msgs::MoveBaseGoal GpsWaypoints::buildGoal(geometry_msgs::PointStamped
 
 int GpsWaypoints::loadFile(void)
 {
-    /**/
+    /*
+        Read the txt file and load the
+        GPS points into an array.
+    */
 
     countWaypointsInFile();
     if (numWaypoints_ == -1)
@@ -315,6 +383,9 @@ int GpsWaypoints::loadFile(void)
 void GpsWaypoints::RotateinPlace(void)
 {
 	/*
+        Generates the translation and rotation for all 
+        the waypoints. Takes the current map position of
+        the robot to rotate in place.
 	*/
 
     // Auxiliary variables definition
@@ -432,6 +503,10 @@ void GpsWaypoints::RotateinPlace(void)
 void GpsWaypoints::Normal(void)
 {
     /*
+        Generates the translation and rotation for all 
+        the waypoints.(Orientation is calculated based 
+        as half of the angle between the destination 
+        and next destination point).
     */
 
     // Auxiliary variables definition
@@ -520,6 +595,11 @@ void GpsWaypoints::Normal(void)
 
 void GpsWaypoints::odomCB(const nav_msgs::Odometry::ConstPtr& msg)
 {
+    /*
+        Gets the position of the robot to calculate
+        the rotation in place.
+    */
+
     map_pose_.header.frame_id = msg->header.frame_id;
     map_pose_.header.stamp = msg->header.stamp;
     map_pose_.point.x = msg->pose.pose.position.x;

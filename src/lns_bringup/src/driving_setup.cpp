@@ -1,13 +1,12 @@
 /*
 Setup driving motors in speed mode.
 
-Connect to socket 1
-
-TODO: Use ROS Param to load server ip and port
 
 by Pablo
-Last review: 2023/03/30
+Last review: 2023/07/10
+
 */
+
 
 #include <ros/ros.h>
 #include <can_msgs/Frame.h>
@@ -38,7 +37,7 @@ public:
 	void setMotor(uint32_t idmotor)
 	{
 		/*
-		Setup motor controller in Speed Mode
+			Setup motor controller in Speed Mode
 		*/
 
 		// Set message
@@ -48,11 +47,11 @@ public:
 	    message_.dlc = 8;
 
 
-	    // Broadcast
+	    // Set motor id
 	    message_.id = idmotor;
 
 
-	    // Dummy
+	    // Dummy command needed
 	    message_.data[0] = 0x86;
 	    for (int i = 1; i < 8; i++)
     	{
@@ -76,32 +75,35 @@ public:
 
 	void canCB(const can_msgs::Frame::ConstPtr& msg)
 	{
-    	/**/
+    	/*
+        	Process all the replies from the driving motor controllers
+    	*/
+
 	    switch(msg->id) 
 	    {
 	        case 1793: // motor 1 
-	            if (msg->data[0] == 7 && msg->data[1] == 183) // confirm B7 command
+	            if (msg->data[0] == 7 && msg->data[1] == 183) // Confirm B7 command configurated
 	            {
 	                success_[0] = true;
 	            }
 	            break;
 
 	        case 1794: // motor 2
-	            if (msg->data[0] == 7 && msg->data[1] == 183) // confirm B7 command
+	            if (msg->data[0] == 7 && msg->data[1] == 183) // Confirm B7 command configurated
 	            {
 	                success_[1] = true;
 	            }
 	            break;
 
 	        case 1795: // motor 3
-	            if (msg->data[0] == 7 && msg->data[1] == 183) // confirm B7 command
+	            if (msg->data[0] == 7 && msg->data[1] == 183) // Confirm B7 command configurated
 	            {
 	                success_[2] = true;
 	            }
 	            break;
 
 	        case 1796: // motor 4
-	            if (msg->data[0] == 7 && msg->data[1] == 183) // confirm B7 command
+	            if (msg->data[0] == 7 && msg->data[1] == 183) // Confirm B7 command configurated
 	            {
 	                success_[3] = true;
 	            }
@@ -124,7 +126,7 @@ int main(int argc, char **argv)
     
     setupMotor drivingMotors(n);
 
-
+    // Check motor 1 setup
     while (!drivingMotors.success_[0])
     {
     	drivingMotors.setMotor(0x01);      
@@ -132,7 +134,7 @@ int main(int argc, char **argv)
     ROS_INFO("Motor 1 OK");
 
 
-
+    // Check motor 2 setup
     while (!drivingMotors.success_[1])
     {
     	drivingMotors.setMotor(0x02);      
@@ -140,7 +142,7 @@ int main(int argc, char **argv)
     ROS_INFO("Motor 2 OK");
 
 
-
+    // Check motor 3 setup
     while (!drivingMotors.success_[2])
     {
     	drivingMotors.setMotor(0x03);      
@@ -148,7 +150,7 @@ int main(int argc, char **argv)
     ROS_INFO("Motor 3 OK");
 
 
-
+    // Check motor 4 setup
     while (!drivingMotors.success_[3])
     {
     	drivingMotors.setMotor(0x04);      

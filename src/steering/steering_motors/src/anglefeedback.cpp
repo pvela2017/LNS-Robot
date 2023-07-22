@@ -1,3 +1,22 @@
+/*
+Main loop to interface the Mr. Cho
+raspberry pico board to read the 
+encoders values.
+    Loop Rate: 100 Hz
+
+
+Publish to: /steering_motors/pid/motor5/state
+            /steering_motors/pid/motor6/state
+            /steering_motors/pid/motor7/state
+            /steering_motors/pid/motor8/state
+            /steering_motors/feedback/rad
+
+by Pablo
+Last review: 2023/07/10
+
+*/
+
+
 #include <regex>
 #include <sys/wait.h>
 #include <sys/socket.h>
@@ -62,6 +81,12 @@ public:
 
 Socket::Socket(ros::NodeHandle n)
 {
+    /*
+    Constructor,
+        Initialize publishers
+    */
+
+
     this->n_ = n;
     this->angle_feedback_rad_ = this->n_.advertise<std_msgs::Float64MultiArray>("/steering_motors/feedback/rad", 1);
     this->angle_motor5_rad_ = this->n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor5/state", 1);
@@ -73,12 +98,16 @@ Socket::Socket(ros::NodeHandle n)
 
 Socket::~Socket()
 {
+    /*
+        Destructor,
+    */
+
 }
 
 int Socket::connSocket()
 {
     /*
-    Create and connect the client
+        Create and connect the client
     */
 
     // Create the socket 
@@ -118,6 +147,11 @@ int Socket::connSocket()
 
 int Socket::ReadEncoder()
 {
+    /*
+        Send the command ?0
+        to read the encoders
+    */
+
 	send(client_, "?0", 2, MSG_WAITALL);
 
     /*
@@ -258,8 +292,9 @@ int Socket::ReadEncoder()
 double Socket::degTorad(double degrees)
 {
     /*
-    Function to transform deg to rad
+        Function to transform deg to rad
     */
+
     double angle_rad;
     angle_rad = degrees*M_PI/180.0;
     return angle_rad;
@@ -269,6 +304,10 @@ double Socket::degTorad(double degrees)
 
 double Socket::angleWrap(double radians)
 {
+    /*
+        Wrap the angre between -pi and pi
+    */
+
     if (radians > M_PI)
     {
         radians -= 2.*M_PI;
@@ -278,6 +317,11 @@ double Socket::angleWrap(double radians)
 
 bool Socket::isNumber(std::string token )
 {
+    /*
+        Check if the reply from the board 
+        is a number or not
+    */
+
     return std::regex_match( token, std::regex( ( "((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?" ) ) );
 }
 

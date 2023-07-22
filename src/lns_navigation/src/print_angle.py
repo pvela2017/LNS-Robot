@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
 
 """
-Change blabla
+Print the current orientation of
+the robot, to be used in rotation
+in place navigation mode.
+
+
+by Pablo
+Last review: 2023/07/10
 """
+
 
 import rospy
 import tf

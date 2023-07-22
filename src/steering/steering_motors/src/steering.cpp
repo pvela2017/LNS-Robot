@@ -1,20 +1,12 @@
 /*
-Class to setup  RPMs of steering motors through TCP-CAN converter,
-check rpm of each motor.
-Also check controller alarm status and can clear the alarms.
+Main loop to interface the steering motors
+    Loop Rate: 100 Hz
 
-Connect to socket 2
 
-node: /steering_motors
 
-Subscribe to: /steering_motors/commands
-              /steering_motors/alarm_monitor/clear_alarm
-
-Publish to: /steering_motors/alarm_monitor/status
-            /steering_motors/feedback/rpm
 
 by Pablo
-Last review: 2023/03/30
+Last review: 2023/07/10
 
 */
 

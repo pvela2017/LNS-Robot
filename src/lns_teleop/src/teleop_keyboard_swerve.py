@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 
+"""
+Keyboard as controller
+
+Publish to: /swerve_controller/cmd_vel
+
+
+by Pablo
+Last review: 2023/07/10
+"""
+
 from __future__ import print_function
 
 import threading

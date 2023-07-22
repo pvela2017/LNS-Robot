@@ -1,7 +1,17 @@
+/*
+Main loop for navigation
+
+
+
+
+by Pablo
+Last review: 2023/07/10
+
+*/
+
+
 #include <ros/ros.h>
 #include "gpswaypoints.h"
-
-
 
 
 int main(int argc, char** argv)

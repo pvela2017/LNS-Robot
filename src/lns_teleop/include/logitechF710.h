@@ -1,3 +1,22 @@
+/*
+Class to use the Logitech F710 gamepad
+to control the robot.
+
+
+Subscribe to: /joy
+
+
+Publish to: /swerve_controller/cmd_vel
+            /move_base/cancel
+
+by Pablo
+Last review: 2023/07/10
+
+TODO: Generate linear Y commands
+
+*/
+
+
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/Joy.h>

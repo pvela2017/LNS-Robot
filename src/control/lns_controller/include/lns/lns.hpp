@@ -1,3 +1,29 @@
+/*
+Class to interface the controller with the hardware
+interface according with ROS control packages.
+
+Subscribe to: /steering_motors/feedback/rad
+              /driving_pid/pid/motor1/state
+              /driving_pid/pid/motor2/state
+              /driving_pid/pid/motor3/state
+              /driving_pid/pid/motor4/state
+
+Publish to: /steering_motors/pid/motor5/setpoint
+            /steering_motors/pid/motor6/setpoint
+            /steering_motors/pid/motor7/setpoint
+            /steering_motors/pid/motor8/setpoint
+
+            /driving_pid/pid/motor1/setpoint
+            /driving_pid/pid/motor2/setpoint
+            /driving_pid/pid/motor3/setpoint
+            /driving_pid/pid/motor4/setpoint
+
+by Pablo
+Last review: 2024/07/10
+
+*/
+
+
 #ifndef ROBOT_HW_INTERFACE_H_
 #define ROBOT_HW_INTERFACE_H_
 
@@ -24,7 +50,6 @@ private:
     ros::NodeHandle n_;
     ros::AsyncSpinner spinner_;
 
-    ros::Publisher driving_motors_pub_;
     ros::Subscriber motor1_state_sub_;
     ros::Subscriber motor2_state_sub_;
     ros::Subscriber motor3_state_sub_;
@@ -41,13 +66,13 @@ private:
     ros::Publisher driving_motor3_pub_;
     ros::Publisher driving_motor4_pub_;
 
-    std_msgs::Int64MultiArray driving_command_rpms_;
+    // Steering
     std_msgs::Float64 motor5_rad_;
     std_msgs::Float64 motor6_rad_;
     std_msgs::Float64 motor7_rad_;
     std_msgs::Float64 motor8_rad_;
-    //std_msgs::Int64MultiArray steering_command_rpms_; TODO
-    // Driving PID
+
+    // Driving
     std_msgs::Float64 motor1_rpm_;
     std_msgs::Float64 motor2_rpm_;
     std_msgs::Float64 motor3_rpm_;

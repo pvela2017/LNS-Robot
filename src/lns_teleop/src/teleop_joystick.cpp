@@ -1,3 +1,13 @@
+/*
+Main loop to interface the gamepad
+
+
+by Pablo
+Last review: 2023/07/10
+
+*/
+
+
 #include <ros/ros.h>
 #include <logitechF710.h>
 

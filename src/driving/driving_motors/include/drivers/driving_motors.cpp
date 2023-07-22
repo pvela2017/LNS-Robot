@@ -1,41 +1,29 @@
 /*
-Class to setup  RPMs of driving motors through TCP-CAN converter,
-check rpm of each motor and speed based on the wheel diameter.
-Also check controller alarm status and can clear the alarms.
+Class to setup  RPMs of driving motors through USB-CAN converter
+and read motor and wheel rpms of each motor. It depends on the ros
+canopen package.
 
-Connect to CAN
 
-node: /driving_motors
+Subscribe to: /driving_pid/pid/motor1/control_effort
+              /driving_pid/pid/motor2/control_effort
+              /driving_pid/pid/motor3/control_effort
+              /driving_pid/pid/motor4/control_effort
 
-Subscribe to: /driving_motors/commands
-              /driving_motors/alarm_monitor/clear_alarm
+              /received_messages
 
-Publish to: /driving_motors/alarm_monitor/status
-            /driving_motors/feedback/rpm
-            /driving_motors/feedback/speed
+
+Publish to: /driving_pid/pid/motor1/state
+            /driving_pid/pid/motor2/state
+            /driving_pid/pid/motor3/state
+            /driving_pid/pid/motor4/state
+            
+            /sent_messages
 
 by Pablo
-Last review: 2023/05/13
+Last review: 2023/07/10
 
-
-TODO:
-Message get mixed, from feedback() function and alarmMonitor() function
-[ WARN] [1679557677.097555829]: Wrong motor alarm reply received 138
-[ WARN] [1679557677.097981996]: Wrong motor rpm reply received
-[ WARN] [1679557678.097529224]: Wrong motor alarm reply received 138
-[ WARN] [1679557678.097844338]: Wrong motor rpm reply received
-
-Also message received order is not always 1,2,3,4 sometimes is random
-
-Possible causes:
-- CAN bus is busy transmitting commands from pc to devices, so then they 
-  replied at the same time messing up the order
-
-- Ethernet CAN module mess up the order. 
-  Unable to debug with logic analyzer cables quality is not good so it cant sample
-
-Workaround:
- Use only feedback() function
+TODO: Add function to read alarms
+      Add function to clear alarms.
 
 */
 
@@ -45,9 +33,11 @@ Workaround:
 DrivingMotors::DrivingMotors(ros::NodeHandle n) : spinner_(6)
 {
     /*
-    Class Inicialization
-    Assign the subscribers and publishers
+    Constructor,
+        Initialize spinners, subscribers, publishers
     */
+
+
     this->n_ = n;
     spinner_.start();
     this->motor1_command_ = this->n_.subscribe("/driving_pid/pid/motor1/control_effort", 1, &DrivingMotors::m1spCB, this);
@@ -66,6 +56,11 @@ DrivingMotors::DrivingMotors(ros::NodeHandle n) : spinner_(6)
 
 DrivingMotors::~DrivingMotors()
 {
+    /*
+        Destructor,
+        Kill spinners.
+    */
+
     spinner_.stop();
 }
 
@@ -73,7 +68,12 @@ DrivingMotors::~DrivingMotors()
 
 void DrivingMotors::setSpeed()
 {
-    /**/
+    /*
+        Calculates motor rpm based on the wheel rpm
+        and gear box. Then publish the values to the
+        CAN-USB interface.
+    */
+
     std::vector<uint8_t> motor_rpm_bytes(2);
     double motor_rpm;
 
@@ -169,6 +169,8 @@ void DrivingMotors::setSpeed()
 void DrivingMotors::requestFeedback()
 {
     /*
+        Request the motor rpm of all
+        driving motors
     */
 
     // Set message
@@ -198,7 +200,11 @@ void DrivingMotors::requestFeedback()
 void DrivingMotors::publishFeedback()
 {
     /*
+        Calculates the wheel rpms for each motor
+        taking in consideration the gear box and
+        publish the values
     */
+
     int motor_rpm;
     double wheel_radsec;
     std_msgs::Float64 wheel_state;
@@ -233,31 +239,46 @@ void DrivingMotors::publishFeedback()
 
 void DrivingMotors::m1spCB(const std_msgs::Float64::ConstPtr& msg)
 {
-    /**/
+    /*
+        Save motor 1 speed setpoint (rad/sec)
+    */
+
     wheel_rad_sp_[0] = msg->data;
 }
 
 void DrivingMotors::m2spCB(const std_msgs::Float64::ConstPtr& msg)
 {
-    /**/
+    /*
+        Save motor 2 speed setpoint (rad/sec)
+    */
+
     wheel_rad_sp_[1] = msg->data;
 }
 
 void DrivingMotors::m3spCB(const std_msgs::Float64::ConstPtr& msg)
 {
-    /**/
+    /*
+        Save motor 3 speed setpoint (rad/sec)
+    */
+
     wheel_rad_sp_[2] = msg->data;
 }
 
 void DrivingMotors::m4spCB(const std_msgs::Float64::ConstPtr& msg)
 {
-    /**/
+    /*
+        Save motor 4 speed setpoint (rad/sec)
+    */
+
     wheel_rad_sp_[3] = msg->data;
 }
 
 void DrivingMotors::canCB(const can_msgs::Frame::ConstPtr& msg)
 {
-    /**/
+    /*
+        Process all the replies from the driving motor controllers
+    */
+
     switch(msg->id) 
     {
         case 1793:
@@ -302,8 +323,9 @@ void DrivingMotors::canCB(const can_msgs::Frame::ConstPtr& msg)
 std::vector<uint8_t> DrivingMotors::rpmTobyte(double rpm)
 {
     /*
-    Transform rpm into bytes
+        Transform rpm into bytes
     */
+
     std::vector<uint8_t> bytes(2);
     int rpm_int; 
 
@@ -335,7 +357,7 @@ std::vector<uint8_t> DrivingMotors::rpmTobyte(double rpm)
 int DrivingMotors::byteTorpm(uint8_t byte0, uint8_t byte1)
 {
     /*
-    Transform the bytes received into the motor rpm
+        Transform the bytes received into the motor rpm
     */
 
     int rpm, pre_rpm;
@@ -362,7 +384,7 @@ int DrivingMotors::byteTorpm(uint8_t byte0, uint8_t byte1)
 double DrivingMotors::rpmToradsec(int rpm)
 {
     /* 
-    Transform from rpm to rad/s
+        Transform from rpm to rad/s
     */
 
     double radsec;
@@ -374,7 +396,7 @@ double DrivingMotors::rpmToradsec(int rpm)
 double DrivingMotors::radsecTorpm(double radsec)
 {
     /* 
-    Transform from rad/s to rpm 
+        Transform from rad/s to rpm 
     */
 
     double rpm;

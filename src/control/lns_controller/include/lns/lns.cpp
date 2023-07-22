@@ -1,8 +1,41 @@
+/*
+Class to interface the controller with the hardware
+interface according with ROS control packages.
+
+Subscribe to: /steering_motors/feedback/rad
+              /driving_pid/pid/motor1/state
+              /driving_pid/pid/motor2/state
+              /driving_pid/pid/motor3/state
+              /driving_pid/pid/motor4/state
+
+Publish to: /steering_motors/pid/motor5/setpoint
+            /steering_motors/pid/motor6/setpoint
+            /steering_motors/pid/motor7/setpoint
+            /steering_motors/pid/motor8/setpoint
+
+            /driving_pid/pid/motor1/setpoint
+            /driving_pid/pid/motor2/setpoint
+            /driving_pid/pid/motor3/setpoint
+            /driving_pid/pid/motor4/setpoint
+
+by Pablo
+Last review: 2024/07/10
+
+*/
+
+
 #include "lns.hpp"
 
 LnsRobot::LnsRobot(ros::NodeHandle& nodehandle) : spinner_(6)
 {
-    // store the node handle passed to the hardware interface
+    /*
+        Constructor,
+        Initialize spinners, subscribers, publishers
+        and joint interfaces.
+    */
+
+
+    // Store the node handle passed to the hardware interface
     // in the private member variable
     n_ = nodehandle;
     spinner_.start();
@@ -69,9 +102,6 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle) : spinner_(6)
     motor3_state_sub_ = n_.subscribe("/driving_pid/pid/motor3/state", 1, &LnsRobot::m3stateCB, this);
     motor4_state_sub_ = n_.subscribe("/driving_pid/pid/motor4/state", 1, &LnsRobot::m4stateCB, this);
 
-    // Create a publisher to send data to driving motors
-    driving_motors_pub_ = n_.advertise<std_msgs::Int64MultiArray>("/driving_motors/commands", 1);
-
     // Create a publisher to send data to steering motors
     steering_motor5_pub_ = n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor5/setpoint", 1);
     steering_motor6_pub_ = n_.advertise<std_msgs::Float64>("/steering_motors/pid/motor6/setpoint", 1);
@@ -87,15 +117,27 @@ LnsRobot::LnsRobot(ros::NodeHandle& nodehandle) : spinner_(6)
 
 LnsRobot::~LnsRobot()
 {
+    /*
+        Destructor,
+        Kill spinners.
+    */
+
     spinner_.stop();
 }
 
 void LnsRobot::read()
 {
     /*
-        
+        Save the sensor values read on the callbacks
+        to the arrays defined in the joint interfaces.
+
+        TODO: Fix the negative sign in the angles,
+              rotation should be opposite.
+
+        TODO: In this file should be define the hardware
+              interface, not separated.
     */
-    // TODO: Fix this in drivers
+
     pos[4] = -steering_rad_[0];
     pos[5] = -steering_rad_[1];
     pos[6] = -steering_rad_[2];
@@ -109,6 +151,16 @@ void LnsRobot::read()
 
 void LnsRobot::write(ros::Duration elapsed_time)
 {
+    /*
+        Publish the values calculated by the controller.
+
+        TODO: Fix the negative sign in the angles,
+              rotation should be opposite.
+
+        TODO: In this file should be define the hardware
+              interface, not separated.
+    */
+
     motor1_rpm_.data = cmd[0];
     motor2_rpm_.data = cmd[1];
     motor3_rpm_.data = cmd[2];
@@ -131,27 +183,47 @@ void LnsRobot::write(ros::Duration elapsed_time)
 
 void LnsRobot::m1stateCB(const std_msgs::Float64::ConstPtr& msg)
 {
+    /*
+        Save wheel 1 speed (rad/sec)
+    */
+
     driving_radsec_[0] = msg->data; 
 }
 
 void LnsRobot::m2stateCB(const std_msgs::Float64::ConstPtr& msg)
 {
+    /*
+        Save wheel 2 speed (rad/sec)
+    */
+
     driving_radsec_[1] = msg->data; 
 }
 
 void LnsRobot::m3stateCB(const std_msgs::Float64::ConstPtr& msg)
 {
+    /*
+        Save wheel 3 speed (rad/sec)
+    */
+
     driving_radsec_[2] = msg->data; 
 }
 
 void LnsRobot::m4stateCB(const std_msgs::Float64::ConstPtr& msg)
 {
+    /*
+        Save wheel 4 speed (rad/sec)
+    */
+
     driving_radsec_[3] = msg->data; 
 }
 
 
 void LnsRobot::steeringCB(const std_msgs::Float64MultiArray::ConstPtr& msg)
 {
+    /*
+        Save steering angles of all steering motors (rad)
+    */
+
     steering_rad_[0] = msg->data[0];
     steering_rad_[1] = msg->data[1];
     steering_rad_[2] = msg->data[2];

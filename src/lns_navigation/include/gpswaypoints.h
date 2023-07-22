@@ -1,3 +1,28 @@
+/*
+Class to navigate the robot based on GPS points,
+this class will read the GPS and orientation points
+saved in a txt file and transform them to map points.
+2 modes can be set for navigation, Rotation in place 
+and Normal (Orientation is calculated based as half 
+of the angle between the destination and next 
+destination point).
+
+
+Subscribe to: /odometry/filtered
+
+
+Publish to: /waypoint_following_status
+
+by Pablo
+Last review: 2023/07/10
+
+TODO: Find a better way to provide the orientation
+      independent of the robot position when the 
+      map is initialized.
+
+*/
+
+
 #include <ros/ros.h>
 #include <ros/package.h>
 #include <fstream>
