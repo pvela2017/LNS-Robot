@@ -71,7 +71,7 @@ Military project for an autonomous  4 wheel independent steering robot using GPS
    ```
 2. Clone the repo
    ```sh
-   git clone https://github.com/mefisto2017/LNS-Robot
+   git clone https://github.com/pvela2017/LNS-Robot
    ```
 3. Compile
    ```sh
