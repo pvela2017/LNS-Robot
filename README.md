@@ -27,7 +27,7 @@
 
 
 ## About The Project
-Military project for an autonomous  4 wheel independent steering robot using GPS and IMU.
+Project for an autonomous  4 wheel independent steering robot using GPS and IMU.
 ![This is an image](images/main.png)
 
 
